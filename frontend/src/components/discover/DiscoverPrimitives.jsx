@@ -27,11 +27,11 @@ export function IconPill({ icon, label, active, onClick, as = 'button', tone = '
   const Comp = as;
   const styles = tone === 'quiet'
     ? active
-      ? 'border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-300'
-      : 'border-transparent bg-transparent text-gray-500 hover:border-gray-200 hover:bg-white hover:text-gray-900 dark:text-gray-400 dark:hover:border-gray-800 dark:hover:bg-gray-900 dark:hover:text-gray-100'
+      ? 'border-accent-border bg-accent-surface text-accent-text'
+      : 'border-transparent bg-transparent text-ink-muted hover:border-line hover:bg-surface hover:text-ink'
     : active
-      ? 'border-blue-600 bg-blue-600 text-white'
-      : 'border-gray-200 bg-white text-gray-600 hover:border-blue-200 hover:text-blue-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:border-blue-800 dark:hover:text-blue-300';
+      ? 'border-accent bg-accent text-white'
+      : 'border-line bg-surface text-ink-muted hover:border-accent-border hover:text-accent-text';
   return (
     <Comp
       type={as === 'button' ? 'button' : undefined}
@@ -55,7 +55,7 @@ export function ProjectMiniCard({ post, onProjectClick }) {
     <Link
       to={`/${post.author_username}/${post.project_slug}`}
       onClick={onProjectClick}
-      className="group flex gap-3 rounded-lg border border-gray-200 bg-gray-50/80 p-3 transition-colors hover:border-blue-300 hover:bg-white dark:border-gray-800 dark:bg-gray-900/70 dark:hover:border-blue-800 dark:hover:bg-gray-900"
+      className="group flex gap-3 rounded-lg border border-line bg-surface-page/80 p-3 transition-colors hover:border-accent-border hover:bg-surface"
     >
       <div
         className="flex h-16 w-16 flex-none items-center justify-center overflow-hidden rounded-md"
@@ -68,15 +68,15 @@ export function ProjectMiniCard({ post, onProjectClick }) {
         )}
       </div>
       <div className="min-w-0 flex-1">
-        <div className="mb-1 flex items-center gap-2 text-[11px] font-semibold text-blue-600 dark:text-blue-300">
+        <div className="mb-1 flex items-center gap-2 text-[11px] font-semibold text-accent-text">
           <EngineeringIcon name="project-module" size="0.9rem" />
           <span className="truncate">{post.project_type || 'Project'}</span>
         </div>
-        <div className="truncate text-sm font-bold text-gray-950 group-hover:text-blue-700 dark:text-gray-100 dark:group-hover:text-blue-300">
+        <div className="truncate text-sm font-semibold text-ink group-hover:text-accent-text">
           {post.project_title}
         </div>
         {post.project_tagline && (
-          <p className="mt-0.5 line-clamp-2 break-words text-xs leading-relaxed text-gray-500 dark:text-gray-400 [overflow-wrap:anywhere]">
+          <p className="mt-0.5 line-clamp-2 break-words text-xs leading-relaxed text-ink-muted [overflow-wrap:anywhere]">
             {post.project_tagline}
           </p>
         )}
@@ -85,7 +85,7 @@ export function ProjectMiniCard({ post, onProjectClick }) {
             {post.project_technologies.slice(0, 4).map((tech) => (
               <span
                 key={tech}
-                className="rounded-md border border-gray-200 bg-white px-1.5 py-0.5 font-mono text-[10px] text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                className="rounded-md border border-line bg-surface px-1.5 py-0.5 font-mono text-[10px] text-ink-muted"
               >
                 {tech}
               </span>
@@ -113,23 +113,23 @@ export function PortfolioCard({ portfolio, rank, user, compact = false, onFollow
     <Link
       to={`/${portfolio.username}`}
       className={cx(
-        'group flex items-start gap-3 rounded-lg border border-gray-200 bg-white p-3 transition-colors hover:border-blue-200 hover:bg-blue-50/30 dark:border-gray-800 dark:bg-gray-950 dark:hover:border-blue-900 dark:hover:bg-blue-950/20',
+        'group flex items-start gap-3 rounded-lg border border-line bg-surface p-3 transition-[transform,box-shadow,border-color] duration-200 ease-out-quart hover:-translate-y-0.5 hover:border-accent-border hover:shadow-lift',
         compact && 'p-2.5'
       )}
     >
       {rank ? (
-        <span className="mt-1 w-5 flex-none text-center font-mono text-xs font-bold text-gray-400">{rank}</span>
+        <span className="mt-1 w-5 flex-none text-center font-mono text-xs font-semibold text-ink-faint">{rank}</span>
       ) : null}
       <Avatar url={portfolio.avatar_url} name={portfolio.full_name} accent={accent} size={compact ? 'sm' : 'md'} />
       <div className="min-w-0 flex-1">
-        <div className="truncate text-sm font-bold text-gray-950 group-hover:text-blue-700 dark:text-gray-100 dark:group-hover:text-blue-300">
+        <div className="truncate text-sm font-semibold text-ink group-hover:text-accent-text">
           {portfolio.full_name}
         </div>
-        <div className="truncate text-xs text-gray-500">@{portfolio.username}</div>
+        <div className="truncate text-xs text-ink-muted">@{portfolio.username}</div>
         {!compact && portfolio.headline ? (
-          <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-gray-500 dark:text-gray-400">{portfolio.headline}</p>
+          <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-ink-muted">{portfolio.headline}</p>
         ) : null}
-        <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] font-medium text-gray-500 dark:text-gray-400">
+        <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] font-medium text-ink-muted">
           <span className="inline-flex items-center gap-1">
             <EngineeringIcon name="project-module" size="0.85rem" />
             {formatCount(portfolio.project_count)}
@@ -145,9 +145,9 @@ export function PortfolioCard({ portfolio, rank, user, compact = false, onFollow
           type="button"
           onClick={follow}
           className={cx(
-            'rounded-lg border px-2.5 py-1 text-xs font-bold transition-colors',
+            'rounded-lg border px-2.5 py-1 text-xs font-semibold transition-colors',
             following
-              ? 'border-gray-200 text-gray-500 hover:border-gray-300 dark:border-gray-700 dark:text-gray-300'
+              ? 'border-line text-ink-muted hover:border-ink-faint'
               : 'border-transparent text-white'
           )}
           style={following ? undefined : { backgroundColor: accent }}
@@ -161,12 +161,12 @@ export function PortfolioCard({ portfolio, rank, user, compact = false, onFollow
 
 export function Metric({ icon, label, value }) {
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900">
-      <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
+    <div className="rounded-lg border border-line bg-surface p-3">
+      <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-ink-muted">
         <EngineeringIcon name={icon} size="1rem" />
         <span>{label}</span>
       </div>
-      <div className="font-mono text-lg font-bold text-gray-950 dark:text-gray-100">{formatCount(value)}</div>
+      <div className="font-mono text-lg font-semibold text-ink">{formatCount(value)}</div>
     </div>
   );
 }

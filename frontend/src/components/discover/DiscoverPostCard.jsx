@@ -20,15 +20,15 @@ function LinkPreview({ preview }) {
       href={preview.url}
       target="_blank"
       rel="noreferrer"
-      className="flex items-start gap-3 rounded-lg border border-gray-200 bg-white p-3 transition-colors hover:border-blue-300 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-blue-800"
+      className="flex items-start gap-3 rounded-lg border border-line bg-surface p-3 transition-colors hover:border-accent-border"
     >
-      <span className="mt-0.5 rounded-md bg-blue-50 p-2 dark:bg-blue-950/50">
+      <span className="mt-0.5 rounded-md bg-accent-surface p-2">
         <EngineeringIcon name="link" size="1.1rem" />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-bold text-gray-950 dark:text-gray-100">{preview.title || preview.domain || preview.url}</span>
-        {preview.description ? <span className="mt-1 line-clamp-2 text-xs leading-relaxed text-gray-500 dark:text-gray-400">{preview.description}</span> : null}
-        <span className="mt-1 block truncate text-xs font-semibold text-blue-600 dark:text-blue-300">{preview.domain || preview.url}</span>
+        <span className="block truncate text-sm font-semibold text-ink">{preview.title || preview.domain || preview.url}</span>
+        {preview.description ? <span className="mt-1 line-clamp-2 text-xs leading-relaxed text-ink-muted">{preview.description}</span> : null}
+        <span className="mt-1 block truncate text-xs font-semibold text-accent-text">{preview.domain || preview.url}</span>
       </span>
     </a>
   );
@@ -46,7 +46,7 @@ function MediaGrid({ media = [] }) {
           target="_blank"
           rel="noreferrer"
           className={cx(
-            'relative overflow-hidden rounded-lg border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-gray-900',
+            'relative overflow-hidden rounded-lg border border-line bg-surface-muted',
             visible.length === 1 ? 'aspect-video' : 'aspect-[4/3]'
           )}
         >
@@ -58,7 +58,7 @@ function MediaGrid({ media = [] }) {
             </span>
           )}
           {index === 3 && media.length > 4 ? (
-            <span className="absolute inset-0 flex items-center justify-center bg-gray-950/60 text-sm font-bold text-white">
+            <span className="absolute inset-0 flex items-center justify-center bg-gray-950/60 text-sm font-semibold text-white">
               +{media.length - 4}
             </span>
           ) : null}
@@ -72,34 +72,34 @@ function Comment({ comment, depth, post, user, onReply, onVote, onAccept }) {
   const isAuthor = user?.id === post.author_id;
   const canAccept = isAuthor && ['question', 'feedback_request'].includes(post.post_type) && !comment.parent_comment_id;
   return (
-    <div className={cx('flex gap-3', depth > 0 && 'ml-9 border-l border-gray-200 pl-3 dark:border-gray-800')}>
+    <div className={cx('flex gap-3', depth > 0 && 'ml-9 border-l border-line pl-3')}>
       <Avatar url={comment.author_avatar} name={comment.author_name} size="sm" />
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <Link to={`/${comment.author_username}`} className="text-xs font-bold text-gray-950 hover:text-blue-700 dark:text-gray-100 dark:hover:text-blue-300">
+          <Link to={`/${comment.author_username}`} className="text-xs font-semibold text-ink hover:text-accent-text">
             {comment.author_name}
           </Link>
-          <span className="text-[11px] text-gray-400">
+          <span className="text-[11px] text-ink-faint">
             {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
           </span>
           {comment.is_answer ? (
-            <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+            <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
               <EngineeringIcon name="signal-success" size="0.75rem" />
               Accepted
             </span>
           ) : null}
         </div>
-        <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-gray-600 dark:text-gray-300">{comment.body}</p>
-        <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] font-bold text-gray-500 dark:text-gray-400">
+        <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-ink-secondary">{comment.body}</p>
+        <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] font-semibold text-ink-muted">
           <button
             type="button"
             onClick={() => onVote(comment)}
-            className={cx('inline-flex items-center gap-1 rounded-md px-1.5 py-1 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800', comment.voted_by_viewer && 'text-blue-600 dark:text-blue-300')}
+            className={cx('inline-flex items-center gap-1 rounded-md px-1.5 py-1 transition-colors hover:bg-surface-muted', comment.voted_by_viewer && 'text-accent-text')}
           >
             <EngineeringIcon name="target" size="0.8rem" />
             Helpful {comment.helpful_count ? formatCount(comment.helpful_count) : ''}
           </button>
-          <button type="button" onClick={() => onReply(comment)} className="rounded-md px-1.5 py-1 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800">
+          <button type="button" onClick={() => onReply(comment)} className="rounded-md px-1.5 py-1 transition-colors hover:bg-surface-muted">
             Reply
           </button>
           {canAccept ? (
@@ -146,18 +146,18 @@ function CommentComposer({ user, placeholder, submitting, onSubmit, onCancel }) 
           onChange={(event) => setBody(event.target.value.slice(0, 1500))}
           rows={2}
           placeholder={placeholder}
-          className="w-full resize-none rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-950 outline-none transition-colors focus:border-blue-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100"
+          className="w-full resize-none rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink outline-none transition-colors focus:border-accent"
         />
         <div className="mt-2 flex items-center justify-end gap-2">
           {onCancel ? (
-            <button type="button" onClick={onCancel} className="rounded-lg px-3 py-1.5 text-xs font-bold text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800">
+            <button type="button" onClick={onCancel} className="rounded-lg px-3 py-1.5 text-xs font-semibold text-ink-muted hover:bg-surface-muted">
               Cancel
             </button>
           ) : null}
           <button
             type="submit"
             disabled={submitting || !body.trim()}
-            className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+            className="rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-accent-hover disabled:opacity-50"
           >
             {submitting ? 'Posting...' : 'Post'}
           </button>
@@ -239,29 +239,29 @@ function Discussion({ post, user, open, onCountChange }) {
   if (!open) return null;
 
   return (
-    <div className="mt-4 border-t border-gray-200 pt-4 dark:border-gray-800">
+    <div className="mt-4 border-t border-line pt-4">
       <div className="mb-4 flex items-center justify-between gap-3">
-        <div className="inline-flex rounded-lg bg-gray-100 p-1 dark:bg-gray-900">
+        <div className="inline-flex rounded-lg bg-surface-muted p-1">
           {['helpful', 'recent'].map((option) => (
             <button
               key={option}
               type="button"
               onClick={() => setSort(option)}
               className={cx(
-                'rounded-md px-3 py-1 text-xs font-bold capitalize transition-colors',
-                sort === option ? 'bg-white text-gray-950 shadow-sm dark:bg-gray-800 dark:text-gray-100' : 'text-gray-500'
+                'rounded-md px-3 py-1 text-xs font-semibold capitalize transition-colors',
+                sort === option ? 'bg-surface text-ink shadow-sm' : 'text-ink-muted'
               )}
             >
               {option}
             </button>
           ))}
         </div>
-        <span className="text-xs font-semibold text-gray-500">{formatCount(comments.length)} comments</span>
+        <span className="text-xs font-semibold text-ink-muted">{formatCount(comments.length)} comments</span>
       </div>
 
       {loading ? (
         <div className="space-y-3">
-          {[1, 2].map((item) => <div key={item} className="h-16 animate-pulse rounded-lg bg-gray-100 dark:bg-gray-900" />)}
+          {[1, 2].map((item) => <div key={item} className="skeleton-shimmer h-16 rounded-lg" />)}
         </div>
       ) : tree.length ? (
         <div className="space-y-4">
@@ -279,7 +279,7 @@ function Discussion({ post, user, open, onCountChange }) {
           ))}
         </div>
       ) : (
-        <div className="rounded-lg border border-dashed border-gray-300 p-5 text-center text-sm text-gray-500 dark:border-gray-800 dark:text-gray-400">
+        <div className="rounded-lg border border-dashed border-line p-5 text-center text-sm text-ink-muted">
           Start the discussion with a specific observation or question.
         </div>
       )}
@@ -288,7 +288,7 @@ function Discussion({ post, user, open, onCountChange }) {
         {user ? (
           <>
             {replyTo ? (
-              <div className="mb-2 rounded-lg bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 dark:bg-blue-950/30 dark:text-blue-300">
+              <div className="mb-2 rounded-lg bg-accent-surface px-3 py-2 text-xs font-semibold text-accent-text">
                 Replying to {replyTo.author_name}
               </div>
             ) : null}
@@ -301,8 +301,8 @@ function Discussion({ post, user, open, onCountChange }) {
             />
           </>
         ) : (
-          <p className="text-sm text-gray-500">
-            <Link to="/login" className="font-bold text-blue-600 hover:text-blue-700 dark:text-blue-300">Sign in</Link> to join the discussion.
+          <p className="text-sm text-ink-muted">
+            <Link to="/login" className="font-semibold text-accent-text hover:text-accent-hover">Sign in</Link> to join the discussion.
           </p>
         )}
       </div>
@@ -450,19 +450,19 @@ export default function DiscoverPostCard({ post, user, onDelete, onEdit, onHidde
   };
 
   return (
-    <article className="overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm shadow-gray-200/50 dark:border-gray-800 dark:bg-gray-950 dark:shadow-none">
+    <article className="overflow-hidden rounded-xl border border-line bg-surface p-5 shadow-sm">
       <header className="flex items-start gap-3">
         <Link to={`/${post.author_username}`}><Avatar url={post.author_avatar} name={post.author_name} accent={accent} size="md" /></Link>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <Link to={`/${post.author_username}`} className="break-words text-sm font-bold text-gray-950 hover:text-blue-700 dark:text-gray-100 dark:hover:text-blue-300">
+            <Link to={`/${post.author_username}`} className="break-words text-sm font-semibold text-ink hover:text-accent-text">
               {post.author_name}
             </Link>
-            {post.author_headline ? <span className="hidden truncate text-xs text-gray-500 sm:block">{post.author_headline}</span> : null}
+            {post.author_headline ? <span className="hidden truncate text-xs text-ink-muted sm:block">{post.author_headline}</span> : null}
           </div>
-          <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] font-semibold text-gray-500 dark:text-gray-400">
+          <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] font-semibold text-ink-muted">
             <span>{formatDistanceToNow(new Date(post.published_at || post.created_at), { addSuffix: true })}</span>
-            <span className="h-1 w-1 rounded-full bg-gray-300" />
+            <span className="h-1 w-1 rounded-full bg-line" />
             <span className="inline-flex items-center gap-1">
               <EngineeringIcon name={type.icon} size="0.8rem" />
               {type.label}
@@ -480,9 +480,9 @@ export default function DiscoverPostCard({ post, user, onDelete, onEdit, onHidde
               type="button"
               onClick={follow}
               className={cx(
-                'rounded-lg border px-3 py-1.5 text-xs font-bold transition-colors',
+                'rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors',
                 following
-                  ? 'border-gray-200 text-gray-500 hover:border-gray-300 dark:border-gray-700 dark:text-gray-300'
+                  ? 'border-line text-ink-muted hover:border-ink-faint'
                   : 'border-transparent text-white'
               )}
               style={following ? undefined : { backgroundColor: accent }}
@@ -495,24 +495,24 @@ export default function DiscoverPostCard({ post, user, onDelete, onEdit, onHidde
             type="button"
             onClick={() => setMenuOpen((current) => !current)}
             aria-expanded={menuOpen}
-            className="rounded-lg border border-gray-200 p-2 text-gray-500 transition-colors hover:border-gray-300 hover:text-gray-950 dark:border-gray-800 dark:text-gray-400 dark:hover:text-gray-100"
+            className="rounded-lg border border-line p-2 text-ink-muted transition-colors hover:border-ink-faint hover:text-ink"
             aria-label="Post actions"
           >
             <EngineeringIcon name="list-menu" size="1rem" />
           </button>
           {menuOpen ? (
-            <div className="absolute right-0 top-10 z-10 w-44 overflow-hidden rounded-lg border border-gray-200 bg-white py-1 text-sm shadow-xl dark:border-gray-800 dark:bg-gray-900">
+            <div className="absolute right-0 top-10 z-10 w-44 overflow-hidden rounded-lg border border-line bg-surface py-1 text-sm shadow-pop">
               {isAuthor ? (
                 <>
-                  <button type="button" onClick={() => { setMenuOpen(false); onEdit?.(post); }} className="block w-full px-3 py-2 text-left font-semibold text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800">Edit</button>
-                  <button type="button" onClick={loadAnalytics} className="block w-full px-3 py-2 text-left font-semibold text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800">Analytics</button>
-                  <button type="button" onClick={remove} className="block w-full px-3 py-2 text-left font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30">Delete</button>
+                  <button type="button" onClick={() => { setMenuOpen(false); onEdit?.(post); }} className="block w-full px-3 py-2 text-left font-semibold text-ink-secondary hover:bg-surface-muted">Edit</button>
+                  <button type="button" onClick={loadAnalytics} className="block w-full px-3 py-2 text-left font-semibold text-ink-secondary hover:bg-surface-muted">Analytics</button>
+                  <button type="button" onClick={remove} className="block w-full px-3 py-2 text-left font-semibold text-danger hover:bg-danger/10">Delete</button>
                 </>
               ) : (
                 <>
-                  <button type="button" onClick={follow} className="block w-full px-3 py-2 text-left font-semibold text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800">{following ? 'Unfollow maker' : 'Follow maker'}</button>
-                  <button type="button" onClick={hide} className="block w-full px-3 py-2 text-left font-semibold text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800">Hide post</button>
-                  <button type="button" onClick={report} className="block w-full px-3 py-2 text-left font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30">Report</button>
+                  <button type="button" onClick={follow} className="block w-full px-3 py-2 text-left font-semibold text-ink-secondary hover:bg-surface-muted">{following ? 'Unfollow maker' : 'Follow maker'}</button>
+                  <button type="button" onClick={hide} className="block w-full px-3 py-2 text-left font-semibold text-ink-secondary hover:bg-surface-muted">Hide post</button>
+                  <button type="button" onClick={report} className="block w-full px-3 py-2 text-left font-semibold text-danger hover:bg-danger/10">Report</button>
                 </>
               )}
             </div>
@@ -522,13 +522,13 @@ export default function DiscoverPostCard({ post, user, onDelete, onEdit, onHidde
       </header>
 
       <div className="mt-4 space-y-3">
-        <h2 className="break-words text-xl font-semibold leading-snug text-gray-950 dark:text-gray-100 [overflow-wrap:anywhere]">{post.title}</h2>
-        {post.body ? <p className="whitespace-pre-wrap break-words text-sm leading-6 text-gray-600 dark:text-gray-300 [overflow-wrap:anywhere]">{post.body}</p> : null}
+        <h2 className="break-words text-xl font-semibold leading-snug text-ink [overflow-wrap:anywhere]">{post.title}</h2>
+        {post.body ? <p className="whitespace-pre-wrap break-words text-sm leading-6 text-ink-secondary [overflow-wrap:anywhere]">{post.body}</p> : null}
 
         {lookingFor.length ? (
           <div className="flex flex-wrap gap-1.5">
             {lookingFor.map((item) => (
-              <span key={item} className="rounded-md bg-amber-50 px-2 py-1 text-xs font-bold text-amber-700 dark:bg-amber-950/30 dark:text-amber-300">
+              <span key={item} className="rounded-md bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-950/30 dark:text-amber-300">
                 {item}
               </span>
             ))}
@@ -541,26 +541,26 @@ export default function DiscoverPostCard({ post, user, onDelete, onEdit, onHidde
       </div>
 
       {analyticsOpen ? (
-        <div className="mt-4 grid gap-2 rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs dark:border-gray-800 dark:bg-gray-900/60 sm:grid-cols-4">
+        <div className="mt-4 grid gap-2 rounded-lg border border-line bg-surface-page p-3 text-xs sm:grid-cols-4">
           {analytics ? (
             <>
-              <div><span className="block text-gray-500">Qualified</span><strong className="font-mono text-gray-950 dark:text-gray-100">{formatCount(analytics.qualified_interactions)}</strong></div>
-              <div><span className="block text-gray-500">Project clicks</span><strong className="font-mono text-gray-950 dark:text-gray-100">{formatCount(analytics.stats?.project_click_count)}</strong></div>
-              <div><span className="block text-gray-500">Shares</span><strong className="font-mono text-gray-950 dark:text-gray-100">{formatCount(analytics.stats?.share_count)}</strong></div>
-              <div><span className="block text-gray-500">Saves</span><strong className="font-mono text-gray-950 dark:text-gray-100">{formatCount(analytics.stats?.save_count)}</strong></div>
+              <div><span className="block text-ink-muted">Qualified</span><strong className="font-mono text-ink">{formatCount(analytics.qualified_interactions)}</strong></div>
+              <div><span className="block text-ink-muted">Project clicks</span><strong className="font-mono text-ink">{formatCount(analytics.stats?.project_click_count)}</strong></div>
+              <div><span className="block text-ink-muted">Shares</span><strong className="font-mono text-ink">{formatCount(analytics.stats?.share_count)}</strong></div>
+              <div><span className="block text-ink-muted">Saves</span><strong className="font-mono text-ink">{formatCount(analytics.stats?.save_count)}</strong></div>
             </>
           ) : (
-            <div className="col-span-full h-10 animate-pulse rounded bg-gray-200 dark:bg-gray-800" />
+            <div className="col-span-full skeleton-shimmer h-10 rounded" />
           )}
         </div>
       ) : null}
 
-      <footer className="mt-4 border-t border-gray-200 pt-3 dark:border-gray-800">
+      <footer className="mt-4 border-t border-line pt-3">
         <div className="grid grid-cols-2 gap-1 sm:grid-cols-4">
           <button
             type="button"
             onClick={toggleLike}
-            className={cx('inline-flex items-center justify-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-bold transition-colors hover:bg-gray-100 dark:hover:bg-gray-900', liked ? 'text-red-600 dark:text-red-300' : 'text-gray-500 dark:text-gray-400')}
+            className={cx('inline-flex items-center justify-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-semibold transition-colors hover:bg-surface-muted', liked ? 'text-danger' : 'text-ink-muted')}
           >
             <EngineeringIcon name="target" size="0.95rem" />
             Useful {formatCount(likeCount)}
@@ -569,7 +569,7 @@ export default function DiscoverPostCard({ post, user, onDelete, onEdit, onHidde
             type="button"
             onClick={() => setCommentsOpen((current) => !current)}
             disabled={post.allow_comments === false}
-            className="inline-flex items-center justify-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-bold text-gray-500 transition-colors hover:bg-gray-100 disabled:opacity-50 dark:text-gray-400 dark:hover:bg-gray-900"
+            className="inline-flex items-center justify-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-semibold text-ink-muted transition-colors hover:bg-surface-muted disabled:opacity-50"
           >
             <EngineeringIcon name="message" size="0.95rem" />
             Comment {formatCount(commentCount)}
@@ -577,7 +577,7 @@ export default function DiscoverPostCard({ post, user, onDelete, onEdit, onHidde
           <button
             type="button"
             onClick={toggleSave}
-            className={cx('inline-flex items-center justify-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-bold transition-colors hover:bg-gray-100 dark:hover:bg-gray-900', saved ? 'text-blue-600 dark:text-blue-300' : 'text-gray-500 dark:text-gray-400')}
+            className={cx('inline-flex items-center justify-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-semibold transition-colors hover:bg-surface-muted', saved ? 'text-accent-text' : 'text-ink-muted')}
           >
             <EngineeringIcon name="pin" size="0.95rem" />
             Save {formatCount(saveCount)}
@@ -585,7 +585,7 @@ export default function DiscoverPostCard({ post, user, onDelete, onEdit, onHidde
           <button
             type="button"
             onClick={share}
-            className="inline-flex items-center justify-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-bold text-gray-500 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"
+            className="inline-flex items-center justify-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-semibold text-ink-muted transition-colors hover:bg-surface-muted"
           >
             <EngineeringIcon name="link" size="0.95rem" />
             Share

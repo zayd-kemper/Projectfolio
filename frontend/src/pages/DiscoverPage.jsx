@@ -8,25 +8,25 @@ import DiscoverComposer from '../components/discover/DiscoverComposer';
 import DiscoverPostCard from '../components/discover/DiscoverPostCard';
 import { Avatar, IconPill, PortfolioCard } from '../components/discover/DiscoverPrimitives';
 import { LeftRail, RightRail, followPortfolio } from '../components/discover/DiscoverRails';
-import { CONTEXTS, FEED_MODES, POST_TYPES, cx, formatCount, normalizeFeedMode } from '../components/discover/discoverConfig';
+import { CONTEXTS, FEED_MODES, POST_TYPES, cx, normalizeFeedMode } from '../components/discover/discoverConfig';
 
 function PostSkeleton() {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm shadow-gray-200/50 dark:border-gray-800 dark:bg-gray-950 dark:shadow-none">
-      <div className="animate-pulse space-y-4">
+    <div className="card p-5">
+      <div className="space-y-4">
         <div className="flex gap-3">
-          <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-800" />
+          <div className="skeleton-shimmer h-10 w-10 rounded-full" />
           <div className="flex-1 space-y-2">
-            <div className="h-3 w-1/3 rounded bg-gray-200 dark:bg-gray-800" />
-            <div className="h-2.5 w-1/2 rounded bg-gray-200 dark:bg-gray-800" />
+            <div className="skeleton-shimmer h-3 w-1/3 rounded" />
+            <div className="skeleton-shimmer h-2.5 w-1/2 rounded" />
           </div>
         </div>
-        <div className="h-5 w-3/4 rounded bg-gray-200 dark:bg-gray-800" />
+        <div className="skeleton-shimmer h-5 w-3/4 rounded" />
         <div className="space-y-2">
-          <div className="h-3 rounded bg-gray-200 dark:bg-gray-800" />
-          <div className="h-3 w-5/6 rounded bg-gray-200 dark:bg-gray-800" />
+          <div className="skeleton-shimmer h-3 rounded" />
+          <div className="skeleton-shimmer h-3 w-5/6 rounded" />
         </div>
-        <div className="h-24 rounded-lg bg-gray-200 dark:bg-gray-800" />
+        <div className="skeleton-shimmer h-24 rounded-lg" />
       </div>
     </div>
   );
@@ -34,10 +34,10 @@ function PostSkeleton() {
 
 function EmptyState({ icon, title, body, action }) {
   return (
-    <div className="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-12 text-center shadow-sm shadow-gray-200/40 dark:border-gray-800 dark:bg-gray-950 dark:shadow-none">
+    <div className="rounded-xl border border-dashed border-line bg-surface px-6 py-12 text-center">
       <EngineeringIcon name={icon} size="3rem" className="mx-auto" />
-      <h2 className="mt-4 text-lg font-semibold text-gray-950 dark:text-gray-100">{title}</h2>
-      <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-gray-500 dark:text-gray-400">{body}</p>
+      <h2 className="mt-4 text-lg font-semibold text-ink">{title}</h2>
+      <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-ink-muted">{body}</p>
       {action ? <div className="mt-5">{action}</div> : null}
     </div>
   );
@@ -62,7 +62,7 @@ function MobileFilters({ mode, setMode, context, postType, setContext, setPostTy
         <select
           value={context}
           onChange={(event) => setContext(event.target.value)}
-          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-bold text-gray-700 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-200"
+          className="rounded-lg border border-line bg-surface px-3 py-2 text-xs font-semibold text-ink-secondary"
         >
           <option value="">All contexts</option>
           <option value="show">Show</option>
@@ -77,7 +77,7 @@ function MobileFilters({ mode, setMode, context, postType, setContext, setPostTy
         <select
           value={postType}
           onChange={(event) => setPostType(event.target.value)}
-          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-bold text-gray-700 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-200"
+          className="rounded-lg border border-line bg-surface px-3 py-2 text-xs font-semibold text-ink-secondary"
         >
           <option value="">All post types</option>
           <option value="update">Updates</option>
@@ -114,7 +114,7 @@ function SearchResults({ results, searching, user, onPostHidden, onEditPost, onP
     <div className="space-y-6">
       {portfolios.length ? (
         <section>
-          <h2 className="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-200">Makers</h2>
+          <h2 className="mb-3 text-sm font-semibold text-ink-secondary">Makers</h2>
           <div className="space-y-3">
             {portfolios.map((portfolio) => (
               <PortfolioCard key={portfolio.id} portfolio={portfolio} user={user} onFollowChange={onFollowChange} />
@@ -124,7 +124,7 @@ function SearchResults({ results, searching, user, onPostHidden, onEditPost, onP
       ) : null}
       {posts.length ? (
         <section>
-          <h2 className="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-200">Posts</h2>
+          <h2 className="mb-3 text-sm font-semibold text-ink-secondary">Posts</h2>
           <div className="space-y-4">
             {posts.map((post) => (
               <DiscoverPostCard
@@ -374,13 +374,11 @@ export default function DiscoverPage() {
     }, 250);
   };
 
-  const currentMode = FEED_MODES.find((item) => item.id === mode) || FEED_MODES[0];
   const activeFilterLabels = [
     context && CONTEXTS.find((item) => item.id === context)?.label,
     postType && POST_TYPES.find((item) => item.id === postType)?.label,
     category,
   ].filter(Boolean);
-  const visibleCount = view === 'makers' ? portfolios.length : posts.length;
 
   return (
     <div className="app-surface min-h-screen bg-surface-page text-ink">
@@ -393,7 +391,7 @@ export default function DiscoverPage() {
         onUpdated={onUpdated}
       />
 
-      <nav className="sticky top-0 z-30 border-b border-gray-200 bg-white/90 backdrop-blur dark:border-gray-800 dark:bg-gray-950/90">
+      <nav className="sticky top-0 z-30 border-b border-line bg-surface-rail/90 backdrop-blur">
         <div className="mx-auto flex max-w-[1380px] items-center gap-3 px-4 py-3 sm:px-6">
           <Link to={user ? '/dashboard' : '/'} className="flex flex-none items-center gap-2">
             <EngineeringIcon name="brand-projectfolio" size="1.8rem" />
@@ -409,13 +407,13 @@ export default function DiscoverPage() {
               onChange={(event) => handleSearch(event.target.value)}
               aria-label="Search makers, posts, and technologies"
               placeholder="Search Discover"
-              className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2 pl-10 pr-9 text-sm text-gray-950 outline-none transition-colors focus:border-blue-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100"
+              className="w-full rounded-lg border border-line bg-surface-page py-2 pl-10 pr-9 text-sm text-ink outline-none transition-colors focus:border-accent"
             />
             {searchQuery ? (
               <button
                 type="button"
                 onClick={() => handleSearch('')}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-ink-faint hover:text-ink-secondary"
                 aria-label="Clear search"
               >
                 <EngineeringIcon name="signal-error" size="0.9rem" />
@@ -425,19 +423,19 @@ export default function DiscoverPage() {
 
           {user ? (
             <>
-              <button type="button" onClick={() => openComposer()} className="hidden items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 sm:inline-flex">
+              <button type="button" onClick={() => openComposer()} className="hidden items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-accent-hover sm:inline-flex">
                 <EngineeringIcon name="document-edit" size="1rem" className="brightness-0 invert" />
                 Post
               </button>
-              <Link to="/dashboard" className="hidden rounded-lg border border-gray-200 px-3 py-2 text-sm font-bold text-gray-700 transition-colors hover:border-gray-300 dark:border-gray-800 dark:text-gray-200 md:inline-flex">
+              <Link to="/dashboard" className="hidden rounded-lg border border-line px-3 py-2 text-sm font-semibold text-ink-secondary transition-colors hover:border-ink-faint md:inline-flex">
                 Dashboard
               </Link>
               <Avatar url={user.avatar_url} name={user.full_name} size="sm" />
             </>
           ) : (
             <>
-              <Link to="/login" className="hidden text-sm font-bold text-gray-600 hover:text-gray-950 dark:text-gray-300 dark:hover:text-white sm:inline">Sign in</Link>
-              <Link to="/register" className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-bold text-white transition-colors hover:bg-blue-700">Join</Link>
+              <Link to="/login" className="hidden text-sm font-semibold text-ink-muted hover:text-ink sm:inline">Sign in</Link>
+              <Link to="/register" className="rounded-lg bg-accent px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-accent-hover">Join</Link>
             </>
           )}
         </div>
@@ -446,92 +444,113 @@ export default function DiscoverPage() {
       <main className="mx-auto grid max-w-[1380px] gap-5 px-4 py-5 sm:px-6 lg:grid-cols-[minmax(0,720px)_288px] lg:justify-center xl:grid-cols-[232px_minmax(0,720px)_288px]">
         <LeftRail
           user={user}
-          contexts={[]}
           categories={categories}
-          activeContext={context}
-          activeType={postType}
           activeCategory={category}
           drafts={drafts}
-          onContext={setContext}
-          onType={setPostType}
           onCategory={setCategory}
           onEditDraft={openComposer}
           onCreate={() => openComposer()}
         />
 
         <section className="min-w-0 space-y-4">
-          <header className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm shadow-gray-200/50 dark:border-gray-800 dark:bg-gray-950 dark:shadow-none">
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <div>
-                <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-950/40 dark:text-blue-300">
-                  <EngineeringIcon name={currentMode.icon} size="0.95rem" />
-                  {view === 'makers' ? 'Makers' : currentMode.label}
+          <h1 className="sr-only">Discover project work</h1>
+
+          {view === 'feed' && user && searchQuery.trim().length < 2 ? (
+            <button
+              type="button"
+              onClick={() => openComposer()}
+              className="flex w-full items-center gap-3 rounded-xl border border-line bg-surface p-4 text-left shadow-sm transition-[transform,box-shadow,border-color] duration-200 ease-out-quart hover:-translate-y-0.5 hover:border-accent-border hover:shadow-lift"
+            >
+              <Avatar url={user.avatar_url} name={user.full_name} size="md" />
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-semibold text-ink">Share what you are building</span>
+                <span className="block truncate text-sm text-ink-muted">Post an update, ask for feedback, or invite collaborators</span>
+              </span>
+              <EngineeringIcon name="document-edit" size="1.2rem" />
+            </button>
+          ) : null}
+
+          <div>
+            <div className="flex items-center justify-between gap-3 border-b border-line">
+              <div className="flex" role="tablist" aria-label="Discover views">
+                {[{ id: 'feed', label: 'Feed' }, { id: 'makers', label: 'Makers' }].map((tab) => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={view === tab.id}
+                    onClick={() => setView(tab.id)}
+                    className={cx(
+                      'relative -mb-px border-b-2 px-3 py-2.5 text-sm font-semibold transition-colors',
+                      view === tab.id
+                        ? 'border-accent text-ink'
+                        : 'border-transparent text-ink-muted hover:text-ink'
+                    )}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+              {view === 'feed' ? (
+                <div className="hidden items-center gap-1 lg:flex" aria-label="Sort feed">
+                  {FEED_MODES.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => setMode(item.id)}
+                      className={cx(
+                        'rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors',
+                        mode === item.id
+                          ? 'text-accent-text'
+                          : 'text-ink-muted hover:bg-surface-muted hover:text-ink'
+                      )}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
                 </div>
-                <h1 className="text-2xl font-semibold text-gray-950 dark:text-gray-100">Discover project work</h1>
-                <p className="mt-1 max-w-2xl text-sm leading-relaxed text-gray-500 dark:text-gray-400">
-                  Follow build updates, questions, launches, and makers from the ProjectFolio network.
-                </p>
-              </div>
-              <div className="flex items-center gap-1 rounded-lg bg-gray-100 p-1 dark:bg-gray-900">
-                <button
-                  type="button"
-                  onClick={() => setView('feed')}
-                  className={cx('rounded-md px-3 py-1.5 text-sm font-semibold transition-colors', view === 'feed' ? 'bg-white text-gray-950 shadow-sm dark:bg-gray-800 dark:text-gray-100' : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100')}
-                >
-                  Feed
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setView('makers')}
-                  className={cx('rounded-md px-3 py-1.5 text-sm font-semibold transition-colors', view === 'makers' ? 'bg-white text-gray-950 shadow-sm dark:bg-gray-800 dark:text-gray-100' : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100')}
-                >
-                  Makers
-                </button>
-                <button
-                  type="button"
-                  onClick={() => openComposer()}
-                  className="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 sm:hidden"
-                >
-                  Post
-                </button>
-              </div>
+              ) : null}
+              <button
+                type="button"
+                onClick={() => openComposer()}
+                className="mb-1 rounded-md bg-accent px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-accent-hover sm:hidden"
+              >
+                Post
+              </button>
             </div>
 
             {view === 'feed' ? (
-              <div className="mt-4 hidden items-center justify-between gap-3 border-t border-gray-100 pt-3 dark:border-gray-800 lg:flex">
-                <div className="flex flex-wrap gap-2">
-                  {FEED_MODES.map((item) => (
-                    <IconPill
-                      key={item.id}
-                      icon={item.icon}
-                      label={item.label}
-                      active={mode === item.id}
-                      onClick={() => setMode(item.id)}
-                    />
-                  ))}
-                </div>
-                <div className="text-xs font-semibold text-gray-500 dark:text-gray-400">
-                  {loading ? 'Loading activity' : `${formatCount(visibleCount)} ${view === 'makers' ? 'makers' : 'posts'} shown`}
-                </div>
+              <div className="mt-3 hidden flex-wrap gap-2 lg:flex">
+                {CONTEXTS.map((item) => (
+                  <IconPill
+                    key={item.id}
+                    icon={item.icon}
+                    label={item.label}
+                    active={context === item.id}
+                    onClick={() => setContext(context === item.id ? '' : item.id)}
+                    tone="quiet"
+                    className="min-h-8 px-2.5"
+                  />
+                ))}
               </div>
             ) : null}
 
             {activeFilterLabels.length ? (
-              <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-gray-100 pt-3 text-xs dark:border-gray-800">
-                <span className="font-semibold text-gray-500 dark:text-gray-400">Filtered by</span>
+              <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+                <span className="font-semibold text-ink-muted">Filtered by</span>
                 {activeFilterLabels.map((label, index) => (
-                  <span key={`${label}-${index}`} className="rounded-md border border-blue-100 bg-blue-50 px-2 py-1 font-semibold text-blue-700 dark:border-blue-900 dark:bg-blue-950/30 dark:text-blue-300">
+                  <span key={`${label}-${index}`} className="rounded-md border border-accent-border bg-accent-surface px-2 py-1 font-semibold text-accent-text">
                     {label}
                   </span>
                 ))}
-                <button type="button" onClick={resetFilters} className="rounded-md px-2 py-1 font-semibold text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-900 dark:hover:text-gray-100">
+                <button type="button" onClick={resetFilters} className="rounded-md px-2 py-1 font-semibold text-ink-muted transition-colors hover:bg-surface-muted hover:text-ink">
                   Clear
                 </button>
               </div>
             ) : null}
 
             {view === 'feed' ? (
-              <div className="mt-4">
+              <div className="mt-3">
                 <MobileFilters
                   mode={mode}
                   setMode={setMode}
@@ -542,7 +561,7 @@ export default function DiscoverPage() {
                 />
               </div>
             ) : null}
-          </header>
+          </div>
 
           {searchQuery.trim().length >= 2 ? (
             <SearchResults
@@ -556,23 +575,8 @@ export default function DiscoverPage() {
             />
           ) : (
             <>
-              {view === 'feed' && user ? (
-                <button
-                  type="button"
-                  onClick={() => openComposer()}
-                  className="flex w-full items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 text-left shadow-sm shadow-gray-200/50 transition-colors hover:border-blue-200 hover:bg-blue-50/30 dark:border-gray-800 dark:bg-gray-950 dark:shadow-none dark:hover:border-blue-900 dark:hover:bg-blue-950/20"
-                >
-                  <Avatar url={user.avatar_url} name={user.full_name} size="md" />
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-sm font-semibold text-gray-950 dark:text-gray-100">Share what you are building</span>
-                    <span className="block truncate text-sm text-gray-500 dark:text-gray-400">Post an update, ask for feedback, or invite collaborators</span>
-                  </span>
-                  <EngineeringIcon name="document-edit" size="1.2rem" />
-                </button>
-              ) : null}
-
               {error ? (
-                <EmptyState icon="warning-signal" title="Discover could not load" body={error} action={<button type="button" onClick={() => loadFeed()} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white">Try again</button>} />
+                <EmptyState icon="warning-signal" title="Discover could not load" body={error} action={<button type="button" onClick={() => loadFeed()} className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-accent-hover">Try again</button>} />
               ) : loading ? (
                 <div className="space-y-4">{[1, 2, 3].map((item) => <PostSkeleton key={item} />)}</div>
               ) : view === 'makers' ? (
@@ -610,7 +614,7 @@ export default function DiscoverPage() {
                   icon={mode === 'trending' ? 'trend-line' : mode === 'latest' ? 'clock' : 'document-edit'}
                   title={mode === 'recommended' ? 'No posts for you yet' : mode === 'trending' ? 'No trending posts yet' : 'No latest posts yet'}
                   body="Try another context, remove a filter, or start the first discussion."
-                  action={user ? <button type="button" onClick={() => openComposer()} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white">Create a post</button> : <Link to="/register" className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white">Join to post</Link>}
+                  action={user ? <button type="button" onClick={() => openComposer()} className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-accent-hover">Create a post</button> : <Link to="/register" className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-accent-hover">Join to post</Link>}
                 />
               )}
 
@@ -620,7 +624,7 @@ export default function DiscoverPage() {
                     type="button"
                     onClick={loadMore}
                     disabled={loadingMore}
-                    className="rounded-lg border border-gray-200 bg-white px-5 py-2 text-sm font-bold text-gray-700 transition-colors hover:border-blue-200 disabled:opacity-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-200"
+                    className="rounded-lg border border-line bg-surface px-5 py-2 text-sm font-semibold text-ink-secondary transition-colors hover:border-accent-border disabled:opacity-50"
                   >
                     {loadingMore ? 'Loading...' : 'Load more'}
                   </button>

@@ -153,23 +153,23 @@ export default function DiscoverComposer({ open, user, initialPost, onClose, onC
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/55 p-4 backdrop-blur-sm" onMouseDown={onClose}>
       <section
-        className="max-h-[92vh] w-full max-w-3xl overflow-hidden rounded-xl border border-gray-200 bg-white shadow-2xl dark:border-gray-800 dark:bg-gray-950"
+        className="max-h-[92vh] w-full max-w-3xl overflow-hidden rounded-xl border border-line bg-surface shadow-pop"
         onMouseDown={(event) => event.stopPropagation()}
       >
-        <header className="flex items-start justify-between gap-4 border-b border-gray-200 px-5 py-4 dark:border-gray-800">
+        <header className="flex items-start justify-between gap-4 border-b border-line px-5 py-4">
           <div className="flex items-start gap-3">
             <Avatar url={user?.avatar_url} name={user?.full_name} size="md" />
             <div>
-              <h2 className="text-xl font-semibold text-gray-950 dark:text-gray-100">
+              <h2 className="text-xl font-semibold text-ink">
                 {editing ? 'Edit discover post' : 'Create discover post'}
               </h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{selectedType.helper}</p>
+              <p className="text-sm text-ink-muted">{selectedType.helper}</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-gray-200 p-2 text-gray-500 transition-colors hover:border-gray-300 hover:text-gray-900 dark:border-gray-800 dark:text-gray-400 dark:hover:text-gray-100"
+            className="rounded-lg border border-line p-2 text-ink-muted transition-colors hover:border-ink-faint hover:text-ink"
             aria-label="Close composer"
           >
             <EngineeringIcon name="signal-error" size="1rem" />
@@ -186,15 +186,15 @@ export default function DiscoverComposer({ open, user, initialPost, onClose, onC
                 className={cx(
                   'min-h-24 rounded-lg border p-3 text-left transition-colors',
                   form.post_type === type.id
-                    ? 'border-blue-600 bg-blue-50 text-blue-800 dark:border-blue-500 dark:bg-blue-950/40 dark:text-blue-200'
-                    : 'border-gray-200 bg-white text-gray-700 hover:border-blue-200 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:border-blue-900'
+                    ? 'border-accent bg-accent-surface text-accent-text'
+                    : 'border-line bg-surface text-ink-secondary hover:border-accent-border'
                 )}
               >
-                <span className="mb-2 inline-flex items-center gap-2 text-sm font-bold">
+                <span className="mb-2 inline-flex items-center gap-2 text-sm font-semibold">
                   <EngineeringIcon name={type.icon} size="1.1rem" />
                   {type.label}
                 </span>
-                <span className="block text-xs leading-relaxed text-gray-500 dark:text-gray-400">{type.helper}</span>
+                <span className="block text-xs leading-relaxed text-ink-muted">{type.helper}</span>
               </button>
             ))}
           </div>
@@ -202,67 +202,67 @@ export default function DiscoverComposer({ open, user, initialPost, onClose, onC
           <div className="grid gap-4 lg:grid-cols-[1fr_220px]">
             <div className="space-y-4">
               <label className="block">
-                <span className="mb-1.5 block text-xs font-semibold text-gray-600 dark:text-gray-300">Title</span>
+                <span className="mb-1.5 block text-xs font-semibold text-ink-secondary">Title</span>
                 <input
                   value={form.title}
                   onChange={(event) => update({ title: event.target.value.slice(0, 160) })}
                   autoFocus
                   placeholder="What should makers know?"
-                  className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-950 outline-none transition-colors focus:border-blue-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100"
+                  className="w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm text-ink outline-none transition-colors focus:border-accent"
                 />
               </label>
 
               <label className="block">
-                <span className="mb-1.5 block text-xs font-semibold text-gray-600 dark:text-gray-300">Context</span>
+                <span className="mb-1.5 block text-xs font-semibold text-ink-secondary">Context</span>
                 <textarea
                   value={form.body}
                   onChange={(event) => update({ body: event.target.value.slice(0, 4000) })}
                   rows={6}
                   placeholder="Add the constraints, decisions, results, or specific feedback you want."
-                  className="w-full resize-none rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm leading-relaxed text-gray-950 outline-none transition-colors focus:border-blue-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100"
+                  className="w-full resize-none rounded-lg border border-line bg-surface px-3 py-2.5 text-sm leading-relaxed text-ink outline-none transition-colors focus:border-accent"
                 />
               </label>
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="block">
-                  <span className="mb-1.5 block text-xs font-semibold text-gray-600 dark:text-gray-300">Post context</span>
+                  <span className="mb-1.5 block text-xs font-semibold text-ink-secondary">Post context</span>
                   <select
                     value={form.context}
                     onChange={(event) => update({ context: event.target.value })}
-                    className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-950 outline-none transition-colors focus:border-blue-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100"
+                    className="w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm text-ink outline-none transition-colors focus:border-accent"
                   >
                     {CONTEXTS.map((context) => <option key={context.id} value={context.id}>{context.label}</option>)}
                   </select>
                 </label>
                 <label className="block">
-                  <span className="mb-1.5 block text-xs font-semibold text-gray-600 dark:text-gray-300">External link</span>
+                  <span className="mb-1.5 block text-xs font-semibold text-ink-secondary">External link</span>
                   <input
                     value={form.external_url}
                     onChange={(event) => update({ external_url: event.target.value.slice(0, 2048) })}
                     placeholder="https://..."
-                    className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-950 outline-none transition-colors focus:border-blue-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100"
+                    className="w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm text-ink outline-none transition-colors focus:border-accent"
                   />
                 </label>
               </div>
 
               <label className="block">
-                <span className="mb-1.5 block text-xs font-semibold text-gray-600 dark:text-gray-300">Looking for</span>
+                <span className="mb-1.5 block text-xs font-semibold text-ink-secondary">Looking for</span>
                 <input
                   value={form.looking_for}
                   onChange={(event) => update({ looking_for: event.target.value.slice(0, 480) })}
                   placeholder="Code review, UX feedback, hardware advice"
-                  className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-950 outline-none transition-colors focus:border-blue-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100"
+                  className="w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm text-ink outline-none transition-colors focus:border-accent"
                 />
               </label>
 
-              <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-800 dark:bg-gray-900/60">
+              <div className="rounded-lg border border-line bg-surface-page p-3">
                 <div className="mb-2 flex items-center justify-between gap-3">
-                  <span className="text-xs font-semibold text-gray-600 dark:text-gray-300">Attach media</span>
-                  <Link to="/dashboard/media" className="text-xs font-bold text-blue-600 hover:text-blue-700 dark:text-blue-300">Media library</Link>
+                  <span className="text-xs font-semibold text-ink-secondary">Attach media</span>
+                  <Link to="/dashboard/media" className="text-xs font-semibold text-accent-text hover:text-accent-hover">Media library</Link>
                 </div>
                 {loadingAssets ? (
                   <div className="grid grid-cols-4 gap-2">
-                    {[1, 2, 3, 4].map((item) => <div key={item} className="aspect-square animate-pulse rounded-md bg-gray-200 dark:bg-gray-800" />)}
+                    {[1, 2, 3, 4].map((item) => <div key={item} className="skeleton-shimmer aspect-square rounded-md" />)}
                   </div>
                 ) : media.length ? (
                   <div className="grid grid-cols-4 gap-2">
@@ -275,63 +275,63 @@ export default function DiscoverComposer({ open, user, initialPost, onClose, onC
                           onClick={() => toggleMedia(item.id)}
                           className={cx(
                             'relative aspect-square overflow-hidden rounded-md border transition-colors',
-                            selected ? 'border-blue-600 ring-2 ring-blue-200 dark:ring-blue-900' : 'border-gray-200 dark:border-gray-800'
+                            selected ? 'border-accent ring-2 ring-accent/30' : 'border-line'
                           )}
                           aria-label={`Select ${item.filename || 'media item'}`}
                         >
                           {item.file_type?.startsWith('image/') ? (
                             <img src={item.thumbnail_url || item.url} alt="" className="h-full w-full object-cover" />
                           ) : (
-                            <span className="flex h-full w-full items-center justify-center bg-white dark:bg-gray-950">
+                            <span className="flex h-full w-full items-center justify-center bg-surface">
                               <EngineeringIcon name={item.file_type?.startsWith('video/') ? 'video-frame' : 'attachment'} size="1.6rem" />
                             </span>
                           )}
-                          {selected ? <span className="absolute right-1 top-1 rounded bg-blue-600 p-1"><EngineeringIcon name="signal-success" size="0.8rem" className="brightness-0 invert" /></span> : null}
+                          {selected ? <span className="absolute right-1 top-1 rounded bg-accent p-1"><EngineeringIcon name="signal-success" size="0.8rem" className="brightness-0 invert" /></span> : null}
                         </button>
                       );
                     })}
                   </div>
                 ) : (
-                  <p className="text-xs text-gray-500 dark:text-gray-400">No media yet. Upload assets in the media library, then attach them here.</p>
+                  <p className="text-xs text-ink-muted">No media yet. Upload assets in the media library, then attach them here.</p>
                 )}
               </div>
             </div>
 
             <aside className="space-y-4">
               <div>
-                <span className="mb-1.5 block text-xs font-semibold text-gray-600 dark:text-gray-300">Project</span>
+                <span className="mb-1.5 block text-xs font-semibold text-ink-secondary">Project</span>
                 <select
                   value={form.project_id}
                   onChange={(event) => update({ project_id: event.target.value })}
-                  className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-950 outline-none transition-colors focus:border-blue-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100"
+                  className="w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm text-ink outline-none transition-colors focus:border-accent"
                 >
                   <option value="">No project attached</option>
                   {projects.map((project) => <option key={project.id} value={project.id}>{project.title}</option>)}
                 </select>
                 {selectedProject ? (
-                  <div className="mt-2 rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900">
-                    <div className="text-sm font-bold text-gray-950 dark:text-gray-100">{selectedProject.title}</div>
-                    <p className="mt-1 line-clamp-3 text-xs text-gray-500 dark:text-gray-400">{selectedProject.tagline || selectedProject.project_type}</p>
+                  <div className="mt-2 rounded-lg border border-line bg-surface p-3">
+                    <div className="text-sm font-semibold text-ink">{selectedProject.title}</div>
+                    <p className="mt-1 line-clamp-3 text-xs text-ink-muted">{selectedProject.tagline || selectedProject.project_type}</p>
                   </div>
                 ) : null}
               </div>
 
-              <div className="rounded-lg border border-gray-200 p-3 dark:border-gray-800">
-                <span className="mb-2 block text-xs font-semibold text-gray-600 dark:text-gray-300">Discussion controls</span>
-                <label className="flex items-center justify-between gap-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+              <div className="rounded-lg border border-line p-3">
+                <span className="mb-2 block text-xs font-semibold text-ink-secondary">Discussion controls</span>
+                <label className="flex items-center justify-between gap-3 text-sm font-medium text-ink-secondary">
                   Allow comments
                   <input
                     type="checkbox"
                     checked={form.allow_comments}
                     onChange={(event) => update({ allow_comments: event.target.checked })}
-                    className="h-4 w-4 accent-blue-600"
+                    className="h-4 w-4 accent-accent"
                   />
                 </label>
                 <select
                   value={form.comment_visibility}
                   onChange={(event) => update({ comment_visibility: event.target.value })}
                   disabled={!form.allow_comments}
-                  className="mt-3 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-950 outline-none transition-colors disabled:opacity-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100"
+                  className="mt-3 w-full rounded-lg border border-line bg-surface px-3 py-2 text-xs text-ink outline-none transition-colors disabled:opacity-50"
                 >
                   <option value="public">Public comments</option>
                   <option value="followers">Followers only</option>
@@ -339,12 +339,12 @@ export default function DiscoverComposer({ open, user, initialPost, onClose, onC
                 </select>
               </div>
 
-              <div className="rounded-lg border border-gray-200 p-3 dark:border-gray-800">
-                <span className="mb-2 block text-xs font-semibold text-gray-600 dark:text-gray-300">Visibility</span>
+              <div className="rounded-lg border border-line p-3">
+                <span className="mb-2 block text-xs font-semibold text-ink-secondary">Visibility</span>
                 <select
                   value={form.visibility}
                   onChange={(event) => update({ visibility: event.target.value })}
-                  className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-950 outline-none transition-colors dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100"
+                  className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-xs text-ink outline-none transition-colors"
                 >
                   <option value="public">Public feed</option>
                   <option value="followers">Followers only</option>
@@ -354,7 +354,7 @@ export default function DiscoverComposer({ open, user, initialPost, onClose, onC
           </div>
         </div>
 
-        <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-gray-200 px-5 py-4 dark:border-gray-800">
+        <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-line px-5 py-4">
           <button type="button" onClick={onClose} className="btn-secondary px-4 py-2">Cancel</button>
           <div className="flex flex-wrap items-center gap-2">
             <button
