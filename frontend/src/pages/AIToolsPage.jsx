@@ -7,10 +7,10 @@ import api from '../utils/api';
 import toast from 'react-hot-toast';
 import { resolveJobResponse } from '../utils/jobs';
 
-const FILTER_ACTIVE = 'bg-blue-600 text-white border-blue-600';
-const FILTER_INACTIVE = 'bg-white dark:bg-gray-800 text-slate-600 dark:text-slate-300 border-gray-200 dark:border-gray-700 hover:border-blue-300';
-const TAB_ACTIVE = 'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 border-transparent';
-const TAB_INACTIVE = 'bg-white dark:bg-gray-900 text-slate-600 dark:text-slate-300 border-gray-200 dark:border-gray-700 hover:border-gray-400';
+const FILTER_ACTIVE = 'bg-accent text-white border-accent';
+const FILTER_INACTIVE = 'bg-surface text-ink-muted border-line hover:border-accent-border';
+const TAB_ACTIVE = 'bg-accent text-white border-transparent';
+const TAB_INACTIVE = 'bg-surface text-ink-muted border-line hover:border-ink-faint';
 
 const TYPE_CONFIG = {
   internship: { label: 'Internships', icon: 'briefcase', color: 'blue' },
@@ -21,7 +21,7 @@ const TYPE_CONFIG = {
 };
 
 const COLOR_CLASSES = {
-  blue: { badge: 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' },
+  blue: { badge: 'bg-accent-surface text-accent-text' },
   emerald: { badge: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' },
   amber: { badge: 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' },
   green: { badge: 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300' },
@@ -47,7 +47,7 @@ const TOOLS = [
 
 function LoadingCard({ step, stages, note, label }) {
   return (
-    <div className="card p-6 dark:bg-gray-900">
+    <div className="card p-6">
       <ActiveProgress currentStep={step} stages={stages} note={note} label={label} />
     </div>
   );
@@ -93,7 +93,7 @@ function ScoreRing({ score = 0 }) {
     <div className="flex flex-col items-center gap-2">
       <div className="relative h-36 w-36">
         <svg className="h-full w-full -rotate-90" viewBox="0 0 120 120" aria-hidden="true">
-          <circle cx="60" cy="60" r={radius} fill="none" stroke="#e5e7eb" strokeWidth="10" />
+          <circle cx="60" cy="60" r={radius} fill="none" stroke="rgba(107,114,128,0.25)" strokeWidth="10" />
           <circle
             cx="60"
             cy="60"
@@ -108,8 +108,8 @@ function ScoreRing({ score = 0 }) {
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-3xl font-semibold text-gray-900 dark:text-gray-100">{normalized}</span>
-          <span className="text-xs text-gray-500">/100</span>
+          <span className="text-3xl font-semibold text-ink">{normalized}</span>
+          <span className="text-xs text-ink-muted">/100</span>
         </div>
       </div>
       <span className="text-sm font-semibold" style={{ color }}>{label}</span>
@@ -146,25 +146,25 @@ function ActionItem({ item, index }) {
   const priorityClasses = {
     high: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
     medium: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
-    low: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300',
+    low: 'bg-surface-muted text-ink-muted',
   };
   const priorityTone = priorityClasses[item.priority] || priorityClasses.low;
 
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-      <div className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white">
+    <div className="flex items-start gap-3 rounded-xl border border-line bg-surface p-4">
+      <div className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-accent text-xs font-semibold text-white">
         {index + 1}
       </div>
       <div className="min-w-0 flex-1">
         <div className="mb-1 flex flex-wrap items-center gap-2">
-          <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.action}</span>
+          <span className="text-sm font-medium text-ink">{item.action}</span>
           {item.priority && (
             <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${priorityTone}`}>
               {item.priority}
             </span>
           )}
         </div>
-        {item.detail && <p className="text-xs leading-5 text-gray-500 dark:text-gray-400">{item.detail}</p>}
+        {item.detail && <p className="text-xs leading-5 text-ink-muted">{item.detail}</p>}
       </div>
     </div>
   );
@@ -174,8 +174,8 @@ function DetailBlock({ label, children }) {
   if (!children) return null;
   return (
     <div>
-      <p className="mb-1 text-xs font-semibold text-gray-500 dark:text-gray-400">{label}</p>
-      <div className="text-sm leading-6 text-gray-600 dark:text-gray-300">{children}</div>
+      <p className="mb-1 text-xs font-semibold text-ink-muted">{label}</p>
+      <div className="text-sm leading-6 text-ink-secondary">{children}</div>
     </div>
   );
 }
@@ -190,23 +190,23 @@ function ProjectRating({ project }) {
       : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300';
 
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800">
+    <div className="overflow-hidden rounded-xl border border-line">
       <button
         onClick={() => setOpen((value) => !value)}
-        className="flex w-full items-center gap-4 p-4 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50"
+        className="flex w-full items-center gap-4 p-4 text-left transition-colors hover:bg-surface-muted"
       >
         <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg text-sm font-semibold ${tone}`}>
           {score}/10
         </div>
         <div className="min-w-0 flex-1">
-          <div className="truncate font-medium text-gray-900 dark:text-gray-100">{project.title}</div>
-          {project.headline && <div className="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">{project.headline}</div>}
+          <div className="truncate font-medium text-ink">{project.title}</div>
+          {project.headline && <div className="mt-0.5 truncate text-xs text-ink-muted">{project.headline}</div>}
         </div>
-        <span className="text-sm font-semibold text-gray-500 dark:text-gray-400">{open ? '-' : '+'}</span>
+        <span className="text-sm font-semibold text-ink-muted">{open ? '-' : '+'}</span>
       </button>
 
       {open && (
-        <div className="space-y-3 border-t border-gray-200 px-4 pb-4 pt-3 dark:border-gray-800">
+        <div className="space-y-3 border-t border-line px-4 pb-4 pt-3">
           <DetailBlock label="Why it matters">{project.why_relevant}</DetailBlock>
           {project.evidence_used?.length > 0 && (
             <DetailBlock label="Evidence used">
@@ -225,7 +225,7 @@ function ProjectRating({ project }) {
               <ul className="space-y-1">
                 {project.improvements.map((item, index) => (
                   <li key={`${item}-${index}`} className="flex items-start gap-2">
-                    <span className="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-blue-500" />
+                    <span className="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent" />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -240,20 +240,25 @@ function ProjectRating({ project }) {
 
 function HowItWorks({ steps }) {
   return (
-    <div className="card p-6 dark:bg-gray-900">
-      <h3 className="mb-4 font-semibold text-gray-900 dark:text-gray-100">How it works</h3>
-      <div className="space-y-4">
+    <details className="group rounded-xl border border-line bg-surface-page/60 px-5 py-4">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-ink-secondary [&::-webkit-details-marker]:hidden">
+        How it works
+        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className="h-4 w-4 transition-transform duration-200 group-open:rotate-180">
+          <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </summary>
+      <div className="mt-4 space-y-4">
         {steps.map((step) => (
           <div key={step.title} className="flex items-start gap-4">
             <EngineeringIcon name={step.icon} size="1.5rem" />
             <div>
-              <div className="mb-0.5 font-medium text-gray-900 dark:text-gray-100">{step.title}</div>
-              <div className="text-sm leading-6 text-gray-500 dark:text-gray-400">{step.desc}</div>
+              <div className="mb-0.5 font-medium text-ink">{step.title}</div>
+              <div className="text-sm leading-6 text-ink-muted">{step.desc}</div>
             </div>
           </div>
         ))}
       </div>
-    </div>
+    </details>
   );
 }
 
@@ -309,7 +314,7 @@ function AIMatchTool() {
 
   return (
     <div className="space-y-6">
-      <div className="card p-6 dark:bg-gray-900">
+      <div className="card p-6">
         <label className="form-label">Program or job posting URL</label>
         <div className="flex gap-3">
           <input
@@ -323,41 +328,41 @@ function AIMatchTool() {
             Analyze
           </button>
         </div>
-        <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+        <p className="mt-2 text-xs text-ink-muted">
           Works with public job boards, internship listings, fellowship pages, and program descriptions.
         </p>
       </div>
 
       {result ? (
         <div className="space-y-6">
-          <section className="card p-6 dark:bg-gray-900">
+          <section className="card p-6">
             <div className="flex flex-wrap items-start gap-6">
               <ScoreRing score={result.compatibility_score} />
               <div className="min-w-0 flex-1">
                 <div className="mb-2 flex flex-wrap items-center gap-2">
-                  <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{programName}</h2>
+                  <h2 className="text-xl font-semibold text-ink">{programName}</h2>
                   {result.program_type && (
-                    <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium capitalize text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                    <span className="rounded-full bg-accent-surface px-2.5 py-0.5 text-xs font-medium capitalize text-accent-text">
                       {result.program_type.replace('_', ' ')}
                     </span>
                   )}
                   {result.model_used?.name && (
-                    <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+                    <span className="rounded-full bg-surface-muted px-2.5 py-0.5 text-xs font-medium text-ink-muted">
                       {result.model_used.name}
                     </span>
                   )}
                   {result.confidence && (
-                    <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium capitalize text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+                    <span className="rounded-full bg-surface-muted px-2.5 py-0.5 text-xs font-medium capitalize text-ink-muted">
                       {result.confidence} confidence
                     </span>
                   )}
                 </div>
 
-                <p className="mb-4 text-sm leading-6 text-gray-600 dark:text-gray-400">{result.score_rationale}</p>
+                <p className="mb-4 text-sm leading-6 text-ink-secondary">{result.score_rationale}</p>
                 {result.standout_advice && (
-                  <div className="rounded-xl border border-blue-100 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20">
-                    <p className="mb-1 text-xs font-semibold text-blue-700 dark:text-blue-300">Key insight</p>
-                    <p className="text-sm text-blue-800 dark:text-blue-200">{result.standout_advice}</p>
+                  <div className="rounded-xl border border-accent-border bg-accent-surface p-3">
+                    <p className="mb-1 text-xs font-semibold text-accent-text">Key insight</p>
+                    <p className="text-sm text-accent-text">{result.standout_advice}</p>
                   </div>
                 )}
               </div>
@@ -370,8 +375,8 @@ function AIMatchTool() {
           </div>
 
           {result.missing_elements?.length > 0 && (
-            <section className="card p-5 dark:bg-gray-900">
-              <h3 className="mb-3 flex items-center gap-2 font-semibold text-gray-900 dark:text-gray-100">
+            <section className="card p-5">
+              <h3 className="mb-3 flex items-center gap-2 font-semibold text-ink">
                 <EngineeringIcon name="signal-error" size="1rem" />
                 Missing from your portfolio
               </h3>
@@ -386,11 +391,11 @@ function AIMatchTool() {
           )}
 
           {result.action_items?.length > 0 && (
-            <section className="card p-5 dark:bg-gray-900">
-              <h3 className="mb-4 flex items-center gap-2 font-semibold text-gray-900 dark:text-gray-100">
+            <section className="card p-5">
+              <h3 className="mb-4 flex items-center gap-2 font-semibold text-ink">
                 <EngineeringIcon name="target" size="1rem" />
                 Action plan
-                <span className="text-xs font-normal text-gray-500">({result.action_items.length} items)</span>
+                <span className="text-xs font-normal text-ink-muted">({result.action_items.length} items)</span>
               </h3>
               <div className="space-y-2">
                 {result.action_items.map((item, index) => <ActionItem key={`${item.action}-${index}`} item={item} index={index} />)}
@@ -399,8 +404,8 @@ function AIMatchTool() {
           )}
 
           {result.project_ratings?.length > 0 && (
-            <section className="card p-5 dark:bg-gray-900">
-              <h3 className="mb-4 flex items-center gap-2 font-semibold text-gray-900 dark:text-gray-100">
+            <section className="card p-5">
+              <h3 className="mb-4 flex items-center gap-2 font-semibold text-ink">
                 <EngineeringIcon name="project-module" size="1rem" />
                 Project relevance
               </h3>
@@ -449,21 +454,21 @@ function OpportunityCard({ opp, index }) {
   const colors = COLOR_CLASSES[cfg.color] || COLOR_CLASSES.blue;
 
   return (
-    <article className="overflow-hidden rounded-xl border border-gray-200 bg-white transition-shadow hover:shadow-sm dark:border-gray-800 dark:bg-gray-900">
+    <article className="overflow-hidden rounded-xl border border-line bg-surface transition-shadow hover:shadow-lift">
       <div className="p-5">
         <div className="flex items-start gap-4">
-          <div className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+          <div className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-surface-muted text-xs font-semibold text-ink-muted">
             {index + 1}
           </div>
 
           <div className="min-w-0 flex-1">
             <div className="mb-1 flex flex-wrap items-start justify-between gap-3">
-              <h3 className="text-sm font-semibold leading-snug text-gray-900 dark:text-gray-100">{opp.name}</h3>
+              <h3 className="text-sm font-semibold leading-snug text-ink">{opp.name}</h3>
               <MatchScoreDot score={opp.match_score} />
             </div>
 
             <div className="mb-2 flex flex-wrap items-center gap-2">
-              <span className="text-xs text-gray-500 dark:text-gray-400">{opp.org}</span>
+              <span className="text-xs text-ink-muted">{opp.org}</span>
               <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${colors.badge}`}>
                 <IconLabel icon={cfg.icon}>{cfg.label}</IconLabel>
               </span>
@@ -475,16 +480,16 @@ function OpportunityCard({ opp, index }) {
             </div>
 
             {opp.highlight && (
-              <p className="mb-2 text-sm font-medium leading-snug text-blue-700 dark:text-blue-300">{opp.highlight}</p>
+              <p className="mb-2 text-sm font-medium leading-snug text-accent-text">{opp.highlight}</p>
             )}
 
             <div className="flex flex-wrap items-center gap-3">
               {opp.url && (
-                <a href={opp.url} target="_blank" rel="noreferrer" className="text-xs font-medium text-blue-600 hover:underline dark:text-blue-400">
+                <a href={opp.url} target="_blank" rel="noreferrer" className="text-xs font-medium text-accent-text hover:underline">
                   View opportunity
                 </a>
               )}
-              <button onClick={() => setOpen((value) => !value)} className="text-xs text-gray-500 transition-colors hover:text-gray-700 dark:hover:text-gray-300">
+              <button onClick={() => setOpen((value) => !value)} className="text-xs text-ink-muted transition-colors hover:text-ink">
                 {open ? 'Less detail' : 'More detail'}
               </button>
             </div>
@@ -492,7 +497,7 @@ function OpportunityCard({ opp, index }) {
         </div>
 
         {open && (
-          <div className="mt-4 space-y-3 border-t border-gray-200 pt-4 md:pl-12 dark:border-gray-800">
+          <div className="mt-4 space-y-3 border-t border-line pt-4 md:pl-12">
             <DetailBlock label="Why it fits you">{opp.match_reason}</DetailBlock>
             <DetailBlock label="About this opportunity">{opp.description}</DetailBlock>
             {opp.evidence?.length > 0 && (
@@ -500,7 +505,7 @@ function OpportunityCard({ opp, index }) {
                 <ul className="space-y-1">
                   {opp.evidence.map((item, itemIndex) => (
                     <li key={`${item}-${itemIndex}`} className="flex items-start gap-2">
-                      <span className="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-blue-500" />
+                      <span className="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent" />
                       <span>{item}</span>
                     </li>
                   ))}
@@ -509,13 +514,13 @@ function OpportunityCard({ opp, index }) {
             )}
             <DetailBlock label="Application angle">{opp.application_angle}</DetailBlock>
             {opp.deadline_notes && (
-              <p className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+              <p className="flex items-center gap-2 text-xs text-ink-muted">
                 <EngineeringIcon name="calendar" size="1rem" />
                 <span>{opp.deadline_notes}</span>
               </p>
             )}
             {opp.eligibility && (
-              <p className="flex items-start gap-2 text-xs text-gray-500 dark:text-gray-400">
+              <p className="flex items-start gap-2 text-xs text-ink-muted">
                 <EngineeringIcon name="signal-success" size="1rem" />
                 <span>{opp.eligibility}</span>
               </p>
@@ -597,7 +602,7 @@ function OpportunityFinderTool() {
 
   return (
     <div className="space-y-6">
-      <section className="card p-6 dark:bg-gray-900">
+      <section className="card p-6">
         <label className="form-label mb-3">What types of opportunities are you looking for?</label>
         <div className="mb-5 flex flex-wrap gap-2">
           {Object.entries(TYPE_CONFIG).map(([key, cfg]) => {
@@ -624,7 +629,7 @@ function OpportunityFinderTool() {
               Reset
             </button>
           )}
-          <span className="text-xs text-gray-500 dark:text-gray-400">
+          <span className="text-xs text-ink-muted">
             {selectedTypes.length === 0 ? 'Select at least one type' : `Searching ${selectedTypes.length} categor${selectedTypes.length === 1 ? 'y' : 'ies'}`}
           </span>
         </div>
@@ -633,20 +638,20 @@ function OpportunityFinderTool() {
       {result && (
         <>
           {result.summary && (
-            <section className="card border-blue-100 bg-blue-50 p-5 dark:border-blue-800 dark:bg-blue-900/20">
+            <section className="card border-accent-border bg-accent-surface p-5">
               <div className="flex items-start gap-3">
                 <EngineeringIcon name="target" size="1.5rem" />
                 <div>
-                  <p className="mb-1 text-sm font-semibold text-gray-900 dark:text-gray-100">Your opportunity profile</p>
-                  <p className="text-sm leading-6 text-gray-600 dark:text-gray-300">{result.summary}</p>
+                  <p className="mb-1 text-sm font-semibold text-ink">Your opportunity profile</p>
+                  <p className="text-sm leading-6 text-ink-secondary">{result.summary}</p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {result.model_used?.name && (
-                      <span className="rounded-full border border-blue-100 bg-white/80 px-2 py-0.5 text-[10px] text-gray-600 dark:border-blue-800 dark:bg-gray-900/60 dark:text-gray-300">
+                      <span className="rounded-full border border-accent-border bg-surface/80 px-2 py-0.5 text-[10px] text-ink-muted">
                         {result.model_used.name}
                       </span>
                     )}
                     {result.portfolio_snapshot?.strongest_direction && (
-                      <span className="rounded-full border border-blue-100 bg-white/80 px-2 py-0.5 text-[10px] text-blue-700 dark:border-blue-800 dark:bg-gray-900/60 dark:text-blue-300">
+                      <span className="rounded-full border border-accent-border bg-surface/80 px-2 py-0.5 text-[10px] text-accent-text">
                         {result.portfolio_snapshot.strongest_direction}
                       </span>
                     )}
@@ -657,8 +662,8 @@ function OpportunityFinderTool() {
           )}
 
           {result.profile_gaps?.length > 0 && (
-            <section className="card border-amber-100 p-5 dark:border-amber-800 dark:bg-gray-900">
-              <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-gray-100">
+            <section className="card border-amber-100 p-5 dark:border-amber-800">
+              <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
                 <EngineeringIcon name="warning-signal" size="1rem" />
                 Profile gaps limiting your matches
               </h3>
@@ -674,8 +679,8 @@ function OpportunityFinderTool() {
           )}
 
           {result.next_steps?.length > 0 && (
-            <section className="card p-5 dark:bg-gray-900">
-              <h3 className="mb-3 text-sm font-semibold text-gray-900 dark:text-gray-100">Next steps to improve matches</h3>
+            <section className="card p-5">
+              <h3 className="mb-3 text-sm font-semibold text-ink">Next steps to improve matches</h3>
               <div className="space-y-2">
                 {result.next_steps.map((item, index) => <ActionItem key={`${item.action}-${index}`} item={item} index={index} />)}
               </div>
@@ -708,7 +713,7 @@ function OpportunityFinderTool() {
 
           <div className="space-y-4">
             {filteredMatches.length === 0 ? (
-              <div className="py-12 text-center text-gray-500 dark:text-gray-400">
+              <div className="py-12 text-center text-ink-muted">
                 <EngineeringIcon name="search-scan" size="2.5rem" className="mx-auto mb-3" />
                 <p>No matches for this filter.</p>
               </div>
@@ -716,7 +721,7 @@ function OpportunityFinderTool() {
               <>
                 {filteredMatches.filter((match) => !match.isAdditional).length > 0 && (
                   <section>
-                    <p className="mb-3 px-1 text-xs font-semibold text-gray-500 dark:text-gray-400">Best matches from the curated database</p>
+                    <p className="mb-3 px-1 text-xs font-semibold text-ink-muted">Best matches from the curated database</p>
                     <div className="space-y-3">
                       {filteredMatches
                         .filter((match) => !match.isAdditional)
@@ -728,8 +733,8 @@ function OpportunityFinderTool() {
                 {filteredMatches.filter((match) => match.isAdditional).length > 0 && (
                   <section className="mt-6">
                     <div className="mb-3 flex items-center gap-2 px-1">
-                      <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">AI-suggested additional opportunities</p>
-                      <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-700 dark:bg-blue-900/20 dark:text-blue-300">
+                      <p className="text-xs font-semibold text-ink-muted">AI-suggested additional opportunities</p>
+                      <span className="rounded-full bg-accent-surface px-2 py-0.5 text-[10px] font-semibold text-accent-text">
                         Generated
                       </span>
                     </div>
@@ -744,7 +749,7 @@ function OpportunityFinderTool() {
                           />
                         ))}
                     </div>
-                    <p className="mt-3 px-1 text-xs text-gray-500 dark:text-gray-400">
+                    <p className="mt-3 px-1 text-xs text-ink-muted">
                       AI-suggested opportunities are generated by the model. Always verify URLs and details before applying.
                     </p>
                   </section>
@@ -779,11 +784,11 @@ export default function AIToolsPage() {
         <header className="mb-8">
           {activeTool && (
             <div className="mb-1 flex items-center gap-3">
-              <button onClick={() => setActiveTool(null)} className="text-sm text-gray-500 transition-colors hover:text-gray-700 dark:hover:text-gray-200">
+              <button onClick={() => setActiveTool(null)} className="text-sm text-ink-muted transition-colors hover:text-ink">
                 Back
               </button>
-              <span className="text-gray-300 dark:text-gray-600">/</span>
-              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">{activeToolData?.title}</span>
+              <span className="text-ink-faint">/</span>
+              <span className="text-sm font-medium text-ink-muted">{activeToolData?.title}</span>
             </div>
           )}
 
@@ -801,17 +806,17 @@ export default function AIToolsPage() {
               <button
                 key={tool.id}
                 onClick={() => setActiveTool(tool.id)}
-                className="card group cursor-pointer p-6 text-left transition-all hover:border-blue-200 hover:shadow-sm dark:bg-gray-900 dark:hover:border-blue-700"
+                className="card card-interactive group p-6 text-left hover:border-accent-border"
               >
                 <EngineeringIcon name={tool.icon} size="2rem" className="mb-3" />
                 <div className="mb-2 flex items-start justify-between gap-2">
-                  <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">{tool.title}</h2>
-                  <span className="flex-shrink-0 whitespace-nowrap rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                  <h2 className="text-base font-semibold text-ink">{tool.title}</h2>
+                  <span className="flex-shrink-0 whitespace-nowrap rounded-full bg-accent-surface px-2 py-0.5 text-[10px] font-semibold text-accent-text">
                     {tool.tag}
                   </span>
                 </div>
-                <p className="text-sm leading-6 text-gray-500 dark:text-gray-400">{tool.desc}</p>
-                <div className="mt-4 flex items-center gap-1 text-sm font-medium text-blue-600 transition-all group-hover:gap-2 dark:text-blue-400">
+                <p className="text-sm leading-6 text-ink-muted">{tool.desc}</p>
+                <div className="mt-4 flex items-center gap-1 text-sm font-medium text-accent-text transition-all group-hover:gap-2">
                   Open tool
                 </div>
               </button>

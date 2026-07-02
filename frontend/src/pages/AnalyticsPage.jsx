@@ -73,10 +73,10 @@ function TrendBadge({ pct }) {
 
 function MetricCard({ icon, value, label, children }) {
   return (
-    <div className="card p-5 dark:bg-gray-900">
+    <div className="card p-5">
       <EngineeringIcon name={icon} size="1.4rem" className="mb-2" />
-      <div className="text-3xl font-semibold text-gray-900 dark:text-gray-100">{value}</div>
-      <div className="mt-1 text-xs text-gray-500">{label}</div>
+      <div className="text-3xl font-semibold text-ink">{value}</div>
+      <div className="mt-1 text-xs text-ink-muted">{label}</div>
       {children}
     </div>
   );
@@ -117,9 +117,9 @@ export default function AnalyticsPage() {
   const CustomTooltip = ({ active, payload }) => {
     if (!active || !payload?.length) return null;
     return (
-      <div className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs shadow-lg dark:border-gray-700 dark:bg-gray-900">
-        <div className="mb-0.5 text-gray-500 dark:text-gray-400">{payload[0]?.payload?.fullDate}</div>
-        <div className="font-semibold text-gray-900 dark:text-gray-100">{payload[0]?.value} view{payload[0]?.value !== 1 ? 's' : ''}</div>
+      <div className="rounded-xl border border-line bg-surface px-3 py-2 text-xs shadow-pop">
+        <div className="mb-0.5 text-ink-muted">{payload[0]?.payload?.fullDate}</div>
+        <div className="font-semibold text-ink">{payload[0]?.value} view{payload[0]?.value !== 1 ? 's' : ''}</div>
       </div>
     );
   };
@@ -131,7 +131,7 @@ export default function AnalyticsPage() {
           <h1 className="page-title mb-1">Analytics</h1>
           <p className="page-subtitle">How people are finding and reading your portfolio.</p>
         </div>
-        <div className="flex items-center gap-1 rounded-xl bg-gray-100 p-1 dark:bg-gray-800">
+        <div className="flex items-center gap-1 rounded-xl bg-surface-muted p-1">
           {RANGES.map((item) => (
             <button
               key={item.id}
@@ -139,8 +139,8 @@ export default function AnalyticsPage() {
               onClick={() => setRange(item.id)}
               className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
                 range === item.id
-                  ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-700 dark:text-gray-100'
-                  : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                  ? 'bg-surface text-ink shadow-sm'
+                  : 'text-ink-muted hover:text-ink'
               }`}
             >
               {item.label}
@@ -152,14 +152,14 @@ export default function AnalyticsPage() {
       {loading ? (
         <div className="animate-pulse space-y-4">
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            {[1, 2, 3, 4].map((item) => <div key={item} className="h-28 rounded-xl bg-gray-100 dark:bg-gray-800" />)}
+            {[1, 2, 3, 4].map((item) => <div key={item} className="skeleton-shimmer h-28 rounded-xl" />)}
           </div>
-          <div className="h-64 rounded-xl bg-gray-100 dark:bg-gray-800" />
+          <div className="skeleton-shimmer h-64 rounded-xl" />
         </div>
       ) : !data ? (
         <div className="card p-10 text-center">
           <EngineeringIcon name="analytics-gauge" size="2.5rem" className="mx-auto mb-3" />
-          <p className="text-gray-500">No analytics data yet. Share your portfolio to start getting views.</p>
+          <p className="text-ink-muted">No analytics data yet. Share your portfolio to start getting views.</p>
         </div>
       ) : (
         <div className="space-y-6">
@@ -189,16 +189,16 @@ export default function AnalyticsPage() {
           </div>
 
           {range !== 'all' && (
-            <div className="-mt-2 text-xs text-gray-400 dark:text-gray-500">
-              All-time total: <span className="font-medium text-gray-600 dark:text-gray-300">{toNumber(data.total_views).toLocaleString()} views</span>
+            <div className="-mt-2 text-xs text-ink-faint">
+              All-time total: <span className="font-medium text-ink-secondary">{toNumber(data.total_views).toLocaleString()} views</span>
             </div>
           )}
 
-          <div className="card p-6 dark:bg-gray-900">
+          <div className="card p-6">
             <div className="mb-4 flex items-center justify-between gap-4">
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100">Views over time</h3>
+              <h3 className="font-semibold text-ink">Views over time</h3>
               {data.trend_pct !== null && data.trend_pct !== undefined && (
-                <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+                <div className="flex items-center gap-1.5 text-xs text-ink-muted">
                   <span>vs previous period</span>
                   <TrendBadge pct={data.trend_pct} />
                 </div>
@@ -207,9 +207,9 @@ export default function AnalyticsPage() {
             {chartData.length > 0 ? (
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                  <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#6b7280' }} stroke="#e5e7eb" tickLine={false} interval="preserveStartEnd" />
-                  <YAxis tick={{ fontSize: 11, fill: '#6b7280' }} stroke="#e5e7eb" tickLine={false} allowDecimals={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(107,114,128,0.25)" />
+                  <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#6b7280' }} stroke="rgba(107,114,128,0.35)" tickLine={false} interval="preserveStartEnd" />
+                  <YAxis tick={{ fontSize: 11, fill: '#6b7280' }} stroke="rgba(107,114,128,0.35)" tickLine={false} allowDecimals={false} />
                   <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#2563eb', strokeWidth: 1, strokeDasharray: '4 4' }} />
                   <Line
                     type="monotone"
@@ -222,7 +222,7 @@ export default function AnalyticsPage() {
                 </LineChart>
               </ResponsiveContainer>
             ) : (
-              <div className="flex h-48 items-center justify-center text-sm text-gray-400">
+              <div className="flex h-48 items-center justify-center text-sm text-ink-faint">
                 No views in this period yet.
               </div>
             )}
@@ -230,8 +230,8 @@ export default function AnalyticsPage() {
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {visibleProjectViews.length > 0 && (
-              <div className="card p-6 dark:bg-gray-900">
-                <h3 className="mb-4 font-semibold text-gray-900 dark:text-gray-100">Views by project</h3>
+              <div className="card p-6">
+                <h3 className="mb-4 font-semibold text-ink">Views by project</h3>
                 <div className="space-y-3">
                   {visibleProjectViews.map((project) => {
                     const views = toNumber(project.views);
@@ -244,24 +244,24 @@ export default function AnalyticsPage() {
                             href={`/${user.username}/${project.slug}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="max-w-[60%] truncate text-sm font-medium text-gray-900 transition-colors hover:text-blue-600 dark:text-gray-100 dark:hover:text-blue-400"
+                            className="max-w-[60%] truncate text-sm font-medium text-ink transition-colors hover:text-accent-text"
                           >
                             {project.title}
                           </a>
                           <div className="flex flex-shrink-0 items-center gap-2">
-                            <span className="text-xs text-gray-400">{pct}%</span>
-                            <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{views.toLocaleString()}</span>
+                            <span className="text-xs text-ink-faint">{pct}%</span>
+                            <span className="text-sm font-semibold text-ink">{views.toLocaleString()}</span>
                           </div>
                         </div>
-                        <div className="h-1.5 w-full rounded-full bg-gray-100 dark:bg-gray-800">
-                          <div className="h-1.5 rounded-full bg-blue-500 transition-all" style={{ width: `${(views / maxViews) * 100}%` }} />
+                        <div className="h-1.5 w-full rounded-full bg-surface-muted">
+                          <div className="h-1.5 rounded-full bg-accent transition-all" style={{ width: `${(views / maxViews) * 100}%` }} />
                         </div>
                       </div>
                     );
                   })}
                 </div>
                 {zeroProjectCount > 0 && (
-                  <p className="mt-3 text-xs text-gray-400 dark:text-gray-500">
+                  <p className="mt-3 text-xs text-ink-faint">
                     {zeroProjectCount} project{zeroProjectCount !== 1 ? 's' : ''} with no views in this period
                   </p>
                 )}
@@ -269,9 +269,9 @@ export default function AnalyticsPage() {
             )}
 
             {data.referrer_breakdown?.length > 0 && (
-              <div className="card p-6 dark:bg-gray-900">
-                <h3 className="mb-1 font-semibold text-gray-900 dark:text-gray-100">Traffic sources</h3>
-                <p className="mb-4 text-xs text-gray-500">Where visitors came from in this period.</p>
+              <div className="card p-6">
+                <h3 className="mb-1 font-semibold text-ink">Traffic sources</h3>
+                <p className="mb-4 text-xs text-ink-muted">Where visitors came from in this period.</p>
                 <div className="space-y-3">
                   {data.referrer_breakdown.map((row) => {
                     const total = data.referrer_breakdown.reduce((sum, item) => sum + toNumber(item.visits), 0);
@@ -281,11 +281,11 @@ export default function AnalyticsPage() {
                         <EngineeringIcon name={SOURCE_ICONS[row.source] || 'source-network'} size="1.2rem" />
                         <div className="min-w-0 flex-1">
                           <div className="mb-1 flex items-center justify-between gap-3">
-                            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{row.source}</span>
-                            <span className="text-xs text-gray-500">{toNumber(row.visits).toLocaleString()} / {pct}%</span>
+                            <span className="text-sm font-medium text-ink">{row.source}</span>
+                            <span className="text-xs text-ink-muted">{toNumber(row.visits).toLocaleString()} / {pct}%</span>
                           </div>
-                          <div className="h-1.5 w-full rounded-full bg-gray-100 dark:bg-gray-800">
-                            <div className="h-1.5 rounded-full bg-blue-500 transition-all" style={{ width: `${pct}%` }} />
+                          <div className="h-1.5 w-full rounded-full bg-surface-muted">
+                            <div className="h-1.5 rounded-full bg-accent transition-all" style={{ width: `${pct}%` }} />
                           </div>
                         </div>
                       </div>
@@ -297,10 +297,10 @@ export default function AnalyticsPage() {
           </div>
 
           {!hasRangeViews && visibleProjectViews.length === 0 && (
-            <div className="card p-10 text-center dark:bg-gray-900">
+            <div className="card p-10 text-center">
               <EngineeringIcon name="search-scan" size="2.5rem" className="mx-auto mb-3" />
-              <p className="text-gray-500">No views recorded in this period.</p>
-              <p className="mt-1 text-xs text-gray-400">Try selecting a wider time range.</p>
+              <p className="text-ink-muted">No views recorded in this period.</p>
+              <p className="mt-1 text-xs text-ink-faint">Try selecting a wider time range.</p>
             </div>
           )}
         </div>

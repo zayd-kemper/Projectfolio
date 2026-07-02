@@ -126,21 +126,21 @@ export default function MediaLibraryPage() {
         {...getRootProps()}
         className={`mb-6 cursor-pointer rounded-xl border-2 border-dashed p-8 text-center transition-colors ${
           isDragActive
-            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-            : 'border-gray-200 bg-white hover:border-gray-300 dark:border-gray-700 dark:bg-gray-800/60 dark:hover:border-gray-500'
+            ? 'border-accent bg-accent-surface'
+            : 'border-line bg-surface hover:border-ink-faint'
         }`}
       >
         <input {...getInputProps()} />
         {uploading ? (
           <div className="flex items-center justify-center gap-3">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
-            <span className="text-gray-500 dark:text-gray-400">Uploading files...</span>
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+            <span className="text-ink-muted">Uploading files...</span>
           </div>
         ) : (
           <div className="mx-auto max-w-xl">
             <EngineeringIcon name="cloud-upload" size="2.5rem" className="mx-auto mb-3" />
-            <p className="font-medium text-gray-700 dark:text-gray-200">Drop files here or click to upload</p>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Images, videos, PDFs, Office files, CAD assets, archives, and code files.</p>
+            <p className="font-medium text-ink-secondary">Drop files here or click to upload</p>
+            <p className="mt-1 text-sm text-ink-muted">Images, videos, PDFs, Office files, CAD assets, archives, and code files.</p>
           </div>
         )}
       </div>
@@ -153,8 +153,8 @@ export default function MediaLibraryPage() {
             onClick={() => setFilter(item.id)}
             className={`inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
               filter === item.id
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+                ? 'bg-accent text-white'
+                : 'bg-surface-muted text-ink-muted hover:bg-line-subtle hover:text-ink'
             }`}
           >
             <EngineeringIcon name={item.icon} size="1rem" className={filter === item.id ? 'brightness-0 invert' : ''} />
@@ -165,10 +165,10 @@ export default function MediaLibraryPage() {
 
       {loading ? (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-          {[1, 2, 3, 4, 5, 6].map((item) => <div key={item} className="aspect-square animate-pulse rounded-xl bg-gray-100 dark:bg-gray-800" />)}
+          {[1, 2, 3, 4, 5, 6].map((item) => <div key={item} className="skeleton-shimmer aspect-square rounded-xl" />)}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="py-16 text-center text-gray-400">
+        <div className="py-16 text-center text-ink-faint">
           <EngineeringIcon name="open-folder" size="2.5rem" className="mx-auto mb-3" />
           <p>No {filter !== 'all' ? filter + 's' : 'files'} yet. Upload files above to attach them to projects.</p>
         </div>
@@ -176,7 +176,7 @@ export default function MediaLibraryPage() {
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
           {filtered.map((item) => (
             <div key={item.id} className="card group relative overflow-hidden">
-              <div className="flex aspect-square items-center justify-center overflow-hidden bg-gray-50 dark:bg-gray-800">
+              <div className="flex aspect-square items-center justify-center overflow-hidden bg-surface-muted">
                 {item.file_type?.startsWith('image/') ? (
                   <img src={item.url} alt={item.filename} className="h-full w-full object-cover" />
                 ) : item.file_type?.startsWith('video/') ? (
@@ -187,8 +187,8 @@ export default function MediaLibraryPage() {
               </div>
 
               <div className="p-3">
-                <div className="truncate text-xs font-medium text-gray-700 dark:text-gray-300">{item.filename}</div>
-                <div className="mt-0.5 text-xs text-gray-400">
+                <div className="truncate text-xs font-medium text-ink-secondary">{item.filename}</div>
+                <div className="mt-0.5 font-mono text-xs text-ink-faint">
                   {item.file_size ? `${(item.file_size / 1024).toFixed(0)} KB / ` : ''}
                   {format(new Date(item.created_at), 'MMM d')}
                 </div>
@@ -198,7 +198,7 @@ export default function MediaLibraryPage() {
                 <button
                   type="button"
                   onClick={() => handleCopyUrl(item.url)}
-                  className="rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100 dark:bg-gray-200 dark:hover:bg-white"
+                  className="rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-gray-800 hover:bg-gray-100"
                 >
                   Copy URL
                 </button>
@@ -206,7 +206,7 @@ export default function MediaLibraryPage() {
                   type="button"
                   onClick={() => handleDelete(item)}
                   disabled={deleting === item.id}
-                  className="rounded-lg bg-red-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-600 disabled:opacity-60"
+                  className="rounded-lg bg-danger px-3 py-1.5 text-xs font-medium text-white hover:bg-danger-hover disabled:opacity-60"
                 >
                   {deleting === item.id ? 'Deleting...' : 'Delete'}
                 </button>
