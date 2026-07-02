@@ -1,0 +1,8 @@
+ref,part,package,qty,reason
+U1,STM32G431CBT6,LQFP-48,1,FOC-capable MCU with fast ADC
+U2,DRV8313PWPR,HTSSOP-28,1,three-phase gate driver
+R12,0.01 ohm current shunt,2512,3,phase current measurement
+Q1-Q6,40 V N-channel MOSFET,PowerPAK,6,low-side/high-side bridge
+C7,470 uF low ESR electrolytic,radial,1,bulk motor rail capacitance
+J3,SWD debug header,2x5,1,firmware programming
+

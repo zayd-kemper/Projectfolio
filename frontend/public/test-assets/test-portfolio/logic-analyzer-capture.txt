@@ -1,0 +1,20 @@
+# UART Logic Analyzer Capture
+
+Capture: gps_uart_boot_message
+Sample rate: 24 MHz
+Target baud: 115200
+Measured baud: 115176
+
+Decoded frames:
+0000: 0x24 "$"
+0001: 0x47 "G"
+0002: 0x50 "P"
+0003: 0x47 "G"
+0004: 0x47 "G"
+0005: 0x41 "A"
+
+Notes:
+- Start-bit detector uses a three-sample majority filter.
+- FIFO watermark interrupt fires after 64 decoded bytes.
+- Python decoder matched the FPGA output on all 12 regression captures.
+

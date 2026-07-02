@@ -1,0 +1,7 @@
+benchmark,cycles,ipc,branch_accuracy,notes
+rv32i_dhrystone_subset,124831,0.81,0.91,forwarding enabled
+matrix_8x8_i32,18492,0.74,0.88,load-use stalls visible
+fir_32_tap,27731,0.79,0.93,no cache misses in warm run
+interrupt_latency,64,0.62,1.00,timer trap to first handler instruction
+hazard_regression_suite,9034,0.69,0.87,passes 43 of 43 directed cases
+

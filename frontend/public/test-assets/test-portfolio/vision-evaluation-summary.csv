@@ -1,0 +1,6 @@
+scene,frames,precision,recall,fps,notes
+lab_entry_day,2400,0.94,0.91,24.8,stable lighting
+hallway_backlight,1800,0.87,0.83,22.1,false negatives on glare
+makerspace_night,1200,0.89,0.80,19.4,IR illumination helped
+crowded_demo_day,3000,0.91,0.88,20.7,temporary ID swaps
+

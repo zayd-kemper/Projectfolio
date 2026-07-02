@@ -1,0 +1,18 @@
+{
+  "packet": "sun-devil-rover.telemetry.v1",
+  "sample_hz": 20,
+  "fields": [
+    { "name": "timestamp_ms", "type": "uint64" },
+    { "name": "battery_voltage", "type": "float32", "unit": "V" },
+    { "name": "motor_left_rpm", "type": "int16", "unit": "rpm" },
+    { "name": "motor_right_rpm", "type": "int16", "unit": "rpm" },
+    { "name": "imu_yaw", "type": "float32", "unit": "deg" },
+    { "name": "gps_fix", "type": "uint8" },
+    { "name": "link_rssi", "type": "int8", "unit": "dBm" }
+  ],
+  "transport": {
+    "robot_bus": "CAN 500 kbps",
+    "base_station": "WebSocket JSON bridge"
+  }
+}
+

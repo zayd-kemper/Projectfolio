@@ -1,0 +1,409 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    @apply bg-gray-50 text-gray-900 antialiased;
+  }
+
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+@layer components {
+  /* Button styles */
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg font-medium text-sm hover:bg-blue-700 active:scale-95 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 px-5 py-2.5 bg-white text-gray-700 rounded-lg font-medium text-sm border border-gray-200 hover:bg-gray-50 active:scale-95 transition-all duration-150;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 px-4 py-2 text-gray-600 rounded-lg font-medium text-sm hover:bg-gray-100 active:scale-95 transition-all duration-150;
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 text-white rounded-lg font-medium text-sm hover:bg-red-700 active:scale-95 transition-all duration-150;
+  }
+
+  /* Card styles */
+  .card {
+    @apply bg-white rounded-xl border border-gray-200 shadow-sm;
+  }
+
+  /* Form styles */
+  .form-input {
+    @apply w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all;
+  }
+
+  .form-label {
+    @apply block text-sm font-medium text-gray-700 mb-1.5;
+  }
+
+  .form-textarea {
+    @apply w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none;
+  }
+
+  /* Badge */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  /* Tag */
+  .tech-tag {
+    @apply inline-flex items-center px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium font-mono;
+  }
+
+  /* Sidebar nav item */
+  .nav-item {
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-all cursor-pointer;
+  }
+
+  .nav-item.active {
+    @apply bg-blue-50 text-blue-700;
+  }
+
+  /* Page title */
+  .page-title {
+    @apply text-2xl font-semibold tracking-normal text-gray-900;
+  }
+
+  .page-subtitle {
+    @apply text-gray-500 text-sm mt-1;
+  }
+}
+
+/* TipTap Editor Styles */
+.tiptap {
+  outline: none;
+  min-height: 200px;
+}
+
+.tiptap p {
+  margin: 0.75rem 0;
+  line-height: 1.7;
+}
+
+.tiptap h1 { font-size: 1.875rem; font-weight: 700; margin: 1.5rem 0 0.75rem; font-family: inherit; }
+.tiptap h2 { font-size: 1.5rem; font-weight: 600; margin: 1.25rem 0 0.5rem; font-family: inherit; }
+.tiptap h3 { font-size: 1.25rem; font-weight: 600; margin: 1rem 0 0.5rem; }
+
+.tiptap ul, .tiptap ol { margin: 0.75rem 0; padding-left: 1.5rem; }
+.tiptap ul { list-style-type: disc; }
+.tiptap ol { list-style-type: decimal; }
+.tiptap li { margin: 0.25rem 0; }
+
+.tiptap blockquote {
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  background: #eff6ff;
+  padding: 0.875rem 1rem;
+  margin: 1rem 0;
+  color: #374151;
+  font-style: italic;
+}
+
+.tiptap code {
+  background: #f3f4f6;
+  border-radius: 4px;
+  padding: 0.1em 0.4em;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.875em;
+}
+
+.tiptap pre {
+  background: #1e293b;
+  color: #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.875rem;
+}
+
+.tiptap pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+}
+
+.tiptap a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.tiptap img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+  color: #9ca3af;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Drag handle */
+.block-drag-handle {
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.block-container:hover .block-drag-handle {
+  opacity: 1;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+/* Animation helpers */
+.animate-fade-up {
+  animation: fadeUp 0.4s ease-out;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up {
+    animation: none;
+  }
+
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.dark body {
+  background-color: #0f1117;
+}
+
+.dark .dashboard-root input,
+.dark .dashboard-root textarea {
+  color: #e2e8f0;
+}
+
+/* Dark mode scoped to dashboard only so public portfolio pages are unaffected */
+.dark .dashboard-root {
+  background-color: #0f1117;
+  color: #e2e8f0;
+}
+
+.dark .dashboard-root .card {
+  background-color: #1a1d27;
+  border-color: #2d3148;
+}
+
+.dark .dashboard-root .form-input {
+  background-color: #1a1d27;
+  border-color: #2d3148;
+  color: #e2e8f0;
+}
+
+.dark .dashboard-root textarea { color: #e2e8f0; }
+.dark .dashboard-root [contenteditable] { color: #e2e8f0; }
+.dark .dashboard-root input { color: #e2e8f0; }
+.dark .dashboard-root .tiptap li { color: #e2e8f0; }
+
+.dark .dashboard-root .form-input::placeholder {
+  color: #4a5070;
+}
+
+.dark .dashboard-root .form-textarea {
+  background-color: #1a1d27;
+  border-color: #2d3148;
+  color: #e2e8f0;
+}
+
+.dark .dashboard-root .form-textarea::placeholder {
+  color: #4a5070;
+}
+
+.dark .dashboard-root .btn-primary {
+  background-color: #1d4ed8;
+}
+
+.dark .dashboard-root .btn-primary:hover {
+  background-color: #1e40af;
+}
+
+.dark .dashboard-root .btn-secondary {
+  background-color: #1a1d27;
+  color: #cbd5e1;
+  border-color: #2d3148;
+}
+
+.dark .dashboard-root .btn-secondary:hover {
+  background-color: #22263a;
+}
+
+.dark .dashboard-root .btn-ghost {
+  color: #94a3b8;
+}
+
+.dark .dashboard-root .btn-ghost:hover {
+  background-color: #1a1d27;
+  color: #e2e8f0;
+}
+
+.dark .dashboard-root .nav-item {
+  color: #94a3b8;
+}
+
+.dark .dashboard-root .nav-item:hover {
+  background-color: #1a1d27;
+  color: #e2e8f0;
+}
+
+.dark .dashboard-root .nav-item.active {
+  background-color: #1e2a4a;
+  color: #60a5fa;
+}
+
+.dark .dashboard-root .page-title {
+  color: #f1f5f9;
+}
+
+.dark .dashboard-root .page-subtitle {
+  color: #94a3b8;
+}
+
+.dark .dashboard-root .tech-tag {
+  background-color: #1e2a4a;
+  color: #60a5fa;
+}
+
+.dark .dashboard-root .badge {
+  background-color: #1a1d27;
+}
+
+/* Sidebar dark */
+.dark aside {
+  background-color: #13151f;
+  border-color: #1e2130;
+}
+
+/* Top bars dark */
+.dark .dashboard-root .sticky {
+  background-color: #13151f;
+  border-color: #1e2130;
+}
+
+/* Table/list rows */
+.dark .dashboard-root .border-gray-100 {
+  border-color: #1e2130;
+}
+
+.dark .dashboard-root .bg-gray-50 {
+  background-color: #13151f;
+}
+
+.dark .dashboard-root .bg-gray-100 {
+  background-color: #1a1d27;
+}
+
+.dark .dashboard-root .text-gray-900 {
+  color: #f1f5f9;
+}
+
+.dark .dashboard-root .text-gray-700 {
+  color: #cbd5e1;
+}
+
+.dark .dashboard-root .text-gray-600 {
+  color: #94a3b8;
+}
+
+.dark .dashboard-root .text-gray-500 {
+  color: #94a3b8;
+}
+
+.dark .dashboard-root .text-gray-400 {
+  color: #cbd5e1;
+}
+
+/* Blue accent elements */
+.dark .dashboard-root .bg-blue-50 {
+  background-color: #1e2a4a;
+}
+
+.dark .dashboard-root .text-blue-600 {
+  color: #60a5fa;
+}
+
+.dark .dashboard-root .text-blue-700 {
+  color: #93c5fd;
+}
+
+.dark .dashboard-root .border-blue-100 {
+  border-color: #1e3a6e;
+}
+
+/* Input focus ring */
+.dark .dashboard-root .form-input:focus,
+.dark .dashboard-root .form-textarea:focus {
+  border-color: #1d4ed8;
+}
+
+/* Scrollbar dark */
+.dark .dashboard-root ::-webkit-scrollbar-thumb {
+  background: #2d3148;
+}
+
+.dark .dashboard-root ::-webkit-scrollbar-track {
+  background: #13151f;
+}
+
+/* Smooth transitions on all interactive elements */
+button, a, input, select, textarea {
+  transition-property: color, background-color, border-color, opacity, box-shadow, transform;
+  transition-duration: 150ms;
+  transition-timing-function: ease-out;
+}
+
+button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* ── Editor chrome dark mode ───────────────────────────────────────────── */
+/* Tiptap editor area */
+.dark .dashboard-root .tiptap p { color: #e2e8f0; }
+.dark .dashboard-root .tiptap h1, .dark .dashboard-root .tiptap h2, .dark .dashboard-root .tiptap h3 { color: #f1f5f9; }
+.dark .dashboard-root .tiptap li { color: #e2e8f0; }
+.dark .dashboard-root .tiptap blockquote { color: #cbd5e1; border-color: #1d4ed8; background: #1e2a4a; }
+.dark .dashboard-root .tiptap a { color: #60a5fa; }
+.dark .dashboard-root .tiptap code { background: #1e293b; color: #93c5fd; }
+.dark .dashboard-root .tiptap p.is-editor-empty:first-child::before { color: #374151; }
+
+/* Drag handle dots in dark */
+.dark .dashboard-root .block-drag-handle svg circle { fill: #374151; }

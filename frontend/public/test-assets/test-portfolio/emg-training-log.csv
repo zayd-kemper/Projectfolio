@@ -1,0 +1,6 @@
+gesture,samples,features,classifier_accuracy,false_positive_rate
+rest,420,rms zc mav wl,0.98,0.01
+open_hand,390,rms zc mav wl,0.93,0.04
+fist,410,rms zc mav wl,0.94,0.03
+pinch,360,rms zc mav wl,0.89,0.06
+two_finger,340,rms zc mav wl,0.86,0.08
