@@ -40,7 +40,7 @@ export function RouteSkeleton() {
 
 export function DashboardShellSkeleton() {
   return (
-    <LoadingRegion label="Loading dashboard" className="dashboard-root min-h-screen bg-gray-50 dark:bg-gray-950 flex">
+    <LoadingRegion label="Loading dashboard" className="dashboard-root app-surface min-h-screen bg-surface-page flex">
       <aside className="hidden lg:block w-60 min-h-screen border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
         <SkeletonBlock className="h-8 w-36 rounded mb-10" />
         <div className="space-y-3">

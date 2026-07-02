@@ -106,7 +106,7 @@ export default function DashboardLayout({ children }) {
   );
 
   return (
-    <div className="dashboard-root flex min-h-screen bg-gray-50">
+    <div className="dashboard-root app-surface flex min-h-screen bg-surface-page">
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col border-r border-gray-100 bg-white lg:flex dark:border-gray-800 dark:bg-gray-900">
         <SidebarContent />
       </aside>

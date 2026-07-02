@@ -383,7 +383,7 @@ export default function DiscoverPage() {
   const visibleCount = view === 'makers' ? portfolios.length : posts.length;
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-950 dark:bg-gray-950 dark:text-gray-100">
+    <div className="app-surface min-h-screen bg-surface-page text-ink">
       <DiscoverComposer
         open={composerOpen}
         user={user}

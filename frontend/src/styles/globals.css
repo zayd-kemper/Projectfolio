@@ -2,10 +2,58 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Design tokens ─────────────────────────────────────────────────────────
+   RGB triplets so Tailwind opacity modifiers work (bg-surface/60).
+   Light values on :root; dark values flip under `.dark .app-surface`.
+   Public portfolio pages never carry .app-surface, so they stay light
+   regardless of the html.dark class. */
+:root {
+  --surface-page: 249 250 251;   /* gray-50  — page background */
+  --surface: 255 255 255;        /* cards, panels, inputs */
+  --surface-muted: 243 244 246;  /* gray-100 — hovers, wells */
+  --surface-rail: 255 255 255;   /* sidebars, top bars */
+  --line: 229 231 235;           /* gray-200 — default borders */
+  --line-subtle: 243 244 246;    /* gray-100 — row dividers */
+  --ink: 17 24 39;               /* gray-900 — primary text */
+  --ink-secondary: 55 65 81;     /* gray-700 */
+  --ink-muted: 107 114 128;      /* gray-500 — secondary text */
+  --ink-faint: 156 163 175;      /* gray-400 — placeholders, disabled */
+  --accent: 37 99 235;           /* blue-600 — primary actions */
+  --accent-hover: 29 78 216;     /* blue-700 */
+  --accent-text: 29 78 216;      /* blue-700 — accent-colored text */
+  --accent-surface: 239 246 255; /* blue-50  — selected/active fills */
+  --accent-border: 219 234 254;  /* blue-100 */
+  --danger: 220 38 38;           /* red-600 */
+  --danger-hover: 185 28 28;     /* red-700 */
+  --shadow-color: 15 23 42;      /* slate-900 — elevation shadows */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark .app-surface {
+  --surface-page: 15 17 23;      /* #0f1117 */
+  --surface: 26 29 39;           /* #1a1d27 */
+  --surface-muted: 34 38 58;     /* #22263a */
+  --surface-rail: 19 21 31;      /* #13151f */
+  --line: 45 49 72;              /* #2d3148 */
+  --line-subtle: 30 33 48;       /* #1e2130 */
+  --ink: 241 245 249;            /* #f1f5f9 */
+  --ink-secondary: 203 213 225;  /* #cbd5e1 */
+  --ink-muted: 148 163 184;      /* #94a3b8 */
+  --ink-faint: 90 100 128;       /* between #4a5070 and slate-500 */
+  --accent: 29 78 216;           /* #1d4ed8 */
+  --accent-hover: 30 64 175;     /* #1e40af */
+  --accent-text: 96 165 250;     /* #60a5fa */
+  --accent-surface: 30 42 74;    /* #1e2a4a */
+  --accent-border: 30 58 110;    /* #1e3a6e */
+  --shadow-color: 0 0 0;
+  color-scheme: dark;
+}
+
 @layer base {
   body {
     font-family: 'DM Sans', system-ui, sans-serif;
-    @apply bg-gray-50 text-gray-900 antialiased;
+    @apply bg-surface-page text-ink antialiased;
   }
 
   h1, h2, h3 {
@@ -30,37 +78,48 @@
 @layer components {
   /* Button styles */
   .btn-primary {
-    @apply inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg font-medium text-sm hover:bg-blue-700 active:scale-95 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center gap-2 px-5 py-2.5 bg-accent text-white rounded-lg font-medium text-sm hover:bg-accent-hover active:scale-95 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center gap-2 px-5 py-2.5 bg-white text-gray-700 rounded-lg font-medium text-sm border border-gray-200 hover:bg-gray-50 active:scale-95 transition-all duration-150;
+    @apply inline-flex items-center gap-2 px-5 py-2.5 bg-surface text-ink-secondary rounded-lg font-medium text-sm border border-line hover:bg-surface-muted active:scale-95 transition-all duration-150;
   }
 
   .btn-ghost {
-    @apply inline-flex items-center gap-2 px-4 py-2 text-gray-600 rounded-lg font-medium text-sm hover:bg-gray-100 active:scale-95 transition-all duration-150;
+    @apply inline-flex items-center gap-2 px-4 py-2 text-ink-muted rounded-lg font-medium text-sm hover:bg-surface-muted hover:text-ink active:scale-95 transition-all duration-150;
   }
 
   .btn-danger {
-    @apply inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 text-white rounded-lg font-medium text-sm hover:bg-red-700 active:scale-95 transition-all duration-150;
+    @apply inline-flex items-center gap-2 px-5 py-2.5 bg-danger text-white rounded-lg font-medium text-sm hover:bg-danger-hover active:scale-95 transition-all duration-150;
   }
 
   /* Card styles */
   .card {
-    @apply bg-white rounded-xl border border-gray-200 shadow-sm;
+    @apply bg-surface rounded-xl border border-line shadow-sm;
+  }
+
+  /* Interactive card: subtle lift on hover. Apply alongside .card on
+     clickable cards only — depth should signal interactivity, not decorate. */
+  .card-interactive {
+    @apply cursor-pointer transition-[transform,box-shadow,border-color] duration-200 ease-out-quart hover:-translate-y-0.5 hover:shadow-lift;
+  }
+
+  /* Hoverable list row: quiet feedback for dense lists. */
+  .row-hover {
+    @apply transition-colors duration-150 hover:bg-surface-muted;
   }
 
   /* Form styles */
   .form-input {
-    @apply w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all;
+    @apply w-full px-4 py-2.5 bg-surface border border-line rounded-lg text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:ring-2 focus:ring-accent/60 focus:border-transparent transition-all;
   }
 
   .form-label {
-    @apply block text-sm font-medium text-gray-700 mb-1.5;
+    @apply block text-sm font-medium text-ink-secondary mb-1.5;
   }
 
   .form-textarea {
-    @apply w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none;
+    @apply w-full px-4 py-2.5 bg-surface border border-line rounded-lg text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:ring-2 focus:ring-accent/60 focus:border-transparent transition-all resize-none;
   }
 
   /* Badge */
@@ -70,25 +129,37 @@
 
   /* Tag */
   .tech-tag {
-    @apply inline-flex items-center px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium font-mono;
+    @apply inline-flex items-center px-3 py-1 bg-accent-surface text-accent-text rounded-full text-xs font-medium font-mono;
   }
 
   /* Sidebar nav item */
   .nav-item {
-    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-all cursor-pointer;
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-ink-muted hover:bg-surface-muted hover:text-ink transition-all cursor-pointer;
   }
 
   .nav-item.active {
-    @apply bg-blue-50 text-blue-700;
+    @apply bg-accent-surface text-accent-text;
   }
 
   /* Page title */
   .page-title {
-    @apply text-2xl font-semibold tracking-normal text-gray-900;
+    @apply text-2xl font-semibold tracking-normal text-ink;
   }
 
   .page-subtitle {
-    @apply text-gray-500 text-sm mt-1;
+    @apply text-ink-muted text-sm mt-1;
+  }
+
+  /* Skeleton shimmer: loading surfaces read as alive, not frozen. */
+  .skeleton-shimmer {
+    background-image: linear-gradient(
+      100deg,
+      rgb(var(--surface-muted)) 40%,
+      rgb(var(--line-subtle)) 50%,
+      rgb(var(--surface-muted)) 60%
+    );
+    background-size: 200% 100%;
+    @apply animate-shimmer;
   }
 }
 
@@ -184,7 +255,7 @@
 
 /* Animation helpers */
 .animate-fade-up {
-  animation: fadeUp 0.4s ease-out;
+  animation: fadeUp 0.4s var(--ease-out-quart);
 }
 
 @keyframes fadeUp {
@@ -200,6 +271,7 @@
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
 }
@@ -208,6 +280,14 @@
   background-color: #0f1117;
 }
 
+/* ── Dark-mode compatibility shim ──────────────────────────────────────────
+   Legacy: remaps raw Tailwind utility classes inside dashboard pages that
+   have not yet migrated to token utilities (bg-surface, text-ink, ...).
+   Rule: when a page is migrated, grep its old raw classes; when a class is
+   no longer used inside dashboard pages, delete its line here. The whole
+   block (and the dashboard-root class) goes away after the portfolio
+   settings refactor. Do NOT add new lines. */
+
 .dark .dashboard-root input,
 .dark .dashboard-root textarea {
   color: #e2e8f0;
@@ -215,97 +295,12 @@
 
 /* Dark mode scoped to dashboard only so public portfolio pages are unaffected */
 .dark .dashboard-root {
-  background-color: #0f1117;
+  background-color: rgb(var(--surface-page));
   color: #e2e8f0;
 }
 
-.dark .dashboard-root .card {
-  background-color: #1a1d27;
-  border-color: #2d3148;
-}
-
-.dark .dashboard-root .form-input {
-  background-color: #1a1d27;
-  border-color: #2d3148;
-  color: #e2e8f0;
-}
-
-.dark .dashboard-root textarea { color: #e2e8f0; }
 .dark .dashboard-root [contenteditable] { color: #e2e8f0; }
-.dark .dashboard-root input { color: #e2e8f0; }
 .dark .dashboard-root .tiptap li { color: #e2e8f0; }
-
-.dark .dashboard-root .form-input::placeholder {
-  color: #4a5070;
-}
-
-.dark .dashboard-root .form-textarea {
-  background-color: #1a1d27;
-  border-color: #2d3148;
-  color: #e2e8f0;
-}
-
-.dark .dashboard-root .form-textarea::placeholder {
-  color: #4a5070;
-}
-
-.dark .dashboard-root .btn-primary {
-  background-color: #1d4ed8;
-}
-
-.dark .dashboard-root .btn-primary:hover {
-  background-color: #1e40af;
-}
-
-.dark .dashboard-root .btn-secondary {
-  background-color: #1a1d27;
-  color: #cbd5e1;
-  border-color: #2d3148;
-}
-
-.dark .dashboard-root .btn-secondary:hover {
-  background-color: #22263a;
-}
-
-.dark .dashboard-root .btn-ghost {
-  color: #94a3b8;
-}
-
-.dark .dashboard-root .btn-ghost:hover {
-  background-color: #1a1d27;
-  color: #e2e8f0;
-}
-
-.dark .dashboard-root .nav-item {
-  color: #94a3b8;
-}
-
-.dark .dashboard-root .nav-item:hover {
-  background-color: #1a1d27;
-  color: #e2e8f0;
-}
-
-.dark .dashboard-root .nav-item.active {
-  background-color: #1e2a4a;
-  color: #60a5fa;
-}
-
-.dark .dashboard-root .page-title {
-  color: #f1f5f9;
-}
-
-.dark .dashboard-root .page-subtitle {
-  color: #94a3b8;
-}
-
-.dark .dashboard-root .tech-tag {
-  background-color: #1e2a4a;
-  color: #60a5fa;
-}
-
-.dark .dashboard-root .badge {
-  background-color: #1a1d27;
-}
 
 /* Sidebar dark */
 .dark aside {
@@ -315,50 +310,50 @@
 
 /* Top bars dark */
 .dark .dashboard-root .sticky {
-  background-color: #13151f;
-  border-color: #1e2130;
+  background-color: rgb(var(--surface-rail));
+  border-color: rgb(var(--line-subtle));
 }
 
 /* Table/list rows */
 .dark .dashboard-root .border-gray-100 {
-  border-color: #1e2130;
+  border-color: rgb(var(--line-subtle));
 }
 
 .dark .dashboard-root .bg-gray-50 {
-  background-color: #13151f;
+  background-color: rgb(var(--surface-rail));
 }
 
 .dark .dashboard-root .bg-gray-100 {
-  background-color: #1a1d27;
+  background-color: rgb(var(--surface));
 }
 
 .dark .dashboard-root .text-gray-900 {
-  color: #f1f5f9;
+  color: rgb(var(--ink));
 }
 
 .dark .dashboard-root .text-gray-700 {
-  color: #cbd5e1;
+  color: rgb(var(--ink-secondary));
 }
 
 .dark .dashboard-root .text-gray-600 {
-  color: #94a3b8;
+  color: rgb(var(--ink-muted));
 }
 
 .dark .dashboard-root .text-gray-500 {
-  color: #94a3b8;
+  color: rgb(var(--ink-muted));
 }
 
 .dark .dashboard-root .text-gray-400 {
-  color: #cbd5e1;
+  color: rgb(var(--ink-secondary));
 }
 
 /* Blue accent elements */
 .dark .dashboard-root .bg-blue-50 {
-  background-color: #1e2a4a;
+  background-color: rgb(var(--accent-surface));
 }
 
 .dark .dashboard-root .text-blue-600 {
-  color: #60a5fa;
+  color: rgb(var(--accent-text));
 }
 
 .dark .dashboard-root .text-blue-700 {
@@ -366,29 +361,23 @@
 }
 
 .dark .dashboard-root .border-blue-100 {
-  border-color: #1e3a6e;
-}
-
-/* Input focus ring */
-.dark .dashboard-root .form-input:focus,
-.dark .dashboard-root .form-textarea:focus {
-  border-color: #1d4ed8;
+  border-color: rgb(var(--accent-border));
 }
 
 /* Scrollbar dark */
-.dark .dashboard-root ::-webkit-scrollbar-thumb {
-  background: #2d3148;
+.dark .app-surface ::-webkit-scrollbar-thumb {
+  background: rgb(var(--line));
 }
 
-.dark .dashboard-root ::-webkit-scrollbar-track {
-  background: #13151f;
+.dark .app-surface ::-webkit-scrollbar-track {
+  background: rgb(var(--surface-rail));
 }
 
 /* Smooth transitions on all interactive elements */
 button, a, input, select, textarea {
   transition-property: color, background-color, border-color, opacity, box-shadow, transform;
   transition-duration: 150ms;
-  transition-timing-function: ease-out;
+  transition-timing-function: var(--ease-out-quart);
 }
 
 button:active:not(:disabled) {
@@ -397,13 +386,13 @@ button:active:not(:disabled) {
 
 /* ── Editor chrome dark mode ───────────────────────────────────────────── */
 /* Tiptap editor area */
-.dark .dashboard-root .tiptap p { color: #e2e8f0; }
-.dark .dashboard-root .tiptap h1, .dark .dashboard-root .tiptap h2, .dark .dashboard-root .tiptap h3 { color: #f1f5f9; }
-.dark .dashboard-root .tiptap li { color: #e2e8f0; }
-.dark .dashboard-root .tiptap blockquote { color: #cbd5e1; border-color: #1d4ed8; background: #1e2a4a; }
-.dark .dashboard-root .tiptap a { color: #60a5fa; }
-.dark .dashboard-root .tiptap code { background: #1e293b; color: #93c5fd; }
-.dark .dashboard-root .tiptap p.is-editor-empty:first-child::before { color: #374151; }
+.dark .app-surface .tiptap p { color: rgb(var(--ink-secondary)); }
+.dark .app-surface .tiptap h1, .dark .app-surface .tiptap h2, .dark .app-surface .tiptap h3 { color: rgb(var(--ink)); }
+.dark .app-surface .tiptap li { color: rgb(var(--ink-secondary)); }
+.dark .app-surface .tiptap blockquote { color: rgb(var(--ink-secondary)); border-color: rgb(var(--accent)); background: rgb(var(--accent-surface)); }
+.dark .app-surface .tiptap a { color: rgb(var(--accent-text)); }
+.dark .app-surface .tiptap code { background: #1e293b; color: #93c5fd; }
+.dark .app-surface .tiptap p.is-editor-empty:first-child::before { color: rgb(var(--ink-faint)); }
 
 /* Drag handle dots in dark */
-.dark .dashboard-root .block-drag-handle svg circle { fill: #374151; }
+.dark .app-surface .block-drag-handle svg circle { fill: rgb(var(--ink-faint)); }
