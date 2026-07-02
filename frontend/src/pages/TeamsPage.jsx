@@ -47,31 +47,31 @@ function TeamCardMenu({ team, isAdmin }) {
     <div className="relative flex-shrink-0" ref={menuRef}>
       <button
         onClick={(event) => { event.preventDefault(); event.stopPropagation(); setOpen((value) => !value); }}
-        className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+        className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-faint transition-colors hover:bg-surface-muted hover:text-ink-secondary"
         title="Team options"
       >
         <EngineeringIcon name="list-menu" size="1rem" />
       </button>
 
       {open && (
-        <div className="absolute right-0 top-9 z-50 w-52 animate-fade-up rounded-xl border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+        <div className="absolute right-0 top-9 z-50 w-52 animate-fade-up rounded-xl border border-line bg-surface py-1 shadow-pop">
           {items.map(([id, icon, label, action]) => (
             <button
               key={id}
               onClick={action}
-              className="flex w-full items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700"
+              className="flex w-full items-center gap-2.5 px-4 py-2.5 text-sm text-ink-secondary transition-colors hover:bg-surface-muted"
             >
               <EngineeringIcon name={icon} size="1rem" />
               <span>{label}</span>
             </button>
           ))}
-          <div className="my-1 border-t border-gray-100 dark:border-gray-700" />
+          <div className="my-1 border-t border-line-subtle" />
           <a
             href={`/team/${team.slug}`}
             target="_blank"
             rel="noreferrer"
             onClick={(event) => event.stopPropagation()}
-            className="flex w-full items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700"
+            className="flex w-full items-center gap-2.5 px-4 py-2.5 text-sm text-ink-secondary transition-colors hover:bg-surface-muted"
           >
             <EngineeringIcon name="link" size="1rem" />
             <span>View public page</span>
@@ -130,8 +130,8 @@ export default function TeamsPage() {
 
       {showCreate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl dark:bg-gray-800">
-            <h3 className="mb-5 text-xl font-semibold text-gray-900 dark:text-gray-100">Create a team</h3>
+          <div className="w-full max-w-md rounded-xl bg-surface p-6 shadow-pop">
+            <h3 className="mb-5 text-xl font-semibold text-ink">Create a team</h3>
             <div className="space-y-4">
               <div>
                 <label className="form-label">Team name *</label>
@@ -180,45 +180,45 @@ export default function TeamsPage() {
 
       {loading ? (
         <div className="space-y-3">
-          {[1, 2].map((item) => <div key={item} className="card h-20 animate-pulse p-5" />)}
+          {[1, 2].map((item) => <div key={item} className="skeleton-shimmer h-20 rounded-xl" />)}
         </div>
       ) : teams.length === 0 ? (
         <div className="card p-16 text-center">
           <EngineeringIcon name="team-node" size="3rem" className="mx-auto mb-4" />
-          <h3 className="mb-2 text-xl font-semibold text-gray-900 dark:text-gray-100">No teams yet</h3>
-          <p className="mb-6 text-sm text-gray-500">Create a team portfolio for your club, lab, or organization.</p>
+          <h3 className="mb-2 text-xl font-semibold text-ink">No teams yet</h3>
+          <p className="mb-6 text-sm text-ink-muted">Create a team portfolio for your club, lab, or organization.</p>
           <button onClick={() => setShowCreate(true)} className="btn-primary mx-auto">+ Create your first team</button>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="card divide-y divide-line-subtle">
           {teams.map((team) => {
             const isAdmin = team.role === 'admin' || team.owner_id === user?.id;
             return (
-              <article key={team.id} className="card p-5 transition-shadow hover:shadow-sm">
-                <div className="flex items-start gap-4">
-                  <Link to={`/dashboard/teams/${team.id}`} className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-900">
-                    <EngineeringIcon name={iconForTeamType(team.type)} size="1.75rem" />
-                  </Link>
-                  <Link to={`/dashboard/teams/${team.id}`} className="min-w-0 flex-1">
-                    <div className="mb-0.5 flex items-center gap-2">
-                      <h3 className="truncate font-semibold text-gray-900 dark:text-gray-100">{team.name}</h3>
-                      <span className="badge bg-gray-100 text-xs text-gray-600 dark:bg-gray-700 dark:text-gray-300">{team.role}</span>
-                    </div>
-                    <p className="mb-2 text-xs text-gray-500">{team.type}</p>
-                    {team.description && <p className="line-clamp-2 text-sm text-gray-500">{team.description}</p>}
-                    <div className="mt-2 flex gap-4 text-xs text-gray-500 dark:text-gray-400">
-                      <span className="inline-flex items-center gap-1">
-                        <EngineeringIcon name="team-node" size="1em" />
-                        {team.member_count} member{team.member_count !== '1' ? 's' : ''}
-                      </span>
-                      <span className="inline-flex items-center gap-1">
-                        <EngineeringIcon name="project-module" size="1em" />
-                        {team.project_count} project{team.project_count !== '1' ? 's' : ''}
-                      </span>
-                    </div>
-                  </Link>
-                  <TeamCardMenu team={team} isAdmin={isAdmin} />
+              <article key={team.id} className="row-hover flex items-center gap-4 p-4 first:rounded-t-xl last:rounded-b-xl">
+                <Link to={`/dashboard/teams/${team.id}`} className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg bg-accent-surface">
+                  <EngineeringIcon name={iconForTeamType(team.type)} size="1.5rem" />
+                </Link>
+                <Link to={`/dashboard/teams/${team.id}`} className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <h3 className="truncate font-semibold text-ink">{team.name}</h3>
+                    <span className="badge bg-surface-muted text-xs capitalize text-ink-muted">{team.role}</span>
+                  </div>
+                  <p className="mt-0.5 truncate text-xs text-ink-muted">
+                    {team.type}
+                    {team.description ? <span> · {team.description}</span> : null}
+                  </p>
+                </Link>
+                <div className="hidden flex-shrink-0 gap-4 text-xs text-ink-muted sm:flex">
+                  <span className="inline-flex items-center gap-1">
+                    <EngineeringIcon name="team-node" size="1em" />
+                    {team.member_count}
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <EngineeringIcon name="project-module" size="1em" />
+                    {team.project_count}
+                  </span>
                 </div>
+                <TeamCardMenu team={team} isAdmin={isAdmin} />
               </article>
             );
           })}

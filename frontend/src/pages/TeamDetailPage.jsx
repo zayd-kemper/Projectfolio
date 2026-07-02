@@ -49,7 +49,7 @@ const TABS = [
 
 function IconTile({ name, className = '' }) {
   return (
-    <span className={`inline-flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 ${className}`}>
+    <span className={`inline-flex h-9 w-9 items-center justify-center rounded-lg border border-line bg-white   ${className}`}>
       <EngineeringIcon name={name} size="1.15rem" />
     </span>
   );
@@ -62,7 +62,7 @@ function Toggle({ checked, onClick, label }) {
       onClick={onClick}
       aria-pressed={checked}
       aria-label={label}
-      className={`relative h-6 w-11 rounded-full transition-colors ${checked ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'}`}
+      className={`relative h-6 w-11 rounded-full transition-colors ${checked ? 'bg-accent' : 'bg-surface-muted'}`}
     >
       <span className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${checked ? 'translate-x-5' : ''}`} />
     </button>
@@ -71,10 +71,10 @@ function Toggle({ checked, onClick, label }) {
 
 function EmptyState({ icon, title, body, action }) {
   return (
-    <div className="rounded-xl border border-dashed border-gray-200 bg-white p-8 text-center dark:border-gray-700 dark:bg-gray-900">
+    <div className="rounded-xl border border-dashed border-line bg-white p-8 text-center  ">
       <IconTile name={icon} className="mx-auto mb-3" />
-      <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
-      <p className="mx-auto mt-1 max-w-md text-sm text-gray-500 dark:text-gray-400">{body}</p>
+      <h3 className="text-sm font-semibold text-ink">{title}</h3>
+      <p className="mx-auto mt-1 max-w-md text-sm text-ink-muted">{body}</p>
       {action && <div className="mt-4">{action}</div>}
     </div>
   );
@@ -85,23 +85,23 @@ function SectionHeading({ icon, title, body }) {
     <div className="mb-5 flex items-start gap-3">
       <IconTile name={icon} />
       <div>
-        <h3 className="font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
-        {body && <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{body}</p>}
+        <h3 className="font-semibold text-ink">{title}</h3>
+        {body && <p className="mt-1 text-sm text-ink-muted">{body}</p>}
       </div>
     </div>
   );
 }
 
 function SkeletonBlock({ className = '' }) {
-  return <div className={`animate-pulse rounded-xl bg-gray-100 dark:bg-gray-800 ${className}`} />;
+  return <div className={`animate-pulse rounded-xl bg-surface-muted ${className}`} />;
 }
 
 function StatCard({ icon, label, value }) {
   return (
     <div className="card p-5">
       <IconTile name={icon} className="mb-3" />
-      <div className="text-2xl font-semibold text-gray-950 dark:text-white">{value ?? 0}</div>
-      <div className="mt-1 text-sm text-gray-500 dark:text-gray-400">{label}</div>
+      <div className="text-2xl font-semibold text-ink">{value ?? 0}</div>
+      <div className="mt-1 text-sm text-ink-muted">{label}</div>
     </div>
   );
 }
@@ -113,8 +113,8 @@ function SegmentButton({ active, children, onClick }) {
       onClick={onClick}
       className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
         active
-          ? 'border-blue-600 bg-blue-50 text-blue-700 dark:border-blue-500 dark:bg-blue-950 dark:text-blue-300'
-          : 'border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:bg-gray-800'
+          ? 'border-accent bg-accent-surface text-accent-text'
+          : 'border-line text-ink-muted hover:border-ink-faint hover:bg-surface-muted'
       }`}
     >
       {children}
@@ -199,12 +199,12 @@ function TeamAnalyticsPanel({ teamId }) {
               return (
                 <div key={projectView.slug} className="flex items-center gap-4">
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">{projectView.title}</div>
+                    <div className="truncate text-sm font-medium text-ink">{projectView.title}</div>
                   </div>
-                  <div className="w-16 text-right text-sm font-semibold text-gray-900 dark:text-gray-100">{projectView.views}</div>
-                  <div className="h-2 w-32 rounded-full bg-gray-100 dark:bg-gray-800">
+                  <div className="w-16 text-right text-sm font-semibold text-ink">{projectView.views}</div>
+                  <div className="h-2 w-32 rounded-full bg-surface-muted">
                     <div
-                      className="h-2 rounded-full bg-blue-600"
+                      className="h-2 rounded-full bg-accent"
                       style={{ width: `${Math.min(100, (projectView.views / max) * 100)}%` }}
                     />
                   </div>
@@ -309,8 +309,8 @@ function TeamSettingsPanel({ team, teamId, onUpdate }) {
         <SectionHeading icon="eye-view" title="Visibility" body="Control whether the public team portfolio can be viewed outside the dashboard." />
         <div className="flex items-center justify-between gap-4">
           <div>
-            <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Public team portfolio</div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">Anyone with the link can view this team's public page.</div>
+            <div className="text-sm font-medium text-ink">Public team portfolio</div>
+            <div className="text-sm text-ink-muted">Anyone with the link can view this team's public page.</div>
           </div>
           <Toggle
             checked={settings.is_public}
@@ -336,12 +336,12 @@ function TeamSettingsPanel({ team, teamId, onUpdate }) {
               onClick={() => updateSetting('theme', theme.id)}
               className={`rounded-xl border p-4 text-left transition-colors ${
                 settings.theme === theme.id
-                  ? 'border-blue-600 bg-blue-50 dark:border-blue-500 dark:bg-blue-950'
-                  : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-800'
+                  ? 'border-accent bg-accent-surface'
+                  : 'border-line hover:border-ink-faint hover:bg-surface-muted'
               }`}
             >
-              <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{theme.label}</div>
-              <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">{theme.desc}</div>
+              <div className="text-sm font-semibold text-ink">{theme.label}</div>
+              <div className="mt-1 text-xs text-ink-muted">{theme.desc}</div>
             </button>
           ))}
         </div>
@@ -357,21 +357,21 @@ function TeamSettingsPanel({ team, teamId, onUpdate }) {
               onClick={() => updateSetting('layout', layout.id)}
               className={`flex items-center gap-4 rounded-xl border p-3 text-left transition-colors ${
                 settings.layout === layout.id
-                  ? 'border-blue-600 bg-blue-50 dark:border-blue-500 dark:bg-blue-950'
-                  : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-800'
+                  ? 'border-accent bg-accent-surface'
+                  : 'border-line hover:border-ink-faint hover:bg-surface-muted'
               }`}
             >
-              <div className="h-24 w-36 flex-shrink-0 overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+              <div className="h-24 w-36 flex-shrink-0 overflow-hidden rounded-lg border border-line bg-white  ">
                 <LayoutPreview layoutId={layout.id} accentColor={settings.accent_color} />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{layout.name}</span>
+                  <span className="text-sm font-semibold text-ink">{layout.name}</span>
                   {settings.layout === layout.id && (
-                    <span className="rounded-full bg-blue-600 px-2 py-0.5 text-xs text-white">Active</span>
+                    <span className="rounded-full bg-accent px-2 py-0.5 text-xs text-white">Active</span>
                   )}
                 </div>
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{layout.description}</p>
+                <p className="mt-1 text-xs text-ink-muted">{layout.description}</p>
               </div>
             </button>
           ))}
@@ -388,7 +388,7 @@ function TeamSettingsPanel({ team, teamId, onUpdate }) {
               onClick={() => updateSetting('accent_color', color)}
               style={{ backgroundColor: color }}
               className={`h-9 w-9 rounded-lg transition-transform hover:scale-105 ${
-                settings.accent_color === color ? 'ring-2 ring-gray-500 ring-offset-2 dark:ring-offset-gray-900' : ''
+                settings.accent_color === color ? 'ring-2 ring-ink-muted ring-offset-2' : ''
               }`}
               aria-label={`Use accent color ${color}`}
             />
@@ -397,7 +397,7 @@ function TeamSettingsPanel({ team, teamId, onUpdate }) {
             type="color"
             value={settings.accent_color}
             onChange={event => updateSetting('accent_color', event.target.value)}
-            className="h-9 w-9 cursor-pointer rounded-lg border border-gray-200 bg-transparent dark:border-gray-700"
+            className="h-9 w-9 cursor-pointer rounded-lg border border-line bg-transparent "
             title="Custom color"
           />
         </div>
@@ -411,7 +411,7 @@ function TeamSettingsPanel({ team, teamId, onUpdate }) {
               <div
                 ref={provided.innerRef}
                 {...provided.droppableProps}
-                className={`space-y-2 rounded-xl transition-colors ${snapshot.isDraggingOver ? 'bg-blue-50 p-2 dark:bg-blue-950/30' : ''}`}
+                className={`space-y-2 rounded-xl transition-colors ${snapshot.isDraggingOver ? 'bg-accent-surface p-2' : ''}`}
               >
                 {settings.section_order.map((sectionId, index) => {
                   const section = TEAM_SECTIONS[sectionId];
@@ -424,14 +424,14 @@ function TeamSettingsPanel({ team, teamId, onUpdate }) {
                           {...dragProvided.draggableProps}
                           className={`flex items-center gap-3 rounded-xl border p-3 transition-colors ${
                             dragSnapshot.isDragging
-                              ? 'border-blue-400 bg-blue-50 shadow-lg dark:bg-blue-950'
-                              : 'border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900'
+                              ? 'border-accent bg-accent-surface shadow-pop'
+                              : 'border-line bg-white  '
                           }`}
                         >
                           <button
                             type="button"
                             {...dragProvided.dragHandleProps}
-                            className="flex cursor-grab flex-col gap-0.5 px-1 text-gray-400 active:cursor-grabbing"
+                            className="flex cursor-grab flex-col gap-0.5 px-1 text-ink-faint active:cursor-grabbing"
                             aria-label={`Reorder ${section.label}`}
                           >
                             <span className="h-0.5 w-4 rounded bg-current" />
@@ -441,14 +441,14 @@ function TeamSettingsPanel({ team, teamId, onUpdate }) {
                           <IconTile name={section.icon} />
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2">
-                              <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{section.label}</span>
+                              <span className="text-sm font-semibold text-ink">{section.label}</span>
                               {section.required && (
-                                <span className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500 dark:bg-gray-800 dark:text-gray-400">required</span>
+                                <span className="rounded bg-surface-muted px-1.5 py-0.5 text-xs text-ink-muted  ">required</span>
                               )}
                             </div>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">{section.desc}</p>
+                            <p className="text-xs text-ink-muted">{section.desc}</p>
                           </div>
-                          <span className="font-mono text-xs text-gray-400">{index + 1}</span>
+                          <span className="font-mono text-xs text-ink-faint">{index + 1}</span>
                           {!section.required && (
                             <button
                               type="button"
@@ -470,15 +470,15 @@ function TeamSettingsPanel({ team, teamId, onUpdate }) {
         </DragDropContext>
 
         {optionalSections.length > 0 && (
-          <div className="mt-4 border-t border-gray-200 pt-4 dark:border-gray-700">
-            <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">Add optional sections</p>
+          <div className="mt-4 border-t border-line pt-4 ">
+            <p className="mb-2 text-sm text-ink-muted">Add optional sections</p>
             <div className="flex flex-wrap gap-2">
               {optionalSections.map(([id, definition]) => (
                 <button
                   key={id}
                   type="button"
                   onClick={() => addSection(id)}
-                  className="inline-flex items-center gap-2 rounded-lg border border-dashed border-gray-300 px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:border-blue-500 hover:text-blue-700 dark:border-gray-700 dark:text-gray-400 dark:hover:border-blue-500 dark:hover:text-blue-300"
+                  className="inline-flex items-center gap-2 rounded-lg border border-dashed border-line px-3 py-2 text-sm font-medium text-ink-muted transition-colors hover:border-accent hover:text-accent-text"
                 >
                   <EngineeringIcon name={definition.icon} size="1rem" />
                   Add {definition.label}
@@ -499,8 +499,8 @@ function TeamSettingsPanel({ team, teamId, onUpdate }) {
           ].map(item => (
             <div key={item.key} className="flex items-center justify-between gap-4">
               <div>
-                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.label}</div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">{item.desc}</div>
+                <div className="text-sm font-medium text-ink">{item.label}</div>
+                <div className="text-sm text-ink-muted">{item.desc}</div>
               </div>
               <Toggle
                 checked={settings[item.key]}
@@ -516,7 +516,7 @@ function TeamSettingsPanel({ team, teamId, onUpdate }) {
         <SectionHeading icon="tool-wrench" title="Section customization" body="Fine-tune the structure of each public section." />
         <div className="space-y-6">
           <div>
-            <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-gray-100">
+            <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
               <EngineeringIcon name="team-node" size="1rem" />
               Team header
             </div>
@@ -556,8 +556,8 @@ function TeamSettingsPanel({ team, teamId, onUpdate }) {
             </div>
           </div>
 
-          <div className="border-t border-gray-200 pt-5 dark:border-gray-700">
-            <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-gray-100">
+          <div className="border-t border-line pt-5 ">
+            <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
               <EngineeringIcon name="project-module" size="1rem" />
               Projects
             </div>
@@ -614,8 +614,8 @@ function TeamSettingsPanel({ team, teamId, onUpdate }) {
               </div>
               <div className="flex items-center justify-between gap-4 pt-1">
                 <div>
-                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Show tagline</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">One-line description under each project title.</div>
+                  <div className="text-sm font-medium text-ink">Show tagline</div>
+                  <div className="text-sm text-ink-muted">One-line description under each project title.</div>
                 </div>
                 <Toggle
                   checked={settings.section_config?.projects?.show_tagline !== false}
@@ -683,12 +683,12 @@ function TeamSettingsPanel({ team, teamId, onUpdate }) {
         </div>
       </div>
 
-      <div className="rounded-xl border border-blue-200 bg-blue-50 p-5 dark:border-blue-800 dark:bg-blue-950/40">
-        <div className="mb-1 flex items-center gap-2 text-sm font-semibold text-blue-950 dark:text-blue-200">
+      <div className="rounded-xl border border-accent-border bg-accent-surface p-5">
+        <div className="mb-1 flex items-center gap-2 text-sm font-semibold text-accent-text">
           <EngineeringIcon name="link" size="1rem" />
           Team portfolio URL
         </div>
-        <div className="mb-3 truncate font-mono text-sm text-blue-700 dark:text-blue-300">{teamUrl}</div>
+        <div className="mb-3 truncate font-mono text-sm text-accent-text">{teamUrl}</div>
         <div className="flex flex-wrap gap-3">
           <a href={`/team/${team.slug}`} target="_blank" rel="noreferrer" className="btn-primary text-xs">
             Preview
@@ -728,7 +728,7 @@ function TeamProjectList({ projects, isAdmin, onRemoveProject }) {
     <div className="space-y-3">
       {projects.map(project => (
         <div key={project.id} className="card flex items-center gap-4 p-4">
-          <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl bg-blue-50 dark:bg-blue-950">
+          <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl bg-accent-surface">
             {project.cover_image_url ? (
               <img src={project.cover_image_url} alt="" className="h-full w-full object-cover" />
             ) : (
@@ -736,14 +736,14 @@ function TeamProjectList({ projects, isAdmin, onRemoveProject }) {
             )}
           </div>
           <div className="min-w-0 flex-1">
-            <div className="truncate font-medium text-gray-900 dark:text-gray-100">{project.title}</div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">by {project.owner_name}</div>
+            <div className="truncate font-medium text-ink">{project.title}</div>
+            <div className="text-xs text-ink-muted">by {project.owner_name}</div>
             {project.collaborators?.length > 0 && (
               <div className="mt-2 flex items-center gap-1">
                 {project.collaborators.slice(0, 3).map(collaborator => (
                   <div
                     key={collaborator.id}
-                    className="flex h-5 w-5 items-center justify-center overflow-hidden rounded-full bg-gray-200 text-xs text-gray-700 dark:bg-gray-700 dark:text-gray-200"
+                    className="flex h-5 w-5 items-center justify-center overflow-hidden rounded-full bg-surface-muted text-xs text-ink-secondary"
                     title={collaborator.name}
                   >
                     {collaborator.avatar ? (
@@ -754,7 +754,7 @@ function TeamProjectList({ projects, isAdmin, onRemoveProject }) {
                   </div>
                 ))}
                 {project.collaborators.length > 3 && (
-                  <span className="text-xs text-gray-400">+{project.collaborators.length - 3}</span>
+                  <span className="text-xs text-ink-faint">+{project.collaborators.length - 3}</span>
                 )}
               </div>
             )}
@@ -949,7 +949,7 @@ export default function TeamDetailPage() {
         <div className="flex items-start gap-4">
           <Link
             to="/dashboard/teams"
-            className="mt-1 inline-flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition-colors hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800"
+            className="mt-1 inline-flex h-9 w-9 items-center justify-center rounded-lg border border-line text-ink-muted transition-colors hover:border-ink-faint hover:bg-surface-muted hover:text-ink"
             aria-label="Back to teams"
           >
             <span aria-hidden="true">&lt;</span>
@@ -979,7 +979,7 @@ export default function TeamDetailPage() {
 
       <div className="card mb-6 flex flex-wrap items-center gap-3 p-4">
         <EngineeringIcon name="link" size="1.05rem" />
-        <span className="min-w-0 flex-1 truncate font-mono text-sm text-gray-500 dark:text-gray-400">{teamUrl}</span>
+        <span className="min-w-0 flex-1 truncate font-mono text-sm text-ink-muted">{teamUrl}</span>
         <button
           type="button"
           onClick={() => {
@@ -992,7 +992,7 @@ export default function TeamDetailPage() {
         </button>
       </div>
 
-      <div className="mb-6 flex gap-2 overflow-x-auto border-b border-gray-200 dark:border-gray-700">
+      <div className="mb-6 flex gap-2 overflow-x-auto border-b border-line">
         {availableTabs.map(tab => (
           <button
             key={tab.id}
@@ -1000,8 +1000,8 @@ export default function TeamDetailPage() {
             onClick={() => setActiveTab(tab.id)}
             className={`inline-flex items-center gap-2 border-b-2 px-2 py-3 text-sm font-medium transition-colors ${
               activeTab === tab.id
-                ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-                : 'border-transparent text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200'
+                ? 'border-accent text-accent-text'
+                : 'border-transparent text-ink-muted hover:text-ink'
             }`}
           >
             <EngineeringIcon name={tab.icon} size="1rem" />
@@ -1014,8 +1014,8 @@ export default function TeamDetailPage() {
         <div>
           <div className="mb-4 flex items-center justify-between gap-4">
             <div>
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100">Team projects</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Published work connected to this team.</p>
+              <h3 className="font-semibold text-ink">Team projects</h3>
+              <p className="text-sm text-ink-muted">Published work connected to this team.</p>
             </div>
             {isAdmin && (
               <button type="button" onClick={() => setShowAddProject(true)} className="btn-primary text-sm">
@@ -1025,17 +1025,17 @@ export default function TeamDetailPage() {
           </div>
 
           {showAddProject && (
-            <div className="card mb-5 border-blue-200 p-5 dark:border-blue-800">
-              <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Select one of your projects to add</h4>
+            <div className="card mb-5 border-accent-border p-5">
+              <h4 className="text-sm font-semibold text-ink">Select one of your projects to add</h4>
               <div className="mt-4 space-y-2">
                 {addableProjects.map(project => (
                   <div
                     key={project.id}
-                    className="flex items-center justify-between gap-4 rounded-xl border border-gray-200 p-3 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
+                    className="flex items-center justify-between gap-4 rounded-xl border border-line p-3 transition-colors hover:bg-surface-muted"
                   >
                     <div className="min-w-0">
-                      <div className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">{project.title}</div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">{project.status}</div>
+                      <div className="truncate text-sm font-medium text-ink">{project.title}</div>
+                      <div className="text-xs text-ink-muted">{project.status}</div>
                     </div>
                     <button type="button" onClick={() => handleAddProject(project.id)} className="btn-primary px-3 text-xs">
                       Add
@@ -1043,7 +1043,7 @@ export default function TeamDetailPage() {
                   </div>
                 ))}
                 {addableProjects.length === 0 && (
-                  <p className="py-4 text-center text-sm text-gray-500 dark:text-gray-400">No more projects to add.</p>
+                  <p className="py-4 text-center text-sm text-ink-muted">No more projects to add.</p>
                 )}
               </div>
               <button type="button" onClick={() => setShowAddProject(false)} className="btn-ghost mt-3 text-sm">
@@ -1060,7 +1060,7 @@ export default function TeamDetailPage() {
         <div className="space-y-2">
           {members.map(member => (
             <div key={member.id} className="card flex items-center gap-4 p-4">
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-blue-100 font-semibold text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-accent-surface font-semibold text-accent-text">
                 {member.avatar_url ? (
                   <img src={member.avatar_url} alt="" className="h-full w-full object-cover" />
                 ) : (
@@ -1068,22 +1068,22 @@ export default function TeamDetailPage() {
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                <div className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">{member.full_name}</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">@{member.username}</div>
-                {member.headline && <div className="truncate text-xs text-gray-400 dark:text-gray-500">{member.headline}</div>}
+                <div className="truncate text-sm font-medium text-ink">{member.full_name}</div>
+                <div className="text-xs text-ink-muted">@{member.username}</div>
+                {member.headline && <div className="truncate text-xs text-ink-faint">{member.headline}</div>}
               </div>
               <div className="flex items-center gap-2">
                 {isOwner && member.id !== user?.id ? (
                   <select
                     value={member.role}
                     onChange={event => handleRoleChange(member.id, event.target.value)}
-                    className="rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300"
+                    className="rounded-lg border border-line bg-white px-2 py-1 text-xs text-ink-secondary   "
                   >
                     <option value="member">Member</option>
                     <option value="admin">Admin</option>
                   </select>
                 ) : (
-                  <span className="badge bg-gray-100 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-300">{member.role}</span>
+                  <span className="badge bg-surface-muted text-xs text-ink-muted  ">{member.role}</span>
                 )}
                 {((isOwner && member.id !== user?.id) || member.id === user?.id) && (
                   <button
@@ -1142,19 +1142,19 @@ export default function TeamDetailPage() {
         </div>
       )}
       {activeTab === 'invite' && !isAdmin && (
-        <p className="text-sm text-gray-500 dark:text-gray-400">Only admins and owners can invite members.</p>
+        <p className="text-sm text-ink-muted">Only admins and owners can invite members.</p>
       )}
 
       {activeTab === 'analytics' && isAdmin && <TeamAnalyticsPanel teamId={id} />}
       {activeTab === 'analytics' && !isAdmin && (
-        <p className="text-sm text-gray-500 dark:text-gray-400">Only admins and owners can view analytics.</p>
+        <p className="text-sm text-ink-muted">Only admins and owners can view analytics.</p>
       )}
 
       {activeTab === 'settings' && isAdmin && (
         <TeamSettingsPanel team={team} teamId={id} onUpdate={handleSettingsUpdate} />
       )}
       {activeTab === 'settings' && !isAdmin && (
-        <p className="text-sm text-gray-500 dark:text-gray-400">Only admins and owners can access team settings.</p>
+        <p className="text-sm text-ink-muted">Only admins and owners can access team settings.</p>
       )}
     </DashboardLayout>
   );
