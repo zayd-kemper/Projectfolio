@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import api from '../utils/api';
 import { useAuth } from '../hooks/useAuth';
 import EngineeringIcon from '../components/shared/EngineeringIcon';
+import { EmptyState } from '../components/shared/ui';
 import DiscoverComposer from '../components/discover/DiscoverComposer';
 import DiscoverPostCard from '../components/discover/DiscoverPostCard';
 import { Avatar, IconPill, PortfolioCard } from '../components/discover/DiscoverPrimitives';
@@ -28,17 +29,6 @@ function PostSkeleton() {
         </div>
         <div className="skeleton-shimmer h-24 rounded-lg" />
       </div>
-    </div>
-  );
-}
-
-function EmptyState({ icon, title, body, action }) {
-  return (
-    <div className="rounded-xl border border-dashed border-line bg-surface px-6 py-12 text-center">
-      <EngineeringIcon name={icon} size="3rem" className="mx-auto" />
-      <h2 className="mt-4 text-lg font-semibold text-ink">{title}</h2>
-      <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-ink-muted">{body}</p>
-      {action ? <div className="mt-5">{action}</div> : null}
     </div>
   );
 }

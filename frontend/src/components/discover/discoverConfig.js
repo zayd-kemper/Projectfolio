@@ -47,14 +47,7 @@ export const CATEGORY_ICON_BY_TYPE = {
 export const typeFor = (id) => POST_TYPES.find((item) => item.id === id) || POST_TYPES[0];
 export const contextFor = (id) => CONTEXTS.find((item) => item.id === id) || CONTEXTS[0];
 
-export const cx = (...classes) => classes.filter(Boolean).join(' ');
-
-export const formatCount = (value) => {
-  const number = Number(value || 0);
-  if (number >= 1_000_000) return `${(number / 1_000_000).toFixed(1)}m`;
-  if (number >= 1_000) return `${(number / 1_000).toFixed(1)}k`;
-  return String(number);
-};
+export { cx, formatCount } from '../shared/format';
 
 export const buildTree = (comments = []) => {
   const byId = new Map();
