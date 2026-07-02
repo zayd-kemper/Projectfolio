@@ -79,18 +79,19 @@ export default function AccountSettingsPage({ noLayout = false }) {
       )}
 
       <div className="max-w-2xl space-y-6">
+        <div className="card divide-y divide-line-subtle">
         {/* Current account info */}
-        <div className="card p-6">
-          <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Current account</h3>
-          <p className="text-sm text-gray-500">Logged in as <span className="font-medium text-gray-700 dark:text-gray-300">{user?.email}</span></p>
-          {user?.google_id && <span className="mt-2 inline-flex items-center gap-1 text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full">Connected with Google</span>}
-          {user?.linkedin_id && <span className="mt-2 ml-2 inline-flex items-center gap-1 text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full">Connected with LinkedIn</span>}
-        </div>
+        <section className="p-6">
+          <h3 className="font-semibold text-ink mb-1">Current account</h3>
+          <p className="text-sm text-ink-muted">Logged in as <span className="font-medium text-ink-secondary">{user?.email}</span></p>
+          {user?.google_id && <span className="mt-2 inline-flex items-center gap-1 text-xs bg-accent-surface text-accent-text px-2 py-1 rounded-full">Connected with Google</span>}
+          {user?.linkedin_id && <span className="mt-2 ml-2 inline-flex items-center gap-1 text-xs bg-accent-surface text-accent-text px-2 py-1 rounded-full">Connected with LinkedIn</span>}
+        </section>
 
         {/* Change email */}
-        <div className="card p-6">
-          <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Change email address</h3>
-          <p className="text-sm text-gray-500 mb-5">You'll be logged out after changing your email.</p>
+        <section className="p-6">
+          <h3 className="font-semibold text-ink mb-1">Change email address</h3>
+          <p className="text-sm text-ink-muted mb-5">You'll be logged out after changing your email.</p>
           <form onSubmit={handleEmailChange} className="space-y-4">
             <div>
               <label className="form-label">New email address</label>
@@ -108,12 +109,12 @@ export default function AccountSettingsPage({ noLayout = false }) {
               {savingEmail ? 'Updating...' : 'Update email'}
             </button>
           </form>
-        </div>
+        </section>
 
         {/* Change password */}
-        <div className="card p-6">
-          <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Change password</h3>
-          <p className="text-sm text-gray-500 mb-5">Must be at least 8 characters.</p>
+        <section className="p-6">
+          <h3 className="font-semibold text-ink mb-1">Change password</h3>
+          <p className="text-sm text-ink-muted mb-5">Must be at least 8 characters.</p>
           <form onSubmit={handlePasswordChange} className="space-y-4">
             <div>
               <label className="form-label">Current password</label>
@@ -137,41 +138,47 @@ export default function AccountSettingsPage({ noLayout = false }) {
               {savingPassword ? 'Changing...' : 'Change password'}
             </button>
           </form>
-        </div>
+        </section>
 
         {/* Dashboard preferences */}
-        <div className="card p-6">
-          <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Dashboard preferences</h3>
-          <p className="text-sm text-gray-500 mb-5">Control how your dashboard behaves.</p>
-          <div className="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-800">
+        <section className="p-6">
+          <h3 className="font-semibold text-ink mb-1">Dashboard preferences</h3>
+          <p className="text-sm text-ink-muted mb-5">Control how your dashboard behaves.</p>
+          <div className="flex items-center justify-between py-3">
             <div>
-              <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Smart Highlights</div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+              <div className="text-sm font-medium text-ink">Smart Highlights</div>
+              <div className="text-xs text-ink-muted mt-0.5">
                 Auto-detected suggestions about your projects, shown weekly on your dashboard.
               </div>
             </div>
             <button
               onClick={handleHighlightsToggle}
+              role="switch"
+              aria-checked={highlightsEnabled}
+              aria-label="Smart Highlights"
               className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ml-6 ${
-                highlightsEnabled ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
+                highlightsEnabled ? 'bg-accent' : 'bg-surface-muted'
               }`}
             >
-              <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+              <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ease-out-quart ${
                 highlightsEnabled ? 'translate-x-5' : ''
               }`} />
             </button>
           </div>
           {highlightsEnabled && (
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-3">
+            <p className="text-xs text-ink-faint mt-3">
               Highlights re-appear 7 days after dismissal, or immediately when you re-enable them.
             </p>
           )}
+        </section>
         </div>
 
-        {/* Danger zone */}
-        <div className="card p-6 border-red-100 dark:border-red-900">
-          <h3 className="font-semibold text-red-600 mb-1">Sign out</h3>
-          <p className="text-sm text-gray-500 mb-4">Sign out of your account on this device.</p>
+        {/* Sign out — separated from the settings surface on purpose */}
+        <div className="flex items-center justify-between rounded-xl border border-line px-6 py-4">
+          <div>
+            <h3 className="text-sm font-semibold text-ink">Sign out</h3>
+            <p className="text-xs text-ink-muted">Sign out of your account on this device.</p>
+          </div>
           <button onClick={logout} className="btn-danger">Sign out</button>
         </div>
       </div>

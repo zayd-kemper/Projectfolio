@@ -7,9 +7,7 @@ import api from '../utils/api';
 import toast from 'react-hot-toast';
 import { useDropzone } from 'react-dropzone';
 import { uploadMedia } from '../utils/uploadMedia';
-import EngineeringIcon from '../components/shared/EngineeringIcon';
-
-const formatStat = (value) => Number(value || 0).toLocaleString();
+import { Metric } from '../components/shared/ui';
 
 function DiscoverActivityStats({ stats, loading, error }) {
   const items = [
@@ -20,37 +18,24 @@ function DiscoverActivityStats({ stats, loading, error }) {
   ];
 
   return (
-    <div className="card p-6">
-      <div className="mb-4 flex items-start justify-between gap-4">
-        <div>
-          <h3 className="font-semibold text-gray-900 dark:text-gray-100">Discover activity</h3>
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Private stats from your posts and interactions.</p>
-        </div>
-        <EngineeringIcon name="analytics-gauge" size="1.4rem" />
-      </div>
+    <section>
+      <h3 className="font-semibold text-ink">Discover activity</h3>
+      <p className="mt-1 text-xs text-ink-muted">Private stats from your posts and interactions.</p>
 
       {error ? (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+        <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
           {error}
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {items.map((item) => (
-            <div key={item.key} className="rounded-xl border border-gray-100 bg-gray-50 p-3 dark:border-gray-800 dark:bg-gray-900/60">
-              <div className="mb-2 flex items-center justify-between gap-2">
-                <span className="text-xs font-semibold text-gray-600 dark:text-gray-300">{item.label}</span>
-                <EngineeringIcon name={item.icon} size="0.95rem" />
-              </div>
-              {loading ? (
-                <div className="h-7 w-14 animate-pulse rounded bg-gray-200 dark:bg-gray-800" />
-              ) : (
-                <div className="text-2xl font-bold text-gray-950 dark:text-gray-100">{formatStat(item.value)}</div>
-              )}
-            </div>
+            loading
+              ? <div key={item.key} className="skeleton-shimmer h-20 rounded-lg" />
+              : <Metric key={item.key} icon={item.icon} label={item.label} value={item.value} />
           ))}
         </div>
       )}
-    </div>
+    </section>
   );
 }
 
@@ -151,105 +136,109 @@ export default function ProfileSettingsPage({ noLayout = false }) {
       <div className="max-w-2xl space-y-8">
         <DiscoverActivityStats stats={discoverStats} loading={discoverStatsLoading} error={discoverStatsError} />
 
-        {/* Avatar */}
-        <div className="card p-6">
-          <label className="form-label mb-4 block">Profile photo</label>
-          <div className="flex items-center gap-5">
-            <div {...getRootProps()} className="cursor-pointer">
-              <input {...getInputProps()} />
-              <div className="w-20 h-20 rounded-xl overflow-hidden bg-blue-50 flex items-center justify-center border-2 border-dashed border-gray-200 hover:border-blue-300 transition-colors">
-                {avatarUploading ? (
-                  <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-                ) : avatarUrl ? (
-                  <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-2xl text-blue-200">{form.full_name?.charAt(0) || '?'}</span>
-                )}
+        <div className="card divide-y divide-line-subtle">
+          {/* Avatar */}
+          <section className="p-6">
+            <label className="form-label mb-4 block">Profile photo</label>
+            <div className="flex items-center gap-5">
+              <div {...getRootProps()} className="cursor-pointer">
+                <input {...getInputProps()} />
+                <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-line bg-accent-surface transition-colors hover:border-accent-border">
+                  {avatarUploading ? (
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+                  ) : avatarUrl ? (
+                    <img src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
+                  ) : (
+                    <span className="text-2xl text-accent-text/50">{form.full_name?.charAt(0) || '?'}</span>
+                  )}
+                </div>
+              </div>
+              <div>
+                <div className="text-sm font-medium text-ink">Upload a photo</div>
+                <div className="text-xs text-ink-muted">Click or drag an image. PNG or JPG up to 10MB.</div>
+              </div>
+            </div>
+          </section>
+
+          {/* Basic info */}
+          <section className="space-y-4 p-6">
+            <h3 className="font-semibold text-ink">Basic info</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="form-label">Full name</label>
+                <input name="full_name" value={form.full_name} onChange={handleChange} className="form-input" />
+              </div>
+              <div>
+                <label className="form-label">Username</label>
+                <div className="flex items-center">
+                  <span className="mr-1 text-sm text-ink-faint">/</span>
+                  <input name="username" value={form.username} onChange={handleChange} className="form-input" />
+                </div>
               </div>
             </div>
             <div>
-              <div className="text-sm font-medium text-gray-900">Upload a photo</div>
-              <div className="text-xs text-gray-500">Click or drag an image. PNG or JPG up to 10MB.</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Basic info */}
-        <div className="card p-6 space-y-4">
-          <h3 className="font-semibold text-gray-900">Basic info</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="form-label">Full name</label>
-              <input name="full_name" value={form.full_name} onChange={handleChange} className="form-input" />
+              <label className="form-label">Headline</label>
+              <input name="headline" value={form.headline} onChange={handleChange} placeholder="e.g. Mechanical Engineering at MIT, NASA Research Intern" className="form-input" />
             </div>
             <div>
-              <label className="form-label">Username</label>
-              <div className="flex items-center">
-                <span className="text-sm text-gray-400 mr-1">/</span>
-                <input name="username" value={form.username} onChange={handleChange} className="form-input" />
+              <label className="form-label">Bio</label>
+              <textarea name="bio" value={form.bio} onChange={handleChange} rows={4} className="form-textarea" placeholder="A brief bio about yourself and your interests..." />
+            </div>
+            <div>
+              <label className="form-label">Location</label>
+              <input name="location" value={form.location} onChange={handleChange} placeholder="Cambridge, MA" className="form-input" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="form-label">Contact email</label>
+                <input name="contact_email" value={form.contact_email} onChange={handleChange}
+                  placeholder="Public contact email" className="form-input" />
+                <p className="mt-1 text-xs text-ink-muted">Shown on your public portfolio</p>
+              </div>
+              <div>
+                <label className="form-label">Phone number</label>
+                <input name="phone" value={form.phone} onChange={handleChange}
+                  placeholder="+1 (555) 000-0000" className="form-input" />
+                <p className="mt-1 text-xs text-ink-muted">Optional. Shown on portfolio.</p>
               </div>
             </div>
-          </div>
-          <div>
-            <label className="form-label">Headline</label>
-            <input name="headline" value={form.headline} onChange={handleChange} placeholder="e.g. Mechanical Engineering at MIT, NASA Research Intern" className="form-input" />
-          </div>
-          <div>
-            <label className="form-label">Bio</label>
-            <textarea name="bio" value={form.bio} onChange={handleChange} rows={4} className="form-textarea" placeholder="A brief bio about yourself and your interests..." />
-          </div>
-          <div>
-            <label className="form-label">Location</label>
-            <input name="location" value={form.location} onChange={handleChange} placeholder="Cambridge, MA" className="form-input" />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
+          </section>
+
+          {/* Skills */}
+          <section className="p-6">
+            <h3 className="mb-1 font-semibold text-ink">Skills</h3>
+            <p className="mb-4 text-xs text-ink-muted">These appear as tags on your portfolio (e.g. Python, SolidWorks, MATLAB)</p>
+            <TagInput
+              values={form.skills}
+              onChange={handleSkillChange}
+              suggestions={SKILL_SUGGESTIONS}
+              placeholder="e.g. Python, SolidWorks, MATLAB..."
+            />
+          </section>
+
+          {/* Links */}
+          <section className="space-y-4 p-6">
+            <h3 className="font-semibold text-ink">Links</h3>
             <div>
-              <label className="form-label">Contact email</label>
-              <input name="contact_email" value={form.contact_email} onChange={handleChange}
-                placeholder="Public contact email" className="form-input" />
-              <p className="text-xs text-gray-400 mt-1">Shown on your public portfolio</p>
+              <label className="form-label">Personal website</label>
+              <input name="website" value={form.website} onChange={handleChange} placeholder="https://yourwebsite.com" className="form-input" />
             </div>
             <div>
-              <label className="form-label">Phone number</label>
-              <input name="phone" value={form.phone} onChange={handleChange}
-                placeholder="+1 (555) 000-0000" className="form-input" />
-              <p className="text-xs text-gray-400 mt-1">Optional. Shown on portfolio.</p>
+              <label className="form-label">LinkedIn URL</label>
+              <input name="linkedin_url" value={form.linkedin_url} onChange={handleChange} placeholder="https://linkedin.com/in/yourname" className="form-input" />
             </div>
-          </div>
-        </div>
+            <div>
+              <label className="form-label">GitHub URL</label>
+              <input name="github_url" value={form.github_url} onChange={handleChange} placeholder="https://github.com/yourname" className="form-input" />
+            </div>
+          </section>
 
-        {/* Skills */}
-        <div className="card p-6">
-          <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Skills</h3>
-          <p className="text-xs text-gray-500 mb-4">These appear as tags on your portfolio (e.g. Python, SolidWorks, MATLAB)</p>
-          <TagInput
-            values={form.skills}
-            onChange={handleSkillChange}
-            suggestions={SKILL_SUGGESTIONS}
-            placeholder="e.g. Python, SolidWorks, MATLAB..."
-          />
+          <footer className="flex justify-end p-6">
+            <button onClick={handleSave} disabled={saving} className="btn-primary">
+              {saving ? 'Saving...' : 'Save profile'}
+            </button>
+          </footer>
         </div>
-
-        {/* Links */}
-        <div className="card p-6 space-y-4">
-          <h3 className="font-semibold text-gray-900">Links</h3>
-          <div>
-            <label className="form-label">Personal website</label>
-            <input name="website" value={form.website} onChange={handleChange} placeholder="https://yourwebsite.com" className="form-input" />
-          </div>
-          <div>
-            <label className="form-label">LinkedIn URL</label>
-            <input name="linkedin_url" value={form.linkedin_url} onChange={handleChange} placeholder="https://linkedin.com/in/yourname" className="form-input" />
-          </div>
-          <div>
-            <label className="form-label">GitHub URL</label>
-            <input name="github_url" value={form.github_url} onChange={handleChange} placeholder="https://github.com/yourname" className="form-input" />
-          </div>
-        </div>
-
-        <button onClick={handleSave} disabled={saving} className="btn-primary">
-          {saving ? 'Saving...' : 'Save profile'}
-        </button>
       </div>
     </>
   );

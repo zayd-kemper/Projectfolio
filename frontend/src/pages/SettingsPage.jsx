@@ -42,18 +42,20 @@ export default function SettingsPage() {
         <p className="page-subtitle">Manage your profile, portfolio appearance, and account.</p>
       </div>
 
-      <div className="mb-8 flex w-fit gap-1 rounded-xl bg-gray-100 p-1 dark:bg-gray-800">
+      <div className="mb-8 flex gap-1 border-b border-line" role="tablist" aria-label="Settings sections">
         {TABS.map((tab) => {
           const active = activeTab === tab.id;
           return (
             <button
               key={tab.id}
               type="button"
+              role="tab"
+              aria-selected={active}
               onClick={() => setTab(tab.id)}
-              className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
+              className={`relative -mb-px flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-semibold transition-colors ${
                 active
-                  ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-900 dark:text-gray-100'
-                  : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                  ? 'border-accent text-ink'
+                  : 'border-transparent text-ink-muted hover:text-ink'
               }`}
             >
               <EngineeringIcon name={tab.icon} size="1rem" />
@@ -63,7 +65,7 @@ export default function SettingsPage() {
         })}
       </div>
 
-      <Suspense fallback={<div className="py-10 text-sm text-gray-500">Loading settings...</div>}>
+      <Suspense fallback={<div className="py-10 text-sm text-ink-muted">Loading settings...</div>}>
         {activeTab === 'profile' && <ProfileSettingsPage noLayout />}
         {activeTab === 'portfolio' && <PortfolioSettingsPage noLayout />}
         {activeTab === 'account' && <AccountSettingsPage noLayout />}
