@@ -29,9 +29,9 @@ Opacity modifiers work (`bg-surface/60`, `ring-accent/30`).
 
 ### Dark-mode mechanism
 
-- `useDarkMode` toggles `dark` on `<html>`; the `.app-surface` class (on `DashboardLayout`, `DashboardShellSkeleton`, and DiscoverPage's root) scopes where dark token values apply. Public pages never carry `.app-surface` and stay light.
-- **Compatibility shim** (`globals.css`, marked block): remaps raw Tailwind classes (`.text-gray-900`, `.bg-gray-50`, ...) inside `.dashboard-root` for pages not yet migrated. When you touch a page, convert its raw grays/blues to token utilities; when a raw class is no longer used inside dashboard pages, delete its shim line. Do not add new shim lines. The shim and `dashboard-root` are deleted entirely after PortfolioSettingsPage is migrated.
-- Semantic state colors (emerald success, amber warning) currently keep explicit `dark:` variants — acceptable until success/warning tokens are added.
+- `useDarkMode` toggles `dark` on `<html>`; the `.app-surface` class (on `DashboardLayout`, `DashboardShellSkeleton`, and DiscoverPage's root) scopes where dark token values apply, and also sets `color: rgb(var(--ink))` plus `color-scheme: dark` so unclassed text and native controls resolve correctly. Public pages never carry `.app-surface` and stay light.
+- The legacy raw-class compatibility shim and the `dashboard-root` class are **gone** — every app surface uses token utilities directly. Never reintroduce raw `text-gray-*` / `bg-gray-*` / blue-accent classes inside app UI.
+- Semantic state colors (emerald success, amber warning, red danger states) keep explicit `dark:` variants — acceptable until success/warning tokens are added. Deliberately theme-independent chrome (image scrims, dark code `<pre>` blocks, the device-preview mockup) keeps literal colors.
 
 ## Typography
 
@@ -85,5 +85,5 @@ Side-stripe accent borders (>1px left/right color); gradient text; glassmorphism
 
 ## Migration status
 
-- Tokenized: globals.css component classes, DashboardLayout shell, Skeleton shell, all of `components/discover/` + DiscoverPage.
-- Pending (still on raw classes + shim): Dashboard, Settings cluster, Analytics, MediaLibrary, AITools, Teams pages, ProjectEditor, PortfolioSettingsPage (largest; migrates last and retires the shim).
+- **All app surfaces tokenized**; shim retired. Semantic state colors and intentional theme-independent chrome are the only remaining literal colors.
+- Open refactor (structural, not styling): PortfolioSettingsPage (198KB) section extraction into `components/portfolio-settings/` + progressive-disclosure shell; TeamDetailPage section extraction + member presence/activity signals. Both are mechanical extractions — move JSX verbatim, one section per commit, build between commits.

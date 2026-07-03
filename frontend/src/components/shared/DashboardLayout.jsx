@@ -31,10 +31,10 @@ export default function DashboardLayout({ children }) {
 
   const SidebarContent = () => (
     <div className="flex h-full flex-col">
-      <div className="border-b border-gray-100 px-4 py-5 dark:border-gray-800">
+      <div className="border-b border-line-subtle px-4 py-5">
         <div className="flex items-center gap-2">
           <EngineeringIcon name="brand-projectfolio" size="1.45rem" />
-          <span className="font-semibold text-gray-900 dark:text-gray-100">ProjectFolio</span>
+          <span className="font-semibold text-ink">ProjectFolio</span>
           <div className="ml-auto">
             <NotificationBell />
           </div>
@@ -56,12 +56,12 @@ export default function DashboardLayout({ children }) {
         ))}
       </nav>
 
-      <div className="space-y-2 border-t border-gray-100 px-3 pb-4 pt-4 dark:border-gray-800">
+      <div className="space-y-2 border-t border-line-subtle px-3 pb-4 pt-4">
         <a
           href={portfolioUrl}
           target="_blank"
           rel="noreferrer"
-          className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-blue-600 transition-colors hover:bg-blue-50 dark:hover:bg-blue-950/30"
+          className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-accent-text transition-colors hover:bg-accent-surface"
         >
           <EngineeringIcon name="link" size="1rem" />
           <span>View My Portfolio</span>
@@ -70,7 +70,7 @@ export default function DashboardLayout({ children }) {
         <button
           type="button"
           onClick={() => setDarkMode((d) => !d)}
-          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-500 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
+          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-ink-muted transition-colors hover:bg-surface-muted"
         >
           <EngineeringIcon name={darkMode ? 'theme-sun' : 'theme-moon'} size="1rem" />
           <span>{darkMode ? 'Light mode' : 'Dark mode'}</span>
@@ -79,16 +79,16 @@ export default function DashboardLayout({ children }) {
         <div className="flex items-center gap-2">
           <NavLink
             to="/dashboard/settings"
-            className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
+            className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-surface-muted"
           >
-            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-blue-100 text-sm font-bold text-blue-700">
+            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-accent-surface text-sm font-bold text-accent-text">
               {user?.avatar_url
                 ? <img src={user.avatar_url} alt="" className="h-full w-full object-cover" />
                 : user?.full_name?.charAt(0)?.toUpperCase()}
             </div>
             <div className="min-w-0 flex-1">
-              <div className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">{user?.full_name}</div>
-              <div className="truncate text-xs text-gray-500 dark:text-gray-400">@{user?.username}</div>
+              <div className="truncate text-sm font-medium text-ink">{user?.full_name}</div>
+              <div className="truncate text-xs text-ink-muted">@{user?.username}</div>
             </div>
           </NavLink>
           <button
@@ -96,7 +96,7 @@ export default function DashboardLayout({ children }) {
             onClick={handleLogout}
             title="Sign out"
             aria-label="Sign out"
-            className="flex-shrink-0 rounded-lg p-2 text-sm text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+            className="flex-shrink-0 rounded-lg p-2 text-sm text-ink-faint transition-colors hover:bg-surface-muted hover:text-ink-secondary"
           >
             <EngineeringIcon name="key-access" size="1rem" />
           </button>
@@ -106,31 +106,31 @@ export default function DashboardLayout({ children }) {
   );
 
   return (
-    <div className="dashboard-root app-surface flex min-h-screen bg-surface-page">
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col border-r border-gray-100 bg-white lg:flex dark:border-gray-800 dark:bg-gray-900">
+    <div className="app-surface flex min-h-screen bg-surface-page">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col border-r border-line-subtle bg-surface-rail lg:flex">
         <SidebarContent />
       </aside>
 
       {mobileOpen && (
         <div className="fixed inset-0 z-40 flex lg:hidden">
           <div className="fixed inset-0 bg-black/30" onClick={() => setMobileOpen(false)} />
-          <aside className="relative flex w-60 flex-col border-r border-gray-100 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+          <aside className="relative flex w-60 flex-col border-r border-line-subtle bg-surface-rail shadow-sm">
             <SidebarContent />
           </aside>
         </div>
       )}
 
       <main className="min-h-screen min-w-0 flex-1 overflow-x-hidden lg:pl-60">
-        <div className="sticky top-0 z-20 flex items-center gap-3 border-b border-gray-100 bg-white px-4 py-3 lg:hidden dark:border-gray-800 dark:bg-gray-900">
+        <div className="sticky top-0 z-20 flex items-center gap-3 border-b border-line-subtle bg-surface-rail px-4 py-3 lg:hidden">
           <button
             type="button"
             onClick={() => setMobileOpen(true)}
-            className="rounded-lg p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
+            className="rounded-lg p-2 hover:bg-surface-muted"
             aria-label="Open navigation"
           >
             <EngineeringIcon name="list-menu" size="1.25rem" />
           </button>
-          <span className="inline-flex items-center gap-2 font-semibold text-gray-900 dark:text-gray-100">
+          <span className="inline-flex items-center gap-2 font-semibold text-ink">
             <EngineeringIcon name="brand-projectfolio" size="1.3rem" />
             ProjectFolio
           </span>

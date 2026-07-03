@@ -146,7 +146,7 @@ export default function NotificationBell() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((value) => !value)}
-        className="relative rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
+        className="relative rounded-lg p-2 text-ink-muted transition-colors hover:bg-surface-muted"
         title="Notifications"
       >
         <EngineeringIcon name="info" size="1.1rem" />
@@ -158,11 +158,11 @@ export default function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute -right-24 top-full z-50 mt-2 w-80 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-800">
-          <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-gray-700">
-            <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">Notifications</span>
+        <div className="absolute -right-24 top-full z-50 mt-2 w-80 overflow-hidden rounded-xl border border-line-subtle bg-white shadow-xl">
+          <div className="flex items-center justify-between border-b border-line-subtle px-4 py-3">
+            <span className="text-sm font-semibold text-ink">Notifications</span>
             {unreadCount > 0 && (
-              <button onClick={handleMarkAllRead} className="text-xs text-blue-600 hover:text-blue-700">
+              <button onClick={handleMarkAllRead} className="text-xs text-accent-text hover:text-accent-text">
                 Mark all read
               </button>
             )}
@@ -170,7 +170,7 @@ export default function NotificationBell() {
 
           <div className="max-h-96 overflow-y-auto">
             {notifications.length === 0 ? (
-              <div className="py-8 text-center text-sm text-gray-400">
+              <div className="py-8 text-center text-sm text-ink-faint">
                 <EngineeringIcon name="info" size="2rem" className="mx-auto mb-2" />
                 No notifications yet
               </div>
@@ -179,29 +179,29 @@ export default function NotificationBell() {
                 <div
                   key={notification.id}
                   onClick={() => handleNotificationClick(notification)}
-                  className={`flex cursor-pointer items-start gap-3 border-b border-gray-50 px-4 py-3 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700 ${!notification.is_read ? 'bg-blue-50/50 dark:bg-blue-900/20' : ''}`}
+                  className={`flex cursor-pointer items-start gap-3 border-b border-line-subtle px-4 py-3 transition-colors hover:bg-surface-muted ${!notification.is_read ? 'bg-accent-surface/50' : ''}`}
                 >
                   <EngineeringIcon name={iconForNotification(notification.type)} size="1.25rem" className="mt-0.5" />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-2">
-                      <p className={`text-sm leading-snug ${!notification.is_read ? 'font-medium text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300'}`}>
+                      <p className={`text-sm leading-snug ${!notification.is_read ? 'font-medium text-ink' : 'text-ink-secondary'}`}>
                         {notification.title}
                       </p>
                       <button
                         onClick={(event) => handleDelete(event, notification.id)}
-                        className="mt-0.5 flex-shrink-0 text-xs text-gray-300 hover:text-gray-500"
+                        className="mt-0.5 flex-shrink-0 text-xs text-ink-faint hover:text-ink-muted"
                       >
                         x
                       </button>
                     </div>
                     {notification.message && (
-                      <p className="mt-0.5 line-clamp-2 text-xs text-gray-500 dark:text-gray-400">{notification.message}</p>
+                      <p className="mt-0.5 line-clamp-2 text-xs text-ink-muted">{notification.message}</p>
                     )}
-                    <p className="mt-1 text-xs text-gray-400">
+                    <p className="mt-1 text-xs text-ink-faint">
                       {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
                     </p>
                   </div>
-                  {!notification.is_read && <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" />}
+                  {!notification.is_read && <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-accent" />}
                 </div>
               ))
             )}

@@ -76,12 +76,12 @@ export default function IntegrationsPage() {
         <p className="page-subtitle">Share your portfolio, export your work, and connect with job platforms.</p>
       </div>
 
-      <div className="mb-8 flex w-fit gap-1 rounded-xl bg-gray-100 p-1 dark:bg-gray-800">
+      <div className="mb-8 flex w-fit gap-1 rounded-xl bg-surface-muted p-1">
         {TABS.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-all ${activeTab === tab.id ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-700 dark:text-gray-100' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}
+            className={`flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-all ${activeTab === tab.id ? 'bg-white text-ink shadow-sm' : 'text-ink-muted hover:text-ink-secondary dark:text-ink-faint'}`}
           >
             <EngineeringIcon name={tab.icon} size="1em" />
             <span>{tab.label}</span>
@@ -92,20 +92,20 @@ export default function IntegrationsPage() {
       {activeTab === 'share' && (
         <div className="max-w-2xl space-y-6">
           <section className="card p-6">
-            <h3 className="mb-1 font-semibold text-gray-900 dark:text-gray-100">Your portfolio URL</h3>
-            <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">Paste this link into any job application, email, or resume.</p>
+            <h3 className="mb-1 font-semibold text-ink">Your portfolio URL</h3>
+            <p className="mb-4 text-sm text-ink-muted">Paste this link into any job application, email, or resume.</p>
             <div className="flex gap-2">
               <input readOnly value={portfolioUrl} className="form-input flex-1 font-mono text-sm" />
               <button onClick={handleCopyLink} className="btn-primary whitespace-nowrap">Copy link</button>
             </div>
-            <div className="mt-4 grid grid-cols-2 gap-3 text-sm text-gray-500">
+            <div className="mt-4 grid grid-cols-2 gap-3 text-sm text-ink-muted">
               {[
                 ['document', 'Applications', 'Paste in additional materials or personal statements'],
                 ['briefcase', 'LinkedIn', 'Add to Featured section or contact info'],
                 ['mail', 'Email', 'Add to your email signature'],
                 ['certificate', 'Resume', 'Place near your name and contact information'],
               ].map(([icon, title, copy]) => (
-                <div key={title} className="flex items-start gap-2 rounded-xl bg-gray-50 p-3 dark:bg-gray-800">
+                <div key={title} className="flex items-start gap-2 rounded-xl bg-surface-muted p-3">
                   <EngineeringIcon name={icon} size="1rem" />
                   <span><strong>{title}:</strong> {copy}</span>
                 </div>
@@ -114,19 +114,19 @@ export default function IntegrationsPage() {
           </section>
 
           <section className="card p-6">
-            <h3 className="mb-1 font-semibold text-gray-900 dark:text-gray-100">Export your portfolio</h3>
-            <p className="mb-5 text-sm text-gray-500 dark:text-gray-400">Download your portfolio in formats you can attach to applications.</p>
+            <h3 className="mb-1 font-semibold text-ink">Export your portfolio</h3>
+            <p className="mb-5 text-sm text-ink-muted">Download your portfolio in formats you can attach to applications.</p>
             <div className="space-y-3">
               {[
                 ['document', 'PDF / Printable HTML', 'Professional portfolio document for direct attachment', handleExportPDF],
                 ['database', 'JSON data export', 'Full portfolio data backup or manual platform integration', handleExportJSON],
               ].map(([icon, title, copy, action]) => (
-                <div key={title} className="flex items-center justify-between rounded-xl border border-gray-100 p-4 transition-colors hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800">
+                <div key={title} className="flex items-center justify-between rounded-xl border border-line-subtle p-4 transition-colors hover:bg-surface-muted">
                   <div className="flex items-center gap-3">
                     <EngineeringIcon name={icon} size="1.5rem" />
                     <div>
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{title}</div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">{copy}</div>
+                      <div className="text-sm font-medium text-ink">{title}</div>
+                      <div className="text-xs text-ink-muted">{copy}</div>
                     </div>
                   </div>
                   <button onClick={action} className="btn-secondary text-sm">Download</button>
@@ -136,7 +136,7 @@ export default function IntegrationsPage() {
           </section>
 
           <section className="card p-6">
-            <h3 className="mb-4 font-semibold text-gray-900 dark:text-gray-100">Quick share</h3>
+            <h3 className="mb-4 font-semibold text-ink">Quick share</h3>
             <div className="flex flex-wrap gap-3">
               <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(portfolioUrl)}`} target="_blank" rel="noreferrer" className="btn-secondary text-sm">
                 Share on LinkedIn
@@ -155,22 +155,22 @@ export default function IntegrationsPage() {
       {activeTab === 'api' && (
         <div className="max-w-3xl space-y-6">
           <section className="card p-6">
-            <h3 className="mb-1 font-semibold text-gray-900 dark:text-gray-100">Public Portfolio API</h3>
-            <p className="mb-5 text-sm text-gray-500 dark:text-gray-400">
+            <h3 className="mb-1 font-semibold text-ink">Public Portfolio API</h3>
+            <p className="mb-5 text-sm text-ink-muted">
               Share these endpoints with any job platform so they can pull your portfolio data directly into their system.
             </p>
 
             {apiSpec && (
               <div className="space-y-4">
                 {apiSpec.endpoints.map((endpoint) => (
-                  <div key={endpoint.path} className="rounded-xl border border-gray-100 p-4 dark:border-gray-800">
+                  <div key={endpoint.path} className="rounded-xl border border-line-subtle p-4">
                     <div className="mb-2 flex items-center gap-2">
                       <span className="badge bg-green-100 font-mono text-xs text-green-700">{endpoint.method}</span>
-                      <code className="text-sm text-gray-800 dark:text-gray-200">{endpoint.path.replace('{username}', user?.username || 'you')}</code>
+                      <code className="text-sm text-ink">{endpoint.path.replace('{username}', user?.username || 'you')}</code>
                     </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{endpoint.description}</p>
+                    <p className="text-xs text-ink-muted">{endpoint.description}</p>
                     {endpoint.response_example && (
-                      <pre className="mt-2 overflow-x-auto rounded-lg bg-gray-900 p-3 text-xs text-gray-300">
+                      <pre className="mt-2 overflow-x-auto rounded-lg bg-gray-950 p-3 text-xs text-slate-300">
                         {JSON.stringify(endpoint.response_example, null, 2)}
                       </pre>
                     )}
@@ -181,18 +181,18 @@ export default function IntegrationsPage() {
           </section>
 
           <section className="card p-6">
-            <h3 className="mb-1 font-semibold text-gray-900 dark:text-gray-100">Embeddable portfolio card</h3>
-            <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">Send this iframe snippet to render a live preview card of your portfolio.</p>
-            <div className="overflow-x-auto rounded-xl bg-gray-900 p-4 font-mono text-sm text-gray-300">{embedCode}</div>
+            <h3 className="mb-1 font-semibold text-ink">Embeddable portfolio card</h3>
+            <p className="mb-4 text-sm text-ink-muted">Send this iframe snippet to render a live preview card of your portfolio.</p>
+            <div className="overflow-x-auto rounded-xl bg-gray-950 p-4 font-mono text-sm text-slate-300">{embedCode}</div>
             <button onClick={() => { navigator.clipboard.writeText(embedCode); toast.success('Embed code copied.'); }} className="btn-secondary mt-3 text-sm">
               Copy embed code
             </button>
           </section>
 
-          <section className="card bg-gray-50 p-6 dark:bg-gray-900">
-            <h3 className="mb-2 font-semibold text-gray-900 dark:text-gray-100">Full API documentation</h3>
-            <p className="mb-3 text-sm text-gray-500 dark:text-gray-400">Send this URL to developers at platforms that want a full integration.</p>
-            <code className="text-sm text-blue-600 dark:text-blue-400">{apiUrl('/integrations/spec')}</code>
+          <section className="card bg-surface-muted p-6">
+            <h3 className="mb-2 font-semibold text-ink">Full API documentation</h3>
+            <p className="mb-3 text-sm text-ink-muted">Send this URL to developers at platforms that want a full integration.</p>
+            <code className="text-sm text-accent-text">{apiUrl('/integrations/spec')}</code>
             <div className="mt-3">
               <a href={apiUrl('/integrations/spec')} target="_blank" rel="noreferrer" className="btn-ghost text-sm">View API spec</a>
             </div>

@@ -80,13 +80,13 @@ function MediaSidebar({ projectId, onClose }) {
     : media.filter(m => !m.file_type?.startsWith('image/') && !m.file_type?.startsWith('video/'));
 
   return (
-    <div className="fixed left-0 top-[120px] h-[calc(100vh-120px)] w-72 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 shadow-xl z-20 flex flex-col" style={{ marginLeft: '120px' }}>     
-    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-        <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Media Library</span>
-        <button onClick={onClose} aria-label="Close media library" className="text-gray-400 hover:text-gray-700 text-sm font-medium leading-none">x</button>
+    <div className="fixed left-0 top-[120px] h-[calc(100vh-120px)] w-72 bg-surface border-r border-line shadow-xl z-20 flex flex-col" style={{ marginLeft: '120px' }}>     
+    <div className="flex items-center justify-between px-4 py-3 border-b border-line-subtle">
+        <span className="font-semibold text-ink text-sm">Media Library</span>
+        <button onClick={onClose} aria-label="Close media library" className="text-ink-faint hover:text-ink-secondary text-sm font-medium leading-none">x</button>
       </div>
 
-      <div className="flex gap-1 p-3 border-b border-gray-100">
+      <div className="flex gap-1 p-3 border-b border-line-subtle">
         {[
           ['all', 'All', 'open-folder'],
           ['image', 'Image', 'media-frame'],
@@ -95,8 +95,8 @@ function MediaSidebar({ projectId, onClose }) {
         ].map(([f, label, icon]) => {
           const active = filter === f;
           const tone = active
-            ? 'bg-blue-600 text-white'
-            : 'bg-gray-100 dark:bg-gray-800 text-slate-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-gray-700';
+            ? 'bg-accent text-white'
+            : 'bg-surface-muted text-slate-600 dark:text-slate-300 hover:bg-surface-muted';
 
           return (
             <button
@@ -122,7 +122,7 @@ function MediaSidebar({ projectId, onClose }) {
         ) : (
           <div className="grid grid-cols-2 gap-2">
             {filtered.map(item => (
-              <div key={item.id} className="group relative rounded-xl overflow-hidden border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 cursor-pointer"
+              <div key={item.id} className="group relative rounded-xl overflow-hidden border border-line-subtle bg-surface-muted cursor-pointer"
                 onClick={() => { navigator.clipboard.writeText(item.url); }}>
                 <div className="aspect-square flex items-center justify-center overflow-hidden">
                   {item.file_type?.startsWith('image/')
@@ -130,9 +130,9 @@ function MediaSidebar({ projectId, onClose }) {
                     : <EngineeringIcon name={mediaIconNameForFileType(item.file_type)} size="2rem" />}
                 </div>
                 <div className="p-1.5">
-                  <div className="text-xs text-gray-600 truncate">{item.filename}</div>
+                  <div className="text-xs text-ink-muted truncate">{item.filename}</div>
                 </div>
-                <div className="absolute inset-0 bg-blue-600/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <div className="absolute inset-0 bg-accent/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                   <span className="text-white text-xs font-medium">Copy URL</span>
                 </div>
               </div>
@@ -141,7 +141,7 @@ function MediaSidebar({ projectId, onClose }) {
         )}
       </div>
 
-      <div className="p-3 border-t border-gray-100 text-xs text-gray-400 text-center">
+      <div className="p-3 border-t border-line-subtle text-xs text-ink-faint text-center">
         Click any file to copy its URL
       </div>
     </div>
@@ -181,10 +181,10 @@ export default function ProjectEditorPage() {
   const [showMediaSidebar, setShowMediaSidebar] = useState(false);
   const statusBadgeTone = project.status === 'published'
     ? 'bg-green-100 text-green-700'
-    : 'bg-gray-100 text-slate-600';
+    : 'bg-surface-muted text-slate-600';
   const mediaToggleTone = showMediaSidebar
-    ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600'
-    : 'text-slate-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-200';
+    ? 'bg-accent-surface text-accent-text'
+    : 'text-slate-600 dark:text-slate-300 hover:bg-surface-muted hover:text-ink-secondary';
   // Undo / redo snapshots are kept at the block level, up to 50 deep.
   const undoStack = useRef([]);
   const redoStack = useRef([]);
@@ -349,36 +349,36 @@ export default function ProjectEditorPage() {
   if (loading) return <EditorSkeleton />;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen bg-surface-page">
       {/* Top bar */}
-      <div className="sticky top-0 z-20 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 px-6 py-3 flex items-center gap-4">
-        <Link to="/dashboard" className="text-gray-500 hover:text-gray-800 text-sm">Back to dashboard</Link>
+      <div className="sticky top-0 z-20 bg-surface border-b border-line-subtle px-6 py-3 flex items-center gap-4">
+        <Link to="/dashboard" className="text-ink-muted hover:text-ink text-sm">Back to dashboard</Link>
         <div className="flex-1 min-w-0">
           <input
             value={project.title}
             onChange={e => setProject(p => ({ ...p, title: e.target.value }))}
             placeholder="Project title"
-            className="text-xl font-semibold text-gray-900 bg-transparent border-none outline-none w-full"
+            className="text-xl font-semibold text-ink bg-transparent border-none outline-none w-full"
           />
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           {/* Undo / Redo */}
           <button onClick={handleUndo} disabled={undoStack.current.length === 0} title="Undo (Ctrl+Z)"
-            className="h-8 px-2 flex items-center justify-center rounded-lg text-gray-500 hover:text-gray-800 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-xs font-medium">
+            className="h-8 px-2 flex items-center justify-center rounded-lg text-ink-muted hover:text-ink hover:bg-surface-muted disabled:opacity-30 disabled:cursor-not-allowed transition-all text-xs font-medium">
             Undo
           </button>
           <button onClick={handleRedo} disabled={redoStack.current.length === 0} title="Redo (Ctrl+Shift+Z)"
-            className="h-8 px-2 flex items-center justify-center rounded-lg text-gray-500 hover:text-gray-800 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-xs font-medium">
+            className="h-8 px-2 flex items-center justify-center rounded-lg text-ink-muted hover:text-ink hover:bg-surface-muted disabled:opacity-30 disabled:cursor-not-allowed transition-all text-xs font-medium">
             Redo
           </button>
 
-          <div className="w-px h-5 bg-gray-200 mx-1" />
+          <div className="w-px h-5 bg-surface-muted mx-1" />
 
           {/* Autosave status */}
           <div className="flex items-center gap-1.5 text-xs min-w-[80px]">
             {saveStatus === 'saving' && (
-              <><div className="w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-              <span className="text-blue-500">Saving...</span></>
+              <><div className="w-3 h-3 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+              <span className="text-accent-text">Saving...</span></>
             )}
             {saveStatus === 'saved' && (
               <><EngineeringIcon name="signal-success" size="1rem" />
@@ -408,20 +408,20 @@ export default function ProjectEditorPage() {
       </div>
 
       {/* Tabs */}
-      <div className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 px-6 flex gap-6 sticky top-[57px] z-10">
+      <div className="bg-surface border-b border-line-subtle px-6 flex gap-6 sticky top-[57px] z-10">
         {[
           ['content', 'Content', 'document-edit'],
           ['settings', 'Settings', 'settings-gear'],
         ].map(([tab, label, icon]) => (
           <button key={tab} onClick={() => setActiveTab(tab)}
-            className={`py-3 text-sm font-medium border-b-2 transition-colors inline-flex items-center gap-1.5 ${activeTab === tab ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-gray-200'}`}>
+            className={`py-3 text-sm font-medium border-b-2 transition-colors inline-flex items-center gap-1.5 ${activeTab === tab ? 'border-accent text-accent-text' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-ink-secondary'}`}>
             <EngineeringIcon name={icon} size="1em" />
             <span>{label}</span>
           </button>
         ))}
       </div>
 
-<div className="px-6 pt-3 bg-gray-50 dark:bg-gray-950">
+<div className="px-6 pt-3 bg-surface-page">
   <button onClick={() => setShowMediaSidebar(s => !s)}
     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${mediaToggleTone}`}>
     <EngineeringIcon name="media-frame" size="1em" />
@@ -437,7 +437,7 @@ export default function ProjectEditorPage() {
               value={project.tagline}
               onChange={e => setProject(p => ({ ...p, tagline: e.target.value }))}
               placeholder="One-line description of this project (shows on portfolio)"
-              className="w-full text-lg text-gray-500 dark:text-gray-400 bg-transparent border-none outline-none border-b border-gray-100 dark:border-gray-700 pb-2 focus:border-blue-300 dark:placeholder-gray-600"
+              className="w-full text-lg text-ink-muted bg-transparent border-none outline-none border-b border-line-subtle pb-2 focus:border-accent"
             />
 
             {/* Block editor */}
@@ -459,10 +459,10 @@ export default function ProjectEditorPage() {
                     className="absolute top-2 right-2 bg-black/50 text-white text-xs px-3 py-1 rounded-lg">Remove</button>
                 </div>
               ) : (
-                <div {...getCoverProps()} className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center cursor-pointer hover:border-gray-300">
+                <div {...getCoverProps()} className="border-2 border-dashed border-line rounded-xl p-8 text-center cursor-pointer hover:border-ink-faint">
                   <input {...getCoverInputProps()} />
-                  {coverUploading ? <div className="text-sm text-gray-500">Uploading...</div> : (
-                    <p className="text-sm text-gray-500">Drag & drop a cover image or click to upload</p>
+                  {coverUploading ? <div className="text-sm text-ink-muted">Uploading...</div> : (
+                    <p className="text-sm text-ink-muted">Drag & drop a cover image or click to upload</p>
                   )}
                 </div>
               )}
@@ -523,8 +523,8 @@ export default function ProjectEditorPage() {
             <div className="flex items-center gap-3">
               <input type="checkbox" id="featured" checked={project.is_featured}
                 onChange={e => setProject(p => ({ ...p, is_featured: e.target.checked }))}
-                className="w-4 h-4 text-blue-600 rounded" />
-              <label htmlFor="featured" className="text-sm text-gray-700 inline-flex items-center gap-2">
+                className="w-4 h-4 text-accent-text rounded" />
+              <label htmlFor="featured" className="text-sm text-ink-secondary inline-flex items-center gap-2">
                 <EngineeringIcon name="award-badge" size="1rem" />
                 Feature this project on my portfolio homepage
               </label>
@@ -533,8 +533,8 @@ export default function ProjectEditorPage() {
             {/* Collaborators */}
             {project.id && (
               <div className="card p-6">
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Collaborators</h3>
-                <p className="text-xs text-gray-500 mb-4">
+                <h3 className="font-semibold text-ink mb-1">Collaborators</h3>
+                <p className="text-xs text-ink-muted mb-4">
                   Collaborators can edit this project and it appears on their portfolio as a group project.
                 </p>
                 <CollaboratorPanel

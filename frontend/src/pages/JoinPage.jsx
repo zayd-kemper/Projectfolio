@@ -40,10 +40,10 @@ export default function JoinPage() {
 
   if (status === 'loading') {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+      <div className="flex min-h-screen items-center justify-center bg-surface-muted">
         <div className="text-center">
-          <div className="mx-auto mb-3 h-10 w-10 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
-          <p className="text-gray-500">Processing your invitation...</p>
+          <div className="mx-auto mb-3 h-10 w-10 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+          <p className="text-ink-muted">Processing your invitation...</p>
         </div>
       </div>
     );
@@ -51,11 +51,11 @@ export default function JoinPage() {
 
   if (status === 'error') {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+      <div className="flex min-h-screen items-center justify-center bg-surface-muted">
         <div className="card max-w-md p-10 text-center">
           <EngineeringIcon name="clock" size="3rem" className="mx-auto mb-4" />
-          <h2 className="mb-2 text-2xl font-semibold text-gray-900">Invitation expired</h2>
-          <p className="mb-6 text-gray-500">This invitation link is invalid or has expired. Ask the owner to send a new one.</p>
+          <h2 className="mb-2 text-2xl font-semibold text-ink">Invitation expired</h2>
+          <p className="mb-6 text-ink-muted">This invitation link is invalid or has expired. Ask the owner to send a new one.</p>
           <Link to="/dashboard" className="btn-primary">Go to dashboard</Link>
         </div>
       </div>
@@ -63,13 +63,13 @@ export default function JoinPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
+    <div className="flex min-h-screen items-center justify-center bg-surface-muted">
       <div className="card max-w-md p-10 text-center">
         <EngineeringIcon name="signal-success" size="3rem" className="mx-auto mb-4" />
-        <h2 className="mb-2 text-2xl font-semibold text-gray-900">
+        <h2 className="mb-2 text-2xl font-semibold text-ink">
           {result?.type === 'team' ? 'You joined the team' : 'You joined the project'}
         </h2>
-        <p className="mb-6 text-gray-500">You can now collaborate and contribute.</p>
+        <p className="mb-6 text-ink-muted">You can now collaborate and contribute.</p>
         <Link to={result?.type === 'team' ? '/dashboard/teams' : '/dashboard'} className="btn-primary">
           {result?.type === 'team' ? 'View team' : 'Go to dashboard'}
         </Link>

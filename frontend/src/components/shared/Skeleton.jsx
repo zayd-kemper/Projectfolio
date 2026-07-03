@@ -4,7 +4,7 @@ export function SkeletonBlock({ className = '', lightOnly = false }) {
   return (
     <div
       aria-hidden="true"
-      className={`${pulse} ${lightOnly ? 'bg-gray-200/80' : 'bg-gray-200/80 dark:bg-gray-800'} ${className}`}
+      className={`${pulse} ${lightOnly ? 'bg-surface-muted/80' : 'bg-surface-muted/80'} ${className}`}
     />
   );
 }
@@ -20,8 +20,8 @@ function LoadingRegion({ label, className = '', children }) {
 
 export function RouteSkeleton() {
   return (
-    <LoadingRegion label="Loading page" className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <div className="h-16 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-6 flex items-center gap-4">
+    <LoadingRegion label="Loading page" className="min-h-screen bg-surface-page">
+      <div className="h-16 border-b border-line bg-surface px-6 flex items-center gap-4">
         <SkeletonBlock className="h-8 w-8 rounded-lg" />
         <SkeletonBlock className="h-5 w-36 rounded" />
       </div>
@@ -40,8 +40,8 @@ export function RouteSkeleton() {
 
 export function DashboardShellSkeleton() {
   return (
-    <LoadingRegion label="Loading dashboard" className="dashboard-root app-surface min-h-screen bg-surface-page flex">
-      <aside className="hidden lg:block w-60 min-h-screen border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
+    <LoadingRegion label="Loading dashboard" className="app-surface min-h-screen bg-surface-page flex">
+      <aside className="hidden lg:block w-60 min-h-screen border-r border-line bg-surface p-4">
         <SkeletonBlock className="h-8 w-36 rounded mb-10" />
         <div className="space-y-3">
           {[0, 1, 2, 3, 4, 5].map(item => <SkeletonBlock key={item} className="h-10 rounded-lg" />)}
@@ -67,8 +67,8 @@ export function DashboardShellSkeleton() {
 
 export function EditorSkeleton() {
   return (
-    <LoadingRegion label="Loading project editor" className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <div className="h-16 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-6 flex items-center gap-4">
+    <LoadingRegion label="Loading project editor" className="min-h-screen bg-surface-page">
+      <div className="h-16 border-b border-line bg-surface px-6 flex items-center gap-4">
         <SkeletonBlock className="h-4 w-24 rounded" />
         <SkeletonBlock className="h-7 flex-1 max-w-lg rounded" />
         <SkeletonBlock className="h-9 w-28 rounded-lg" />
@@ -100,8 +100,8 @@ export function MediaGridSkeleton({ count = 6, compact = false }) {
 
 export function PublicPortfolioSkeleton() {
   return (
-    <LoadingRegion label="Loading portfolio" className="min-h-screen bg-white text-gray-900">
-      <div className="h-14 border-b border-gray-100 px-6 flex items-center justify-between">
+    <LoadingRegion label="Loading portfolio" className="min-h-screen bg-white text-ink">
+      <div className="h-14 border-b border-line-subtle px-6 flex items-center justify-between">
         <SkeletonBlock lightOnly className="h-5 w-32 rounded" />
         <SkeletonBlock lightOnly className="h-8 w-20 rounded-lg" />
       </div>
@@ -117,7 +117,7 @@ export function PublicPortfolioSkeleton() {
         </div>
         <div className="grid md:grid-cols-2 gap-6">
           {[0, 1, 2, 3].map(item => (
-            <div key={item} className="border border-gray-100 rounded-xl overflow-hidden">
+            <div key={item} className="border border-line-subtle rounded-xl overflow-hidden">
               <SkeletonBlock lightOnly className="aspect-[16/8]" />
               <div className="p-5 space-y-3">
                 <SkeletonBlock lightOnly className="h-6 w-2/3 rounded" />
@@ -133,8 +133,8 @@ export function PublicPortfolioSkeleton() {
 
 export function PublicProjectSkeleton() {
   return (
-    <LoadingRegion label="Loading project" className="min-h-screen bg-white text-gray-900">
-      <div className="h-14 border-b border-gray-100 px-6 flex items-center justify-between">
+    <LoadingRegion label="Loading project" className="min-h-screen bg-white text-ink">
+      <div className="h-14 border-b border-line-subtle px-6 flex items-center justify-between">
         <SkeletonBlock lightOnly className="h-5 w-36 rounded" />
         <SkeletonBlock lightOnly className="h-5 w-24 rounded" />
       </div>
@@ -156,8 +156,8 @@ export function PublicProjectSkeleton() {
 
 export function PublicTeamSkeleton() {
   return (
-    <LoadingRegion label="Loading team portfolio" className="min-h-screen bg-white text-gray-900">
-      <div className="h-14 border-b border-gray-100 px-6 flex items-center">
+    <LoadingRegion label="Loading team portfolio" className="min-h-screen bg-white text-ink">
+      <div className="h-14 border-b border-line-subtle px-6 flex items-center">
         <SkeletonBlock lightOnly className="h-5 w-32 rounded" />
       </div>
       <div className="max-w-5xl mx-auto px-6 py-14 space-y-12">

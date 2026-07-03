@@ -82,7 +82,7 @@ function TextFilePreview({ file }) {
 
   if (state.loading) {
     return (
-      <div className="h-56 animate-pulse rounded-xl bg-gray-100 dark:bg-gray-800" aria-label="Loading file preview" />
+      <div className="h-56 animate-pulse rounded-xl bg-surface-muted" aria-label="Loading file preview" />
     );
   }
 
@@ -101,11 +101,11 @@ function PreviewFallback({ file, message = 'This file type cannot be previewed s
   const previewUrl = normalizePreviewUrl(file?.url);
 
   return (
-    <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-5 text-sm text-gray-600 dark:border-gray-700 dark:bg-gray-900/60 dark:text-gray-300">
-      <p className="font-medium text-gray-800 dark:text-gray-100">Preview unavailable</p>
-      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{message}</p>
+    <div className="rounded-xl border border-dashed border-line bg-surface-muted p-5 text-sm text-ink-muted dark:text-ink-faint">
+      <p className="font-medium text-ink">Preview unavailable</p>
+      <p className="mt-1 text-xs text-ink-muted">{message}</p>
       {previewUrl && (
-        <a href={previewUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400">
+        <a href={previewUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex text-xs font-semibold text-accent-text hover:underline">
           Open file in a new tab
         </a>
       )}
@@ -122,25 +122,25 @@ export default function FilePreview({ file, className = '' }) {
   if (!previewUrl) return <PreviewFallback file={file} message="This file URL cannot be previewed safely." />;
 
   return (
-    <div className={`rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-950 ${className}`}>
+    <div className={`rounded-xl border border-line bg-white p-3 ${className}`}>
       <div className="mb-3 flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <p className="truncate text-xs font-semibold text-gray-800 dark:text-gray-100">{name}</p>
-          <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400">{kind === 'download' ? 'File attachment' : `${kind} preview`}</p>
+          <p className="truncate text-xs font-semibold text-ink">{name}</p>
+          <p className="text-[11px] font-medium text-ink-muted">{kind === 'download' ? 'File attachment' : `${kind} preview`}</p>
         </div>
-        <a href={previewUrl} target="_blank" rel="noreferrer" className="flex-shrink-0 text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400">
+        <a href={previewUrl} target="_blank" rel="noreferrer" className="flex-shrink-0 text-xs font-semibold text-accent-text hover:underline">
           Open
         </a>
       </div>
 
-      {kind === 'image' && <img src={previewUrl} alt={name} className="max-h-[520px] w-full rounded-xl object-contain bg-gray-50 dark:bg-gray-900" />}
+      {kind === 'image' && <img src={previewUrl} alt={name} className="max-h-[520px] w-full rounded-xl object-contain bg-surface-muted" />}
       {kind === 'video' && <video src={previewUrl} controls className="w-full rounded-xl bg-black" />}
       {kind === 'audio' && <audio src={previewUrl} controls className="w-full" />}
       {kind === 'pdf' && (
         <iframe
           src={previewUrl}
           title={`${name} preview`}
-          className="h-[560px] w-full rounded-xl border border-gray-200 bg-white dark:border-gray-700"
+          className="h-[560px] w-full rounded-xl border border-line bg-white"
           sandbox=""
           referrerPolicy="no-referrer"
         />

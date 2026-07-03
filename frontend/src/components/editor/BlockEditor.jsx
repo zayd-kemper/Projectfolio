@@ -81,30 +81,30 @@ function SlashMenu({ position, query, onSelect, onClose }) {
 
   return (
     <div
-      className="fixed z-50 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl w-72 overflow-hidden"
+      className="fixed z-50 bg-surface border border-line rounded-xl shadow-2xl w-72 overflow-hidden"
       style={{ top: position.y + 8, left: position.x }}
     >
       <div className="px-3 pt-2.5 pb-1">
-        <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">Add block</span>
+        <span className="text-xs font-semibold text-ink-muted">Add block</span>
       </div>
       <div className="max-h-72 overflow-y-auto pb-2">
         {groups.map(group => (
           <div key={group.name}>
-            <div className="px-3 py-1 text-[11px] font-semibold text-gray-500 dark:text-gray-400">{group.name}</div>
+            <div className="px-3 py-1 text-[11px] font-semibold text-ink-muted">{group.name}</div>
             {group.items.map(item => {
               const idx = globalIndex++;
               return (
                 <button
                   key={item.type}
                   onMouseDown={(e) => { e.preventDefault(); onSelect(item.type); }}
-                  className={`w-full flex items-center gap-3 px-3 py-2 text-left transition-colors ${idx === selected ? 'bg-blue-50 dark:bg-blue-900/30' : 'hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+                  className={`w-full flex items-center gap-3 px-3 py-2 text-left transition-colors ${idx === selected ? 'bg-accent-surface' : 'hover:bg-surface-muted'}`}
                 >
-                  <span className="w-7 h-7 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-lg flex-shrink-0">
+                  <span className="w-7 h-7 flex items-center justify-center bg-surface-muted rounded-lg flex-shrink-0">
                     <EngineeringIcon name={item.icon} size="1rem" />
                   </span>
                   <div>
-                    <div className="text-sm font-medium text-gray-800 dark:text-gray-200">{item.label}</div>
-                    <div className="text-xs text-gray-400 dark:text-gray-500">{item.desc}</div>
+                    <div className="text-sm font-medium text-ink">{item.label}</div>
+                    <div className="text-xs text-ink-faint">{item.desc}</div>
                   </div>
                 </button>
               );
@@ -179,7 +179,7 @@ function FloatingToolbar({ editor }) {
         ? <div key={i} className="w-px h-4 bg-gray-700 mx-1" />
         : (
           <button key={t.label} title={t.title} onClick={t.action}
-            className={`px-2 py-1 rounded-lg text-xs font-mono transition-colors ${t.active ? 'bg-blue-600 text-white' : 'text-white/75 hover:bg-gray-700 hover:text-white'} ${t.style || ''}`}>
+            className={`px-2 py-1 rounded-lg text-xs font-mono transition-colors ${t.active ? 'bg-accent text-white' : 'text-white/75 hover:bg-gray-700 hover:text-white'} ${t.style || ''}`}>
             {t.label}
           </button>
         )
@@ -190,13 +190,13 @@ function FloatingToolbar({ editor }) {
           <input autoFocus value={linkUrl} onChange={e => setLinkUrl(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter') applyLink(); if (e.key === 'Escape') setLinkMode(false); }}
             placeholder="https://..."
-            className="bg-gray-800 text-white text-xs rounded-lg px-2 py-1 w-40 outline-none border border-gray-600 focus:border-blue-500" />
-          <button onClick={applyLink} className="text-blue-400 text-xs px-1 hover:text-blue-300">Apply</button>
-          <button onClick={() => setLinkMode(false)} className="text-gray-500 text-xs px-1">Cancel</button>
+            className="bg-gray-800 text-white text-xs rounded-lg px-2 py-1 w-40 outline-none border border-gray-600 focus:border-accent" />
+          <button onClick={applyLink} className="text-blue-300 text-xs px-1 hover:text-white">Apply</button>
+          <button onClick={() => setLinkMode(false)} className="text-ink-muted text-xs px-1">Cancel</button>
         </div>
       ) : (
         <button onClick={() => setLinkMode(true)} title="Link"
-          className={`px-2 py-1 rounded-lg text-xs transition-colors ${editor.isActive('link') ? 'bg-blue-600 text-white' : 'text-white/75 hover:bg-gray-700 hover:text-white'}`}>
+          className={`px-2 py-1 rounded-lg text-xs transition-colors ${editor.isActive('link') ? 'bg-accent text-white' : 'text-white/75 hover:bg-gray-700 hover:text-white'}`}>
           <EngineeringIcon name="link" size="1rem" />
         </button>
       )}
@@ -276,8 +276,8 @@ function HeadingBlock({ block, onUpdate }) {
         {[1, 2, 3].map(l => {
           const active = block.content?.level === l;
           const tone = active
-            ? 'bg-blue-600 text-white border-blue-600'
-            : 'bg-white dark:bg-gray-800 text-slate-600 dark:text-slate-300 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600';
+            ? 'bg-accent text-white border-accent'
+            : 'bg-surface text-slate-600 dark:text-slate-300 border-line hover:border-ink-faint';
 
           return (
             <button
@@ -294,7 +294,7 @@ function HeadingBlock({ block, onUpdate }) {
         value={block.content?.text || ''}
         onChange={e => onUpdate(block.id, { ...block.content, text: e.target.value })}
         placeholder={`Heading ${block.content?.level || 2}`}
-        className={`w-full bg-transparent border-none outline-none font-semibold ${sizes[block.content?.level || 2]} text-gray-900 placeholder-gray-200`}
+        className={`w-full bg-transparent border-none outline-none font-semibold ${sizes[block.content?.level || 2]} text-ink placeholder:text-ink-faint`}
       />
     </div>
   );
@@ -330,31 +330,31 @@ function ImageBlock({ block, onUpdate, projectId }) {
         </div>
         <div className="flex gap-4 mt-2">
           <input value={block.content.alt || ''} onChange={e => onUpdate(block.id, { ...block.content, alt: e.target.value })}
-            placeholder="Alt text (accessibility)" className="flex-1 text-xs text-gray-400 bg-transparent border-none outline-none border-b border-gray-100 pb-1 focus:border-gray-300 transition-colors" />
+            placeholder="Alt text (accessibility)" className="flex-1 text-xs text-ink-faint bg-transparent border-none outline-none border-b border-line-subtle pb-1 focus:border-line transition-colors" />
           <input value={block.content.caption || ''} onChange={e => onUpdate(block.id, { ...block.content, caption: e.target.value })}
-            placeholder="Caption (optional)" className="flex-1 text-xs text-gray-400 bg-transparent border-none outline-none border-b border-gray-100 pb-1 focus:border-gray-300 italic transition-colors" />
+            placeholder="Caption (optional)" className="flex-1 text-xs text-ink-faint bg-transparent border-none outline-none border-b border-line-subtle pb-1 focus:border-line italic transition-colors" />
         </div>
       </div>
     );
   }
 
   return (
-    <div {...getRootProps()} className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-all ${isDragActive ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 scale-[1.01]' : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 hover:bg-blue-50/30 dark:hover:bg-blue-900/10'}`}>
+    <div {...getRootProps()} className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-all ${isDragActive ? 'border-accent bg-accent-surface scale-[1.01]' : 'border-line hover:border-accent-border hover:bg-accent-surface/30'}`}>
       <input {...getInputProps()} />
       {uploading ? (
         <div className="flex items-center justify-center gap-2">
-          <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-          <span className="text-sm text-gray-500">Uploading...</span>
+          <div className="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+          <span className="text-sm text-ink-muted">Uploading...</span>
         </div>
       ) : (
         <>
           <EngineeringIcon name="media-frame" size="2rem" className="mx-auto mb-2" />
-          <p className="text-sm text-gray-500 mb-1">Drag & drop or click to upload</p>
-          <p className="text-xs text-gray-400">PNG, JPG, WebP, GIF up to 10MB</p>
-          <div className="mt-3 text-xs text-gray-400">Or paste a URL below.</div>
+          <p className="text-sm text-ink-muted mb-1">Drag & drop or click to upload</p>
+          <p className="text-xs text-ink-faint">PNG, JPG, WebP, GIF up to 10MB</p>
+          <div className="mt-3 text-xs text-ink-faint">Or paste a URL below.</div>
           <input onClick={e => e.stopPropagation()} placeholder="https://..." value={block.content?.url || ''}
             onChange={e => onUpdate(block.id, { ...block.content, url: e.target.value })}
-            className="mt-2 w-full max-w-sm mx-auto px-3 py-1.5 text-xs border border-gray-200 dark:border-gray-700 bg-transparent dark:text-gray-300 rounded-lg outline-none focus:border-blue-400 dark:focus:border-blue-600 transition-colors" />
+            className="mt-2 w-full max-w-sm mx-auto px-3 py-1.5 text-xs border border-line bg-transparent rounded-lg outline-none focus:border-accent transition-colors" />
         </>
       )}
     </div>
@@ -394,7 +394,7 @@ function GalleryBlock({ block, onUpdate, projectId }) {
       {images.length > 0 && (
         <div className={`grid gap-2 mb-3 ${gridCols}`}>
           {images.map((img, i) => (
-            <div key={i} className="group relative rounded-xl overflow-hidden bg-gray-100">
+            <div key={i} className="group relative rounded-xl overflow-hidden bg-surface-muted">
               <img src={img.url} alt="" className="w-full h-40 object-cover" />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors" />
               <button onClick={() => removeImage(i)}
@@ -406,16 +406,16 @@ function GalleryBlock({ block, onUpdate, projectId }) {
           ))}
         </div>
       )}
-      <div {...getRootProps()} className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all ${isDragActive ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 hover:bg-blue-50/20 dark:hover:bg-blue-900/10'}`}>
+      <div {...getRootProps()} className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all ${isDragActive ? 'border-accent bg-accent-surface' : 'border-line hover:border-accent-border hover:bg-accent-surface/20'}`}>
         <input {...getInputProps()} />
         {uploading ? (
-          <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
-            <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" /> Uploading...
+          <div className="flex items-center justify-center gap-2 text-sm text-ink-muted">
+            <div className="w-4 h-4 border-2 border-accent border-t-transparent rounded-full animate-spin" /> Uploading...
           </div>
         ) : (
           <div className="text-center">
             <EngineeringIcon name="gallery-grid" size="2rem" className="mx-auto mb-2" />
-            <p className="text-sm text-gray-400">{images.length > 0 ? 'Drop more images to add to gallery' : 'Drop images here or click to upload (select multiple)'}</p>
+            <p className="text-sm text-ink-faint">{images.length > 0 ? 'Drop more images to add to gallery' : 'Drop images here or click to upload (select multiple)'}</p>
           </div>
         )}
       </div>
@@ -447,7 +447,7 @@ function VideoBlock({ block, onUpdate }) {
       ) : null}
       {block.content?.url && (
         <input value={block.content.caption || ''} onChange={e => onUpdate(block.id, { ...block.content, caption: e.target.value })}
-          placeholder="Caption (optional)" className="w-full text-xs text-gray-400 bg-transparent border-none outline-none mt-2 text-center italic" />
+          placeholder="Caption (optional)" className="w-full text-xs text-ink-faint bg-transparent border-none outline-none mt-2 text-center italic" />
       )}
     </div>
   );
@@ -469,18 +469,18 @@ function CodeBlock({ block, onUpdate }) {
         </div>
         <select value={block.content?.language || 'python'}
           onChange={e => onUpdate(block.id, { ...block.content, language: e.target.value })}
-          className="bg-gray-800 text-gray-400 text-xs border border-gray-700 rounded-md px-2 py-0.5 font-mono outline-none ml-2">
+          className="bg-gray-800 text-ink-faint text-xs border border-gray-700 rounded-md px-2 py-0.5 font-mono outline-none ml-2">
           {LANGUAGES.map(l => <option key={l} value={l}>{l}</option>)}
         </select>
         <button onClick={() => { navigator.clipboard.writeText(code); toast.success('Copied!'); }}
-          className="ml-auto text-xs text-gray-500 hover:text-gray-300 transition-colors font-mono px-2 py-0.5 rounded hover:bg-gray-800">
+          className="ml-auto text-xs text-ink-muted hover:text-ink-faint transition-colors font-mono px-2 py-0.5 rounded hover:bg-gray-800">
           copy
         </button>
       </div>
       <div className="flex">
         <div className="select-none border-r border-gray-800 bg-gray-900/40 px-3 py-4 min-w-[2.5rem] text-right">
           {Array.from({ length: Math.max(lines, 1) }, (_, i) => (
-            <div key={i} className="text-gray-600 text-xs font-mono leading-6">{i + 1}</div>
+            <div key={i} className="text-ink-muted text-xs font-mono leading-6">{i + 1}</div>
           ))}
         </div>
         <textarea value={code} onChange={e => onUpdate(block.id, { ...block.content, code: e.target.value })}
@@ -497,7 +497,7 @@ const CALLOUT_STYLES = {
   amber:  { bg: 'bg-amber-50',  border: 'border-amber-200',  text: 'text-amber-900',  badge: 'bg-amber-100 text-amber-700',  label: 'Note',     icon: 'idea-spark' },
   red:    { bg: 'bg-red-50',    border: 'border-red-200',    text: 'text-red-900',    badge: 'bg-red-100 text-red-700',      label: 'Warning',  icon: 'warning-signal' },
   green:  { bg: 'bg-green-50',  border: 'border-green-200',  text: 'text-green-900',  badge: 'bg-green-100 text-green-700',  label: 'Result',   icon: 'signal-success' },
-  blue:   { bg: 'bg-blue-50',   border: 'border-blue-200',   text: 'text-blue-900',   badge: 'bg-blue-100 text-blue-700',    label: 'Research', icon: 'research-scope' },
+  blue:   { bg: 'bg-accent-surface',   border: 'border-accent-border',   text: 'text-accent-text',   badge: 'bg-accent-surface text-accent-text',    label: 'Research', icon: 'research-scope' },
   purple: { bg: 'bg-purple-50', border: 'border-purple-200', text: 'text-purple-900', badge: 'bg-purple-100 text-purple-700',label: 'Insight',  icon: 'launch-vector' },
 };
 const CALLOUT_ICONS = [
@@ -528,7 +528,7 @@ function CalloutBlock({ block, onUpdate }) {
       <div className="flex flex-wrap gap-1.5 mb-3">
         {Object.entries(CALLOUT_STYLES).map(([key, s]) => (
           <button key={key} onClick={() => onUpdate(block.id, { ...block.content, color: key })}
-            className={`text-xs px-2.5 py-0.5 rounded-full font-medium transition-all ${color === key ? s.badge + ' ring-1 ring-current/30' : 'bg-white/60 dark:bg-gray-800/60 text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-700 border border-transparent hover:border-gray-200 dark:hover:border-gray-600'}`}>
+            className={`text-xs px-2.5 py-0.5 rounded-full font-medium transition-all ${color === key ? s.badge + ' ring-1 ring-current/30' : 'bg-white/60 text-ink-muted hover:bg-white border border-transparent hover:border-line'}`}>
             <span className="inline-flex items-center gap-1.5">
               <EngineeringIcon name={s.icon} size="0.9rem" />
               {s.label}
@@ -540,19 +540,19 @@ function CalloutBlock({ block, onUpdate }) {
         <div className="relative flex-shrink-0">
           <button
             onClick={() => setShowPicker(s => !s)}
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-transparent hover:border-gray-200 hover:bg-white/70 dark:hover:border-gray-700 dark:hover:bg-gray-900/60 transition-colors"
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-transparent hover:border-line hover:bg-white/70 transition-colors"
             aria-label="Choose callout icon"
             type="button"
           >
             <EngineeringIcon name={selectedIcon} size="1.35rem" />
           </button>
           {showPicker && (
-            <div className="absolute top-full left-0 mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-2 shadow-xl z-20 grid grid-cols-5 gap-1 w-52">
+            <div className="absolute top-full left-0 mt-1 bg-surface border border-line rounded-xl p-2 shadow-xl z-20 grid grid-cols-5 gap-1 w-52">
               {CALLOUT_ICONS.map(icon => (
                 <button
                   key={icon.name}
                   onClick={() => { onUpdate(block.id, { ...block.content, icon: icon.name, emoji: '' }); setShowPicker(false); }}
-                  className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${selectedIcon === icon.name ? 'bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}
+                  className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${selectedIcon === icon.name ? 'bg-accent-surface text-accent-text' : 'hover:bg-surface-muted'}`}
                   title={icon.label}
                   aria-label={icon.label}
                   type="button"
@@ -608,11 +608,11 @@ function FileBlock({ block, onUpdate, projectId }) {
     const safeUrl = normalizePreviewUrl(block.content.url);
     return (
       <div className="space-y-3">
-        <div className="flex items-center gap-4 p-4 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800/60 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group">
+        <div className="flex items-center gap-4 p-4 border border-line rounded-xl bg-surface-muted/60 hover:bg-surface-muted transition-colors group">
           <EngineeringIcon name={getFileIcon(block.content.type)} size="1.75rem" className="flex-shrink-0" />
           <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium text-gray-900 dark:text-gray-200 truncate">{block.content.filename}</div>
-            <div className="text-xs text-gray-400">
+            <div className="text-sm font-medium text-ink truncate">{block.content.filename}</div>
+            <div className="text-xs text-ink-faint">
               {sizeMB ? sizeMB + ' MB' : 'Attachment'}{!previewable ? ' - download required' : ''}
             </div>
           </div>
@@ -625,7 +625,7 @@ function FileBlock({ block, onUpdate, projectId }) {
             >
               {previewOpen ? 'Hide preview' : 'Preview'}
             </button>
-            <button type="button" onClick={() => { setPreviewOpen(false); onUpdate(block.id, {}); }} className="text-xs text-gray-400 hover:text-red-500 transition-colors">Replace</button>
+            <button type="button" onClick={() => { setPreviewOpen(false); onUpdate(block.id, {}); }} className="text-xs text-ink-faint hover:text-red-500 transition-colors">Replace</button>
             {safeUrl && <a href={safeUrl} target="_blank" rel="noreferrer" className="btn-secondary text-xs !px-3 !py-1.5">Download</a>}
           </div>
         </div>
@@ -635,16 +635,16 @@ function FileBlock({ block, onUpdate, projectId }) {
   }
 
   return (
-    <div {...getRootProps()} className={'border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ' + (isDragActive ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 hover:bg-blue-50/20 dark:hover:bg-blue-900/10')}>
+    <div {...getRootProps()} className={'border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ' + (isDragActive ? 'border-accent bg-accent-surface' : 'border-line hover:border-accent-border hover:bg-accent-surface/20')}>
       <input {...getInputProps()} />
       {uploading ? (
-        <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
-          <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" /> Uploading...
+        <div className="flex items-center justify-center gap-2 text-sm text-ink-muted">
+          <div className="w-4 h-4 border-2 border-accent border-t-transparent rounded-full animate-spin" /> Uploading...
         </div>
       ) : (
         <>
           <EngineeringIcon name="attachment" size="2rem" className="mx-auto mb-2" />
-          <p className="text-sm text-gray-500">Drag & drop any file - PDF, CAD (.DWG, .STEP, .STL), code, data, etc.</p>
+          <p className="text-sm text-ink-muted">Drag & drop any file - PDF, CAD (.DWG, .STEP, .STL), code, data, etc.</p>
         </>
       )}
     </div>
@@ -660,15 +660,15 @@ function EmbedBlock({ block, onUpdate }) {
         <input value={block.content?.url || ''} onChange={e => onUpdate(block.id, { ...block.content, url: e.target.value })}
           placeholder="Paste embed URL (Figma, Sketchfab, Google Slides, CodePen...)" className="form-input flex-1 text-sm" />
         <div className="flex items-center gap-1.5 flex-shrink-0">
-          <span className="text-xs text-gray-400">Height:</span>
+          <span className="text-xs text-ink-faint">Height:</span>
           <input type="number" value={height} min={200} max={900} step={50}
             onChange={e => { const h = +e.target.value; setHeight(h); onUpdate(block.id, { ...block.content, height: h }); }}
-            className="w-20 px-2 py-1.5 text-xs border border-gray-200 rounded-lg outline-none focus:border-blue-400" />
-          <span className="text-xs text-gray-400">px</span>
+            className="w-20 px-2 py-1.5 text-xs border border-line rounded-lg outline-none focus:border-accent" />
+          <span className="text-xs text-ink-faint">px</span>
         </div>
       </div>
       {block.content?.url && (
-        <iframe src={block.content.url} className="w-full rounded-xl border border-gray-200" style={{ height }} title="embed" />
+        <iframe src={block.content.url} className="w-full rounded-xl border border-line" style={{ height }} title="embed" />
       )}
     </div>
   );
@@ -676,7 +676,7 @@ function EmbedBlock({ block, onUpdate }) {
 
 // ── METRICS BLOCK ─────────────────────────────────────────────────────────────
 const METRIC_COLORS = [
-  { bg: 'bg-blue-50',   text: 'text-blue-600',   border: 'border-blue-100'   },
+  { bg: 'bg-accent-surface',   text: 'text-accent-text',   border: 'border-accent-border'   },
   { bg: 'bg-green-50',  text: 'text-green-600',   border: 'border-green-100'  },
   { bg: 'bg-purple-50', text: 'text-purple-600',  border: 'border-purple-100' },
   { bg: 'bg-orange-50', text: 'text-orange-600',  border: 'border-orange-100' },
@@ -700,7 +700,7 @@ function MetricsBlock({ block, onUpdate }) {
           return (
             <div key={i} className={`relative group/metric ${c.bg} border ${c.border} rounded-xl p-4`}>
               <button onClick={() => removeItem(i)}
-                className="absolute top-2 right-2 w-5 h-5 rounded-full bg-white/80 dark:bg-gray-900/80 text-gray-400 hover:text-red-500 text-xs opacity-0 group-hover/metric:opacity-100 transition-opacity flex items-center justify-center font-bold">x</button>
+                className="absolute top-2 right-2 w-5 h-5 rounded-full bg-white/80 text-ink-faint hover:text-red-500 text-xs opacity-0 group-hover/metric:opacity-100 transition-opacity flex items-center justify-center font-bold">x</button>
               <div className="flex items-baseline gap-1 mb-1">
                 <input value={item.value} onChange={e => update(i, 'value', e.target.value)}
                   placeholder="42" className={`bg-transparent border-none outline-none text-3xl font-bold ${c.text} w-full placeholder-current/20`} />
@@ -708,14 +708,14 @@ function MetricsBlock({ block, onUpdate }) {
                   placeholder="unit" className={`bg-transparent border-none outline-none text-sm ${c.text} opacity-60 w-14 placeholder-current/30`} />
               </div>
               <input value={item.label} onChange={e => update(i, 'label', e.target.value)}
-                placeholder="Metric name" className="block w-full bg-transparent border-none outline-none text-xs text-gray-500 placeholder-gray-300" />
+                placeholder="Metric name" className="block w-full bg-transparent border-none outline-none text-xs text-ink-muted placeholder:text-ink-faint" />
             </div>
           );
         })}
       </div>
       {items.length < 6 && (
-        <button onClick={addItem} className="text-xs text-gray-400 hover:text-gray-700 flex items-center gap-1.5 transition-colors">
-          <span className="w-5 h-5 rounded-full border border-gray-300 flex items-center justify-center text-gray-400">+</span>
+        <button onClick={addItem} className="text-xs text-ink-faint hover:text-ink-secondary flex items-center gap-1.5 transition-colors">
+          <span className="w-5 h-5 rounded-full border border-line flex items-center justify-center text-ink-faint">+</span>
           Add metric
         </button>
       )}
@@ -741,41 +741,41 @@ function TableBlock({ block, onUpdate }) {
         <thead>
           <tr>
             {headers.map((h, i) => (
-              <th key={i} className="relative group/col border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-0">
+              <th key={i} className="relative group/col border border-line bg-surface-muted p-0">
                 <input value={h} onChange={e => updateHeader(i, e.target.value)}
-                  className="w-full bg-transparent border-none outline-none text-sm px-3 py-2.5 font-semibold text-gray-700 dark:text-gray-300 text-left" />
+                  className="w-full bg-transparent border-none outline-none text-sm px-3 py-2.5 font-semibold text-ink-secondary text-left" />
                 {headers.length > 1 && (
                   <button onClick={() => removeCol(i)}
                     className="absolute -top-2 right-0 w-4 h-4 bg-red-500 text-white rounded-full text-[10px] opacity-0 group-hover/col:opacity-100 transition-opacity flex items-center justify-center z-10">x</button>
                 )}
               </th>
             ))}
-            <th className="border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-0 w-10">
-              <button onClick={addCol} className="w-full py-2.5 text-gray-600 dark:text-gray-300 hover:text-blue-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-base leading-none">+</button>
+            <th className="border border-line bg-surface-muted p-0 w-10">
+              <button onClick={addCol} className="w-full py-2.5 text-ink-muted hover:text-accent-text hover:bg-surface-muted transition-colors text-base leading-none">+</button>
             </th>
           </tr>
         </thead>
         <tbody>
           {rows.map((row, ri) => (
-            <tr key={ri} className="group/row hover:bg-gray-50/60 dark:hover:bg-gray-800/50 transition-colors">
+            <tr key={ri} className="group/row hover:bg-surface-muted/60 transition-colors">
               {row.map((cell, ci) => (
-                <td key={ci} className="border border-gray-200 dark:border-gray-700 p-0">
+                <td key={ci} className="border border-line p-0">
                   <input value={cell} onChange={e => updateCell(ri, ci, e.target.value)} placeholder="-"
-                    className="w-full bg-transparent border-none outline-none text-sm px-3 py-2 text-gray-700 dark:text-gray-300 placeholder-gray-200 dark:placeholder-gray-700" />
+                    className="w-full bg-transparent border-none outline-none text-sm px-3 py-2 text-ink-secondary placeholder:text-ink-faint" />
                 </td>
               ))}
-              <td className="border border-gray-200 dark:border-gray-700 p-0 w-10">
+              <td className="border border-line p-0 w-10">
                 {rows.length > 1 && (
                   <button onClick={() => removeRow(ri)}
-                    className="w-full py-2 text-gray-300 hover:text-red-500 transition-colors text-xs opacity-0 group-hover/row:opacity-100">x</button>
+                    className="w-full py-2 text-ink-faint hover:text-red-500 transition-colors text-xs opacity-0 group-hover/row:opacity-100">x</button>
                 )}
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-      <button onClick={addRow} className="mt-2 text-xs text-gray-400 hover:text-gray-700 flex items-center gap-1.5 transition-colors">
-        <span className="w-5 h-5 rounded-full border border-gray-300 dark:border-gray-600 flex items-center justify-center">+</span>
+      <button onClick={addRow} className="mt-2 text-xs text-ink-faint hover:text-ink-secondary flex items-center gap-1.5 transition-colors">
+        <span className="w-5 h-5 rounded-full border border-line flex items-center justify-center">+</span>
         Add row
       </button>
     </div>
@@ -794,17 +794,17 @@ function TimelineBlock({ block, onUpdate }) {
       {items.map((item, i) => (
         <div key={i} className="group/tl flex gap-4">
           <div className="flex flex-col items-center flex-shrink-0">
-            <div className="w-3.5 h-3.5 rounded-full bg-blue-500 border-2 border-white ring-2 ring-blue-200 mt-1.5 z-10" />
-            {i < items.length - 1 && <div className="w-0.5 bg-blue-200 flex-1 my-1" style={{ minHeight: 32 }} />}
+            <div className="w-3.5 h-3.5 rounded-full bg-accent border-2 border-white ring-2 ring-accent/30 mt-1.5 z-10" />
+            {i < items.length - 1 && <div className="w-0.5 bg-accent-border flex-1 my-1" style={{ minHeight: 32 }} />}
           </div>
           <div className="flex-1 pb-5 min-w-0">
             <div className="flex items-start gap-2 mb-1.5">
               <input value={item.date} onChange={e => update(i, 'date', e.target.value)}
-                placeholder="Date / Phase" className="text-xs font-mono text-blue-600 bg-blue-50 border border-blue-100 rounded-lg px-2 py-1 outline-none w-32 placeholder-blue-300" />
+                placeholder="Date / Phase" className="text-xs font-mono text-accent-text bg-accent-surface border border-accent-border rounded-lg px-2 py-1 outline-none w-32 placeholder-blue-300" />
               <input value={item.title} onChange={e => update(i, 'title', e.target.value)}
-                placeholder="Milestone title" className="flex-1 text-sm font-semibold text-gray-900 bg-transparent border-none outline-none placeholder-gray-300" />
+                placeholder="Milestone title" className="flex-1 text-sm font-semibold text-ink bg-transparent border-none outline-none placeholder:text-ink-faint" />
               {items.length > 1 && (
-                <button onClick={() => removeItem(i)} className="text-gray-300 hover:text-red-500 text-xs opacity-0 group-hover/tl:opacity-100 transition-opacity flex-shrink-0">x</button>
+                <button onClick={() => removeItem(i)} className="text-ink-faint hover:text-red-500 text-xs opacity-0 group-hover/tl:opacity-100 transition-opacity flex-shrink-0">x</button>
               )}
             </div>
             <textarea value={item.description} onChange={e => update(i, 'description', e.target.value)}
@@ -813,8 +813,8 @@ function TimelineBlock({ block, onUpdate }) {
           </div>
         </div>
       ))}
-      <button onClick={addItem} className="text-xs text-gray-400 hover:text-gray-700 flex items-center gap-1.5 transition-colors ml-6">
-        <span className="w-5 h-5 rounded-full border border-gray-300 dark:border-gray-600 flex items-center justify-center">+</span>
+      <button onClick={addItem} className="text-xs text-ink-faint hover:text-ink-secondary flex items-center gap-1.5 transition-colors ml-6">
+        <span className="w-5 h-5 rounded-full border border-line flex items-center justify-center">+</span>
         Add milestone
       </button>
     </div>
@@ -825,7 +825,7 @@ function TimelineBlock({ block, onUpdate }) {
 function DragHandle({ dragHandleProps }) {
   return (
     <div {...dragHandleProps}
-      className="block-drag-handle absolute -left-7 top-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+      className="block-drag-handle absolute -left-7 top-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing p-1.5 rounded-lg hover:bg-surface-muted transition-colors"
       title="Drag to reorder">
       <svg width="10" height="16" viewBox="0 0 10 16" fill="none">
         <circle cx="2.5" cy="2.5" r="1.5" fill="#d1d5db" />
@@ -855,31 +855,31 @@ function AddBlockButton({ index, onAdd }) {
 
   return (
     <div ref={ref} className="relative flex items-center gap-2 my-1 group/addbtn">
-      <div className="flex-1 h-px bg-transparent group-hover/addbtn:bg-gray-100 transition-colors" />
+      <div className="flex-1 h-px bg-transparent group-hover/addbtn:bg-surface-muted transition-colors" />
       <button onClick={() => setOpen(o => !o)}
-        className="opacity-0 group-hover/addbtn:opacity-100 focus:opacity-100 transition-all px-3 py-0.5 bg-white border border-gray-200 rounded-full text-xs text-gray-400 hover:text-blue-600 hover:border-blue-300 shadow-sm flex items-center gap-1 focus:outline-none">
+        className="opacity-0 group-hover/addbtn:opacity-100 focus:opacity-100 transition-all px-3 py-0.5 bg-white border border-line rounded-full text-xs text-ink-faint hover:text-accent-text hover:border-blue-300 shadow-sm flex items-center gap-1 focus:outline-none">
         <span className="text-sm leading-none font-light">+</span> Add block
       </button>
       <div className="flex-1 h-px bg-transparent" />
 
       {open && (
-        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl z-30 w-96 overflow-hidden">
-          <div className="px-3 pt-2.5 pb-1 border-b border-gray-100 dark:border-gray-800">
-            <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">Insert block</span>
+        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-surface border border-line rounded-xl shadow-2xl z-30 w-96 overflow-hidden">
+          <div className="px-3 pt-2.5 pb-1 border-b border-line-subtle">
+            <span className="text-xs font-semibold text-ink-muted">Insert block</span>
           </div>
           <div className="max-h-56 overflow-y-auto py-1 grid grid-cols-2">
             {groups.map(g => (
               <div key={g.name}>
-                <div className="px-3 pt-2 pb-0.5 text-[11px] font-semibold text-gray-500 dark:text-gray-400">{g.name}</div>
+                <div className="px-3 pt-2 pb-0.5 text-[11px] font-semibold text-ink-muted">{g.name}</div>
                 {g.items.map(bt => (
                   <button key={bt.type} onClick={() => { onAdd(bt.type, index); setOpen(false); }}
-                    className="w-full flex items-center gap-3 px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-blue-700 dark:hover:text-blue-300 transition-colors text-left">
-                    <span className="w-6 h-6 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-md flex-shrink-0">
+                    className="w-full flex items-center gap-3 px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-surface-muted hover:text-accent-text dark:hover:text-accent-text transition-colors text-left">
+                    <span className="w-6 h-6 flex items-center justify-center bg-surface-muted rounded-md flex-shrink-0">
                       <EngineeringIcon name={bt.icon} size="0.95rem" />
                     </span>
                     <div>
                       <div className="font-medium leading-tight">{bt.label}</div>
-                      <div className="text-[11px] text-gray-400 dark:text-gray-500">{bt.desc}</div>
+                      <div className="text-[11px] text-ink-faint">{bt.desc}</div>
                     </div>
                   </button>
                 ))}
@@ -940,29 +940,29 @@ export default function BlockEditor({ blocks, onBlocksChange, projectId }) {
       case 'divider':
         return (
           <div className="flex items-center gap-3 py-2">
-            <div className="flex-1 h-px bg-gray-200" />
-            <span className="text-gray-300 text-xs">section</span>
-            <div className="flex-1 h-px bg-gray-200" />
+            <div className="flex-1 h-px bg-surface-muted" />
+            <span className="text-ink-faint text-xs">section</span>
+            <div className="flex-1 h-px bg-surface-muted" />
           </div>
         );
       default:
-        return <div className="text-sm text-gray-400 italic p-2">Unknown block: {block.type}</div>;
+        return <div className="text-sm text-ink-faint italic p-2">Unknown block: {block.type}</div>;
     }
   };
 
   // ── Empty state ──────────────────────────────────────────────────────────────
   if (blocks.length === 0) {
     return (
-      <div className="text-center py-16 border-2 border-dashed border-gray-200 rounded-xl hover:border-gray-300 transition-colors">
+      <div className="text-center py-16 border-2 border-dashed border-line rounded-xl hover:border-ink-faint transition-colors">
         <EngineeringIcon name="document-edit" size="2.5rem" className="mx-auto mb-3" />
-        <p className="text-gray-600 text-sm mb-1 font-medium">Start building your project page</p>
-        <p className="text-gray-400 text-xs mb-6">
-          Type <kbd className="bg-gray-100 border border-gray-200 rounded px-1.5 py-0.5 font-mono text-[11px]">/</kbd> in a text block for commands, or pick a block below
+        <p className="text-ink-muted text-sm mb-1 font-medium">Start building your project page</p>
+        <p className="text-ink-faint text-xs mb-6">
+          Type <kbd className="bg-surface-muted border border-line rounded px-1.5 py-0.5 font-mono text-[11px]">/</kbd> in a text block for commands, or pick a block below
         </p>
         <div className="flex flex-wrap justify-center gap-2 max-w-lg mx-auto">
           {BLOCK_TYPES.slice(0, 6).map(bt => (
             <button key={bt.type} onClick={() => addBlock(bt.type, -1)}
-              className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-slate-600 dark:text-slate-300 hover:border-blue-300 dark:hover:border-blue-700 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all shadow-sm">
+              className="flex items-center gap-2 px-3 py-2 bg-surface border border-line rounded-xl text-sm text-slate-600 dark:text-slate-300 hover:border-blue-300 hover:text-accent-text hover:bg-surface-muted transition-all shadow-sm">
               <EngineeringIcon name={bt.icon} size="1rem" /> {bt.label}
             </button>
           ))}
@@ -979,7 +979,7 @@ export default function BlockEditor({ blocks, onBlocksChange, projectId }) {
           <div
             {...provided.droppableProps}
             ref={provided.innerRef}
-            className={`transition-colors rounded-xl ${snapshot.isDraggingOver ? 'bg-blue-50/40' : ''}`}
+            className={`transition-colors rounded-xl ${snapshot.isDraggingOver ? 'bg-accent-surface/40' : ''}`}
           >
             {/* Add before first block */}
             <AddBlockButton index={-1} onAdd={addBlock} />
@@ -992,7 +992,7 @@ export default function BlockEditor({ blocks, onBlocksChange, projectId }) {
                     {...provided.draggableProps}
                     className={`group/block relative transition-all duration-150 ${
                       snapshot.isDragging
-                        ? 'shadow-2xl ring-2 ring-blue-400 ring-offset-2 rounded-xl bg-white dark:bg-gray-900 z-50 scale-[1.01] rotate-[0.5deg]'
+                        ? 'shadow-2xl ring-2 ring-blue-400 ring-offset-2 rounded-xl bg-surface z-50 scale-[1.01] rotate-[0.5deg]'
                         : ''
                     }`}
                   >
@@ -1008,7 +1008,7 @@ export default function BlockEditor({ blocks, onBlocksChange, projectId }) {
                       <button
                         onClick={() => deleteBlock(block.id)}
                         title="Delete block"
-                        className="absolute -right-8 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-300 dark:text-gray-600 hover:text-red-500 hover:border-red-200 dark:hover:border-red-800 shadow-sm opacity-0 group-hover/block:opacity-100 transition-opacity text-sm font-bold"
+                        className="absolute -right-8 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center bg-surface border border-line rounded-lg text-ink-faint dark:text-ink-muted hover:text-red-500 hover:border-red-200 dark:hover:border-red-800 shadow-sm opacity-0 group-hover/block:opacity-100 transition-opacity text-sm font-bold"
                       >
                         x
                       </button>

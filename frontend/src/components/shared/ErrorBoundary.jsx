@@ -25,16 +25,16 @@ export default class ErrorBoundary extends Component {
     if (!error) return this.props.children;
 
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 p-6 dark:bg-gray-950">
+      <div className="flex min-h-screen items-center justify-center bg-surface-muted p-6">
         <div className="card max-w-lg p-8 text-center">
-          <h2 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <h2 className="mb-2 text-lg font-semibold text-ink">
             Something went wrong loading this page
           </h2>
-          <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
+          <p className="mb-4 text-sm text-ink-muted">
             {error?.message || 'An unexpected error occurred.'}
           </p>
           {import.meta.env.DEV && error?.stack && (
-            <pre className="mb-4 max-h-64 overflow-auto rounded-lg bg-gray-100 p-3 text-left text-[11px] text-gray-600 dark:bg-gray-900 dark:text-gray-400">
+            <pre className="mb-4 max-h-64 overflow-auto rounded-lg bg-surface-muted p-3 text-left text-[11px] text-ink-muted dark:text-ink-faint">
               {error.stack}
             </pre>
           )}

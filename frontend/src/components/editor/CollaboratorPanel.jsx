@@ -68,23 +68,23 @@ export default function CollaboratorPanel({ projectId, isOwner }) {
   return (
     <div className="space-y-5">
       <div>
-        <h4 className="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+        <h4 className="mb-3 text-sm font-medium text-ink-secondary">
           Collaborators ({collaborators.length})
         </h4>
         {collaborators.length === 0 ? (
-          <p className="text-sm text-gray-400">No collaborators yet.</p>
+          <p className="text-sm text-ink-faint">No collaborators yet.</p>
         ) : (
           <div className="space-y-2">
             {collaborators.map((collaborator) => (
               <div key={collaborator.id} className="flex items-center gap-3">
-                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-blue-100 text-sm font-semibold text-blue-700 dark:bg-blue-900">
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-accent-surface text-sm font-semibold text-accent-text">
                   {collaborator.avatar_url
                     ? <img src={collaborator.avatar_url} alt="" className="h-full w-full object-cover" />
                     : collaborator.full_name?.charAt(0)}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">{collaborator.full_name}</div>
-                  <div className="text-xs text-gray-500">@{collaborator.username}</div>
+                  <div className="truncate text-sm font-medium text-ink">{collaborator.full_name}</div>
+                  <div className="text-xs text-ink-muted">@{collaborator.username}</div>
                 </div>
                 {isOwner && (
                   <button onClick={() => handleRemove(collaborator.user_id)} className="rounded px-2 py-1 text-xs text-red-400 hover:text-red-600">
@@ -100,7 +100,7 @@ export default function CollaboratorPanel({ projectId, isOwner }) {
       {isOwner && (
         <>
           <div>
-            <h4 className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Invite by username</h4>
+            <h4 className="mb-2 text-sm font-medium text-ink-secondary">Invite by username</h4>
             <div className="flex gap-2">
               <input
                 value={inviteUsername}
@@ -116,7 +116,7 @@ export default function CollaboratorPanel({ projectId, isOwner }) {
           </div>
 
           <div>
-            <h4 className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Invite link</h4>
+            <h4 className="mb-2 text-sm font-medium text-ink-secondary">Invite link</h4>
             {inviteLink ? (
               <div className="flex gap-2">
                 <input readOnly value={inviteLink} className="form-input flex-1 font-mono text-xs" />
@@ -132,7 +132,7 @@ export default function CollaboratorPanel({ projectId, isOwner }) {
                 )}
               </button>
             )}
-            <p className="mt-1 text-xs text-gray-400">Link expires in 7 days.</p>
+            <p className="mt-1 text-xs text-ink-faint">Link expires in 7 days.</p>
           </div>
         </>
       )}

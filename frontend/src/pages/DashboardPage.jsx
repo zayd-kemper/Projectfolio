@@ -10,11 +10,11 @@ import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 
 const STATUS_COLORS = {
-  draft: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300',
+  draft: 'bg-surface-muted text-ink-muted dark:text-ink-faint',
   published: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
 };
 
-const PUBLISH_ACTIVE = 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700';
+const PUBLISH_ACTIVE = 'bg-surface-muted text-ink-muted hover:bg-surface-muted';
 const PUBLISH_DRAFT = 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-900/60';
 
 function formatUpdatedAt(value) {
@@ -59,7 +59,7 @@ function getCompletionGaps(project) {
 
 function ProjectThumbnail({ project, icon = 'research-scope' }) {
   return (
-    <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl bg-blue-50 dark:bg-blue-900/30">
+    <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl bg-accent-surface">
       {project.cover_image_url ? (
         <img src={project.cover_image_url} alt="" className="h-full w-full object-cover" />
       ) : (
@@ -71,10 +71,10 @@ function ProjectThumbnail({ project, icon = 'research-scope' }) {
 
 function StatCard({ label, value, icon }) {
   return (
-    <div className="card p-5 dark:bg-gray-900">
+    <div className="card p-5">
       <EngineeringIcon name={icon} size="1.5rem" className="mb-2" />
-      <div className="text-2xl font-semibold text-gray-900 dark:text-gray-100">{value}</div>
-      <div className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{label}</div>
+      <div className="text-2xl font-semibold text-ink">{value}</div>
+      <div className="mt-0.5 text-xs text-ink-muted">{label}</div>
     </div>
   );
 }
@@ -90,7 +90,7 @@ function CollaboratorAvatars({ collaborators = [] }) {
           <div
             key={collaborator.id}
             title={`@${collaborator.username}`}
-            className="flex h-6 w-6 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-blue-100 text-xs font-semibold text-blue-700 dark:border-gray-900"
+            className="flex h-6 w-6 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-accent-surface text-xs font-semibold text-accent-text"
             style={{ marginLeft: '-4px' }}
           >
             {collaborator.avatar_url ? (
@@ -101,7 +101,7 @@ function CollaboratorAvatars({ collaborators = [] }) {
           </div>
         ))}
       </div>
-      <span className="ml-1 text-xs text-gray-500 dark:text-gray-400">
+      <span className="ml-1 text-xs text-ink-muted">
         {visible.length} collaborator{visible.length !== 1 ? 's' : ''}
       </span>
     </div>
@@ -190,7 +190,7 @@ function SmartHighlights({ projects, username, onDismiss }) {
   const typeStyles = {
     success: { meter: 'bg-green-500', bg: 'bg-green-50 dark:bg-green-900/20', border: 'border-green-200 dark:border-green-800', icon: 'bg-green-100 dark:bg-green-900/40', text: 'text-green-900 dark:text-green-100', sub: 'text-green-700 dark:text-green-300' },
     warning: { meter: 'bg-amber-500', bg: 'bg-amber-50 dark:bg-amber-900/20', border: 'border-amber-200 dark:border-amber-800', icon: 'bg-amber-100 dark:bg-amber-900/40', text: 'text-amber-900 dark:text-amber-100', sub: 'text-amber-700 dark:text-amber-300' },
-    info: { meter: 'bg-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20', border: 'border-blue-200 dark:border-blue-800', icon: 'bg-blue-100 dark:bg-blue-900/40', text: 'text-blue-900 dark:text-blue-100', sub: 'text-blue-700 dark:text-blue-300' },
+    info: { meter: 'bg-accent', bg: 'bg-accent-surface', border: 'border-accent-border', icon: 'bg-accent-surface', text: 'text-accent-text', sub: 'text-accent-text' },
   };
 
   return (
@@ -198,10 +198,10 @@ function SmartHighlights({ projects, username, onDismiss }) {
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <EngineeringIcon name="idea-spark" size="1rem" />
-          <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Portfolio checks</span>
-          <span className="text-xs text-gray-500 dark:text-gray-400">Based on your current projects</span>
+          <span className="text-sm font-semibold text-ink-secondary">Portfolio checks</span>
+          <span className="text-xs text-ink-muted">Based on your current projects</span>
         </div>
-        <button onClick={onDismiss} className="text-xs text-gray-500 transition-colors hover:text-gray-700 dark:hover:text-gray-300">
+        <button onClick={onDismiss} className="text-xs text-ink-muted transition-colors hover:text-ink-secondary dark:hover:text-ink-faint">
           Dismiss
         </button>
       </div>
@@ -235,7 +235,7 @@ function SmartHighlights({ projects, username, onDismiss }) {
                               <li key={gap.label} className="flex items-center gap-2">
                                 <EngineeringIcon name={gap.icon} size="0.8rem" />
                                 <span className={`text-xs ${style.sub}`}>{gap.label}</span>
-                                <span className="ml-auto rounded-full bg-white/60 px-1.5 py-0.5 text-[10px] font-medium text-gray-600 dark:bg-black/20 dark:text-gray-300">
+                                <span className="ml-auto rounded-full bg-white/60 px-1.5 py-0.5 text-[10px] font-medium text-ink-muted dark:bg-black/20 dark:text-ink-faint">
                                   {gap.impact}
                                 </span>
                               </li>
@@ -319,23 +319,23 @@ function SkimMockup({ user, projects }) {
     .slice(0, 4);
 
   const Zone = ({ label, children, dim }) => (
-    <div className={`relative rounded-xl ${dim ? 'bg-gray-100 p-3 opacity-60' : 'border-2 border-blue-300 bg-blue-50/60 p-3'}`}>
+    <div className={`relative rounded-xl ${dim ? 'bg-surface-muted p-3 opacity-60' : 'border-2 border-accent-border bg-accent-surface/60 p-3'}`}>
       {!dim && (
-        <span className="absolute right-2 top-2 rounded bg-white px-2 py-0.5 font-mono text-[10px] font-semibold text-blue-700">
+        <span className="absolute right-2 top-2 rounded bg-white px-2 py-0.5 font-mono text-[10px] font-semibold text-accent-text">
           {label}
         </span>
       )}
       {dim ? (
-        <div className="text-center text-[11px] text-gray-500">Less visible during a quick scan</div>
+        <div className="text-center text-[11px] text-ink-muted">Less visible during a quick scan</div>
       ) : children}
     </div>
   );
 
   return (
-    <div className="h-full overflow-y-auto bg-white text-gray-950">
-      <div className="flex items-center justify-between border-b border-gray-100 px-6 py-3">
-        <span className="text-sm font-semibold text-gray-500">ProjectFolio</span>
-        <div className="flex gap-4 text-xs text-gray-500">
+    <div className="h-full overflow-y-auto bg-white text-ink">
+      <div className="flex items-center justify-between border-b border-line-subtle px-6 py-3">
+        <span className="text-sm font-semibold text-ink-muted">ProjectFolio</span>
+        <div className="flex gap-4 text-xs text-ink-muted">
           {user?.resume_url && <span>Resume</span>}
           {user?.linkedin_url && <span>LinkedIn</span>}
           {user?.github_url && <span>GitHub</span>}
@@ -345,12 +345,12 @@ function SkimMockup({ user, projects }) {
       <div className="mx-auto max-w-3xl px-6 py-6">
         <Zone label="First impression">
           <div className="flex items-start gap-4">
-            <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl bg-blue-50 text-lg font-semibold text-blue-700">
+            <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl bg-accent-surface text-lg font-semibold text-accent-text">
               {user?.avatar_url ? <img src={user.avatar_url} alt="" className="h-full w-full object-cover" /> : user?.full_name?.charAt(0)}
             </div>
             <div>
               <div className="text-xl font-semibold">{user?.full_name || 'Your Name'}</div>
-              <div className="mt-1 text-sm text-gray-600">{user?.headline || 'Your headline appears here'}</div>
+              <div className="mt-1 text-sm text-ink-muted">{user?.headline || 'Your headline appears here'}</div>
               {Array.isArray(user?.skills) && user.skills.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   {user.skills.slice(0, 5).map((skill) => <span key={skill} className="tech-tag">{skill}</span>)}
@@ -365,7 +365,7 @@ function SkimMockup({ user, projects }) {
           {topProjects[0] && (
             <Zone label="Best project">
               <div className="flex gap-3 pr-20">
-                <div className="flex h-20 w-24 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-blue-50">
+                <div className="flex h-20 w-24 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-accent-surface">
                   {topProjects[0].cover_image_url ? (
                     <img src={topProjects[0].cover_image_url} alt="" className="h-full w-full object-cover" />
                   ) : (
@@ -377,7 +377,7 @@ function SkimMockup({ user, projects }) {
                     <div className="truncate text-sm font-semibold">{topProjects[0].title}</div>
                     {topProjects[0].is_featured && <EngineeringIcon name="award-badge" size="0.9rem" />}
                   </div>
-                  {topProjects[0].tagline && <div className="mt-1 truncate text-xs text-gray-600">{topProjects[0].tagline}</div>}
+                  {topProjects[0].tagline && <div className="mt-1 truncate text-xs text-ink-muted">{topProjects[0].tagline}</div>}
                   {Array.isArray(topProjects[0].technologies) && topProjects[0].technologies.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-1.5">
                       {topProjects[0].technologies.slice(0, 5).map((tech) => <span key={tech} className="tech-tag">{tech}</span>)}
@@ -393,8 +393,8 @@ function SkimMockup({ user, projects }) {
               <Zone dim>
                 <div className="grid grid-cols-3 gap-2">
                   {topProjects.slice(1).map((project) => (
-                    <div key={project.id} className="overflow-hidden rounded-lg bg-gray-50">
-                      <div className="flex h-12 items-center justify-center bg-gray-100">
+                    <div key={project.id} className="overflow-hidden rounded-lg bg-surface-muted">
+                      <div className="flex h-12 items-center justify-center bg-surface-muted">
                         {project.cover_image_url ? (
                           <img src={project.cover_image_url} alt="" className="h-full w-full object-cover" />
                         ) : (
@@ -410,7 +410,7 @@ function SkimMockup({ user, projects }) {
           )}
 
           {topProjects.length === 0 && (
-            <div className="rounded-xl border-2 border-dashed border-gray-200 p-8 text-center text-sm text-gray-500">
+            <div className="rounded-xl border-2 border-dashed border-line p-8 text-center text-sm text-ink-muted">
               No published projects yet. Publish one to see it here.
             </div>
           )}
@@ -435,8 +435,8 @@ function PortfolioPreviewModal({ portfolioUrl, user, projects, onClose }) {
     <div className="fixed inset-0 z-50 flex flex-col bg-gray-950/95 backdrop-blur-sm">
       <div className="flex flex-shrink-0 items-center gap-4 border-b border-gray-800 px-5 py-3">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-gray-300">Portfolio Preview</span>
-          <span className="max-w-[200px] truncate font-mono text-xs text-gray-500">{portfolioUrl}</span>
+          <span className="text-sm font-medium text-ink-faint">Portfolio Preview</span>
+          <span className="max-w-[200px] truncate font-mono text-xs text-ink-muted">{portfolioUrl}</span>
         </div>
 
         <div className="mx-auto flex items-center gap-1 rounded-xl bg-gray-900 p-1">
@@ -446,7 +446,7 @@ function PortfolioPreviewModal({ portfolioUrl, user, projects, onClose }) {
               <button
                 key={item.id}
                 onClick={() => setMode(item.id)}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${active ? 'bg-gray-700 text-white shadow-sm' : 'text-gray-500 hover:text-gray-300'}`}
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${active ? 'bg-gray-700 text-white shadow-sm' : 'text-ink-muted hover:text-ink-faint'}`}
               >
                 <EngineeringIcon name={item.icon} size="1em" />
                 <span>{item.label}</span>
@@ -455,16 +455,16 @@ function PortfolioPreviewModal({ portfolioUrl, user, projects, onClose }) {
           })}
         </div>
 
-        <button onClick={onClose} className="ml-auto flex h-8 w-8 items-center justify-center rounded-lg text-xl leading-none text-gray-500 transition-colors hover:bg-gray-800 hover:text-gray-200">
+        <button onClick={onClose} className="ml-auto flex h-8 w-8 items-center justify-center rounded-lg text-xl leading-none text-ink-muted transition-colors hover:bg-gray-800 hover:text-gray-200">
           x
         </button>
       </div>
 
       <div className="flex flex-shrink-0 items-center gap-3 border-b border-gray-800 bg-gray-900/50 px-5 py-2">
-        <span className="text-xs text-gray-400">{current.desc}</span>
-        <span className="text-gray-700">/</span>
-        <span className="text-xs italic text-gray-500">{current.hint}</span>
-        <a href={portfolioUrl} target="_blank" rel="noreferrer" className="ml-auto flex-shrink-0 text-xs text-blue-400 transition-colors hover:text-blue-300">
+        <span className="text-xs text-ink-faint">{current.desc}</span>
+        <span className="text-ink-secondary">/</span>
+        <span className="text-xs italic text-ink-muted">{current.hint}</span>
+        <a href={portfolioUrl} target="_blank" rel="noreferrer" className="ml-auto flex-shrink-0 text-xs text-accent-text transition-colors hover:underline">
           Open full page
         </a>
       </div>
@@ -494,8 +494,8 @@ function PortfolioPreviewModal({ portfolioUrl, user, projects, onClose }) {
       </div>
 
       <div className="flex-shrink-0 border-t border-gray-800 bg-gray-950 px-5 py-2.5">
-        <p className="text-xs text-gray-500">
-          <strong className="text-gray-400">Tip:</strong>{' '}
+        <p className="text-xs text-ink-muted">
+          <strong className="text-ink-faint">Tip:</strong>{' '}
           {mode === 'recruiter' && 'Featured projects appear first. Make sure your best work has a strong cover image.'}
           {mode === 'mobile' && 'Check that project titles, tags, and buttons stay readable on small screens.'}
           {mode === 'skim' && 'The highlighted zones should immediately communicate who you are and what you built.'}
@@ -616,11 +616,11 @@ export default function DashboardPage() {
         <StatCard label="Featured" value={projectList.filter((project) => project.is_featured).length} icon="award-badge" />
       </div>
 
-      <section className="mb-8 flex flex-wrap items-center gap-4 rounded-xl border border-blue-100 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
+      <section className="mb-8 flex flex-wrap items-center gap-4 rounded-xl border border-accent-border bg-accent-surface p-4">
         <EngineeringIcon name="link" size="1.5rem" />
         <div className="min-w-0 flex-1">
-          <div className="text-sm font-medium text-blue-900 dark:text-blue-200">Your portfolio URL</div>
-          <div className="truncate font-mono text-sm text-blue-700 dark:text-blue-300">{portfolioUrl}</div>
+          <div className="text-sm font-medium text-accent-text">Your portfolio URL</div>
+          <div className="truncate font-mono text-sm text-accent-text">{portfolioUrl}</div>
         </div>
         <button onClick={() => { navigator.clipboard.writeText(portfolioUrl); toast.success('Copied to clipboard.'); }} className="btn-secondary px-4 text-xs">
           Copy link
@@ -634,22 +634,22 @@ export default function DashboardPage() {
         <SmartHighlights projects={projectList} username={user?.username} onDismiss={handleDismissHighlights} />
       )}
 
-      {ownProjects.length > 0 && <h3 className="mb-3 mt-6 text-sm font-medium text-gray-500 dark:text-gray-400">My projects</h3>}
+      {ownProjects.length > 0 && <h3 className="mb-3 mt-6 text-sm font-medium text-ink-muted">My projects</h3>}
 
       {loading ? (
         <div className="space-y-4">
           {[1, 2, 3].map((item) => (
             <div key={item} className="card animate-pulse p-5">
-              <div className="mb-2 h-5 w-1/3 rounded bg-gray-100 dark:bg-gray-800" />
-              <div className="h-4 w-1/2 rounded bg-gray-100 dark:bg-gray-800" />
+              <div className="mb-2 h-5 w-1/3 rounded bg-surface-muted" />
+              <div className="h-4 w-1/2 rounded bg-surface-muted" />
             </div>
           ))}
         </div>
       ) : projectList.length === 0 ? (
         <div className="card p-16 text-center">
           <EngineeringIcon name="open-folder" size="3rem" className="mx-auto mb-4" />
-          <h3 className="mb-2 text-xl font-semibold text-gray-900 dark:text-gray-100">No projects yet</h3>
-          <p className="mb-6 text-sm text-gray-500">Create your first project to start building your portfolio.</p>
+          <h3 className="mb-2 text-xl font-semibold text-ink">No projects yet</h3>
+          <p className="mb-6 text-sm text-ink-muted">Create your first project to start building your portfolio.</p>
           <button onClick={() => navigate('/dashboard/projects/new')} className="btn-primary mx-auto">
             + Create first project
           </button>
@@ -660,13 +660,13 @@ export default function DashboardPage() {
             const completeness = scoreCompleteness(project);
             const publishTone = project.status === 'published' ? PUBLISH_ACTIVE : PUBLISH_DRAFT;
             return (
-              <article key={project.id} className="card p-4 transition-shadow hover:shadow-sm sm:p-5 dark:bg-gray-900">
+              <article key={project.id} className="card p-4 transition-shadow hover:shadow-sm sm:p-5">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
                   <ProjectThumbnail project={project} />
 
                   <div className="min-w-0 flex-1">
                     <div className="mb-1 flex flex-wrap items-center gap-2">
-                      <h3 className="truncate font-semibold text-gray-900 dark:text-gray-100">{project.title}</h3>
+                      <h3 className="truncate font-semibold text-ink">{project.title}</h3>
                       <span className={`badge text-xs ${STATUS_COLORS[project.status]}`}>{project.status}</span>
                       {project.is_featured && (
                         <span className="badge flex items-center gap-1 bg-yellow-100 text-xs text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300">
@@ -675,24 +675,24 @@ export default function DashboardPage() {
                         </span>
                       )}
                     </div>
-                    {project.tagline && <p className="mb-2 truncate text-sm text-gray-500 dark:text-gray-400">{project.tagline}</p>}
+                    {project.tagline && <p className="mb-2 truncate text-sm text-ink-muted">{project.tagline}</p>}
                     {Array.isArray(project.technologies) && project.technologies.length > 0 && (
                       <div className="mb-2 flex flex-wrap gap-1.5">
                         {project.technologies.slice(0, 5).map((tech) => <span key={tech} className="tech-tag">{tech}</span>)}
-                        {project.technologies.length > 5 && <span className="text-xs text-gray-500">+{project.technologies.length - 5} more</span>}
+                        {project.technologies.length > 5 && <span className="text-xs text-ink-muted">+{project.technologies.length - 5} more</span>}
                       </div>
                     )}
                     <div className="flex flex-wrap items-center gap-3">
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                      <span className="text-xs text-ink-muted">
                         {formatUpdatedAt(project.updated_at) && `Updated ${formatUpdatedAt(project.updated_at)}`}
                         {project.view_count > 0 && ` - ${project.view_count} views`}
                       </span>
                       {completeness < 100 && (
                         <div className="flex items-center gap-1.5">
-                          <div className="h-1.5 w-16 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
+                          <div className="h-1.5 w-16 overflow-hidden rounded-full bg-surface-muted">
                             <div className={`h-full rounded-full ${completeness >= 80 ? 'bg-green-400' : completeness >= 50 ? 'bg-amber-400' : 'bg-red-400'}`} style={{ width: `${completeness}%` }} />
                           </div>
-                          <span className="text-[10px] text-gray-500">{completeness}%</span>
+                          <span className="text-[10px] text-ink-muted">{completeness}%</span>
                         </div>
                       )}
                     </div>
@@ -722,19 +722,19 @@ export default function DashboardPage() {
 
           {collabProjects.length > 0 && (
             <>
-              <h3 className="mb-3 mt-8 text-sm font-medium text-gray-500 dark:text-gray-400">Collaborating on</h3>
+              <h3 className="mb-3 mt-8 text-sm font-medium text-ink-muted">Collaborating on</h3>
               <div className="space-y-3">
                 {collabProjects.map((project) => (
-                  <article key={project.id} className="card p-4 transition-shadow hover:shadow-sm sm:p-5 dark:bg-gray-900">
+                  <article key={project.id} className="card p-4 transition-shadow hover:shadow-sm sm:p-5">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
                       <ProjectThumbnail project={project} icon="collaboration" />
                       <div className="min-w-0 flex-1">
                         <div className="mb-1 flex flex-wrap items-center gap-2">
-                          <h3 className="truncate font-semibold text-gray-900 dark:text-gray-100">{project.title}</h3>
-                          <span className="badge bg-blue-100 text-xs text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">Collaborator</span>
+                          <h3 className="truncate font-semibold text-ink">{project.title}</h3>
+                          <span className="badge bg-accent-surface text-xs text-accent-text dark:text-accent-text">Collaborator</span>
                         </div>
-                        <p className="mb-1 text-xs text-gray-500">by {project.owner_name} (@{project.owner_username})</p>
-                        {project.tagline && <p className="truncate text-sm text-gray-500 dark:text-gray-400">{project.tagline}</p>}
+                        <p className="mb-1 text-xs text-ink-muted">by {project.owner_name} (@{project.owner_username})</p>
+                        {project.tagline && <p className="truncate text-sm text-ink-muted">{project.tagline}</p>}
                       </div>
                       <button onClick={() => navigate(`/dashboard/projects/${project.id}/edit`)} className="btn-secondary w-full justify-center px-4 text-xs sm:w-auto">
                         Edit

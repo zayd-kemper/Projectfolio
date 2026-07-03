@@ -125,17 +125,17 @@ export default function OnboardingModal({ onComplete }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-fade-up">
+      <div className="bg-surface rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-fade-up">
         <div className="px-8 pt-8 pb-0">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+            <span className="text-xs font-medium text-ink-muted">
               Step {step + 1} of 3
             </span>
-            <button onClick={handleSkip} className="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">
+            <button onClick={handleSkip} className="text-xs text-ink-muted hover:text-ink-secondary transition-colors">
               Skip setup
             </button>
           </div>
-          <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-1 mt-2 mb-6">
+          <div className="w-full bg-surface-muted rounded-full h-1 mt-2 mb-6">
             <div
               className="h-1 rounded-full transition-all duration-300"
               style={{ width: progress, backgroundColor: mode?.color || '#2563eb' }}
@@ -145,10 +145,10 @@ export default function OnboardingModal({ onComplete }) {
 
         {step === 0 && (
           <div className="px-8 pb-8">
-            <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-1">
+            <h2 className="text-2xl font-semibold text-ink mb-1">
               What best describes you?
             </h2>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
+            <p className="text-ink-muted text-sm mb-6">
               ProjectFolio will tune your layout defaults and visibility settings to fit your field.
             </p>
 
@@ -162,15 +162,15 @@ export default function OnboardingModal({ onComplete }) {
                     className={`w-full text-left p-4 rounded-xl border transition-all ${
                       active
                         ? 'shadow-sm'
-                        : 'border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700'
+                        : 'border-line hover:border-ink-faint'
                     }`}
                     style={active ? { borderColor: item.color, backgroundColor: `${item.color}08` } : {}}
                   >
                     <div className="flex items-center gap-3">
                       <EngineeringIcon name={item.icon} size="1.75rem" />
                       <div className="flex-1 min-w-0">
-                        <div className="font-semibold text-gray-900 dark:text-gray-100">{item.label}</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">{item.desc}</div>
+                        <div className="font-semibold text-ink">{item.label}</div>
+                        <div className="text-sm text-ink-muted">{item.desc}</div>
                       </div>
                       {active && (
                         <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: item.color }}>
@@ -198,10 +198,10 @@ export default function OnboardingModal({ onComplete }) {
 
         {step === 1 && mode && (
           <div className="px-8 pb-8">
-            <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-1">
+            <h2 className="text-2xl font-semibold text-ink mb-1">
               What is your main goal?
             </h2>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
+            <p className="text-ink-muted text-sm mb-6">
               Select all that apply. The app will emphasize the most relevant portfolio sections.
             </p>
 
@@ -213,7 +213,7 @@ export default function OnboardingModal({ onComplete }) {
                     key={goal.id}
                     onClick={() => toggleGoal(goal.id)}
                     className={`w-full text-left px-4 py-3 rounded-lg border text-sm font-medium transition-all flex items-center gap-3 ${
-                      active ? '' : 'border-gray-200 dark:border-gray-800 hover:border-gray-300'
+                      active ? '' : 'border-line hover:border-ink-faint'
                     }`}
                     style={active ? { borderColor: mode.color, backgroundColor: `${mode.color}08`, color: mode.color } : {}}
                   >
@@ -242,10 +242,10 @@ export default function OnboardingModal({ onComplete }) {
             <div className="flex items-center gap-3 mb-4">
               <EngineeringIcon name={mode.icon} size="2.5rem" />
               <div>
-                <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                <h2 className="text-2xl font-semibold text-ink">
                   {mode.label} mode
                 </h2>
-                <p className="text-gray-500 dark:text-gray-400 text-sm">{mode.tagline}</p>
+                <p className="text-ink-muted text-sm">{mode.tagline}</p>
               </div>
             </div>
 
@@ -253,7 +253,7 @@ export default function OnboardingModal({ onComplete }) {
               <p className="text-xs font-semibold mb-3" style={{ color: mode.color }}>
                 Portfolio defaults
               </p>
-              <div className="grid grid-cols-2 gap-2 text-xs text-gray-600 dark:text-gray-300">
+              <div className="grid grid-cols-2 gap-2 text-xs text-ink-muted">
                 <div>Layout: <span className="font-medium capitalize">{mode.defaults.layout}</span></div>
                 <div>Theme: <span className="font-medium capitalize">{mode.defaults.theme}</span></div>
                 <div>Show dates: <span className="font-medium">{mode.defaults.show_dates ? 'Yes' : 'Hidden'}</span></div>
@@ -261,12 +261,12 @@ export default function OnboardingModal({ onComplete }) {
               </div>
             </div>
 
-            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-3">
+            <p className="text-xs font-semibold text-ink-muted mb-3">
               Key features for {mode.label.toLowerCase()}s
             </p>
             <div className="space-y-2.5 mb-6">
               {mode.features.map((feature) => (
-                <div key={feature.text} className="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300">
+                <div key={feature.text} className="flex items-center gap-3 text-sm text-ink-secondary">
                   <EngineeringIcon name={feature.icon} size="1rem" />
                   <span>{feature.text}</span>
                 </div>
@@ -283,9 +283,9 @@ export default function OnboardingModal({ onComplete }) {
             )}
 
             {(selectedGoals.includes('internship') || selectedGoals.includes('job')) && (
-              <div className="rounded-xl p-3 mb-5 bg-blue-50 dark:bg-blue-950 border border-blue-100 dark:border-blue-800">
-                <p className="text-xs font-semibold text-blue-700 dark:text-blue-300 mb-1">For job applications</p>
-                <p className="text-xs text-blue-600 dark:text-blue-400">
+              <div className="rounded-xl p-3 mb-5 bg-accent-surface border border-accent-border">
+                <p className="text-xs font-semibold text-accent-text mb-1">For job applications</p>
+                <p className="text-xs text-accent-text">
                   Add your resume URL in Profile settings so it appears as a download button on your public portfolio.
                 </p>
               </div>

@@ -214,12 +214,12 @@ export default function TagInput({
         onClick={() => { inputRef.current?.focus(); setOpen(true); }}
       >
         {values.map(tag => (
-          <span key={tag} className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-800 rounded-full text-xs font-mono">
+          <span key={tag} className="inline-flex items-center gap-1 px-2 py-0.5 bg-accent-surface text-accent-text border border-accent-border rounded-full text-xs font-mono">
             {tag}
             <button
               type="button"
               onMouseDown={e => { e.preventDefault(); removeTag(tag); }}
-              className="text-blue-400 hover:text-blue-700 dark:hover:text-blue-200 leading-none ml-0.5"
+              className="text-accent-text hover:text-accent-hover leading-none ml-0.5"
             >x</button>
           </span>
         ))}
@@ -230,14 +230,14 @@ export default function TagInput({
           onFocus={() => setOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder={values.length === 0 ? placeholder : ''}
-          className="flex-1 min-w-[140px] bg-transparent border-none outline-none text-sm text-gray-700 dark:text-gray-300 placeholder-gray-400"
+          className="flex-1 min-w-[140px] bg-transparent border-none outline-none text-sm text-ink-secondary placeholder:text-ink-faint"
         />
       </div>
 
       {/* Suggestions dropdown */}
       {open && filtered.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl z-50 overflow-hidden">
-          <div className="px-3 pt-2 pb-1 text-[11px] font-semibold text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-800">
+        <div className="absolute top-full left-0 right-0 mt-1 bg-surface border border-line rounded-xl shadow-xl z-50 overflow-hidden">
+          <div className="px-3 pt-2 pb-1 text-[11px] font-semibold text-ink-muted border-b border-line-subtle">
             {input.trim() ? `Suggestions for "${input}"` : 'Popular options'}. You can also type your own and press Enter.
           </div>
           <div className="max-h-48 overflow-y-auto py-1">
@@ -248,11 +248,11 @@ export default function TagInput({
                 onMouseDown={e => { e.preventDefault(); addTag(s); }}
                 className={`w-full text-left px-3 py-2 text-sm transition-colors flex items-center gap-2 ${
                   i === highlighted
-                    ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
+                    ? 'bg-accent-surface text-accent-text'
+                    : 'text-ink-secondary hover:bg-surface-muted'
                 }`}
               >
-                <span className="text-gray-300 dark:text-gray-600 text-xs">+</span>
+                <span className="text-ink-faint dark:text-ink-muted text-xs">+</span>
                 {s}
               </button>
             ))}
@@ -260,8 +260,8 @@ export default function TagInput({
         </div>
       )}
 
-      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1.5">
-        Select from the list or type anything and press <kbd className="bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded px-1 font-mono text-[10px]">Enter</kbd>. Use <kbd className="bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded px-1 font-mono text-[10px]">Backspace</kbd> to remove the last tag.
+      <p className="text-xs text-ink-faint mt-1.5">
+        Select from the list or type anything and press <kbd className="bg-surface-muted border border-line rounded px-1 font-mono text-[10px]">Enter</kbd>. Use <kbd className="bg-surface-muted border border-line rounded px-1 font-mono text-[10px]">Backspace</kbd> to remove the last tag.
       </p>
     </div>
   );

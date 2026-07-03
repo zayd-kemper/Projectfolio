@@ -280,88 +280,10 @@
   background-color: #0f1117;
 }
 
-/* ── Dark-mode compatibility shim ──────────────────────────────────────────
-   Legacy: remaps raw Tailwind utility classes inside dashboard pages that
-   have not yet migrated to token utilities (bg-surface, text-ink, ...).
-   Rule: when a page is migrated, grep its old raw classes; when a class is
-   no longer used inside dashboard pages, delete its line here. The whole
-   block (and the dashboard-root class) goes away after the portfolio
-   settings refactor. Do NOT add new lines. */
-
-.dark .dashboard-root input,
-.dark .dashboard-root textarea {
-  color: #e2e8f0;
-}
-
-/* Dark mode scoped to dashboard only so public portfolio pages are unaffected */
-.dark .dashboard-root {
-  background-color: rgb(var(--surface-page));
-  color: #e2e8f0;
-}
-
-.dark .dashboard-root [contenteditable] { color: #e2e8f0; }
-.dark .dashboard-root .tiptap li { color: #e2e8f0; }
-
-/* Sidebar dark */
-.dark aside {
-  background-color: #13151f;
-  border-color: #1e2130;
-}
-
-/* Top bars dark */
-.dark .dashboard-root .sticky {
-  background-color: rgb(var(--surface-rail));
-  border-color: rgb(var(--line-subtle));
-}
-
-/* Table/list rows */
-.dark .dashboard-root .border-gray-100 {
-  border-color: rgb(var(--line-subtle));
-}
-
-.dark .dashboard-root .bg-gray-50 {
-  background-color: rgb(var(--surface-rail));
-}
-
-.dark .dashboard-root .bg-gray-100 {
-  background-color: rgb(var(--surface));
-}
-
-.dark .dashboard-root .text-gray-900 {
+/* App surfaces resolve text through the token so unclassed text is correct
+   in both themes (body's light ink would otherwise inherit into dark). */
+.app-surface {
   color: rgb(var(--ink));
-}
-
-.dark .dashboard-root .text-gray-700 {
-  color: rgb(var(--ink-secondary));
-}
-
-.dark .dashboard-root .text-gray-600 {
-  color: rgb(var(--ink-muted));
-}
-
-.dark .dashboard-root .text-gray-500 {
-  color: rgb(var(--ink-muted));
-}
-
-.dark .dashboard-root .text-gray-400 {
-  color: rgb(var(--ink-secondary));
-}
-
-/* Blue accent elements */
-.dark .dashboard-root .bg-blue-50 {
-  background-color: rgb(var(--accent-surface));
-}
-
-.dark .dashboard-root .text-blue-600 {
-  color: rgb(var(--accent-text));
-}
-
-.dark .dashboard-root .text-blue-700 {
-  color: #93c5fd;
-}
-
-.dark .dashboard-root .border-blue-100 {
-  border-color: rgb(var(--accent-border));
 }
 
 /* Scrollbar dark */
