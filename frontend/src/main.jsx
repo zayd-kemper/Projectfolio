@@ -30,6 +30,7 @@ const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 const IntegrationsPage = lazy(() => import('./pages/IntegrationsPage'));
 const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage'));
 const MediaLibraryPage = lazy(() => import('./pages/MediaLibraryPage'));
+const ApplicationHelperPage = lazy(() => import('./pages/ApplicationHelperPage'));
 const OAuthSuccessPage = lazy(() => import('./pages/OAuthSuccessPage'));
 const JoinPage = lazy(() => import('./pages/JoinPage'));
 const EndorsementPage = lazy(() => import('./pages/EndorsementPage'));
@@ -103,6 +104,7 @@ function App() {
             <Route path="/dashboard/settings" element={<ProtectedRoute><PageTransition><SettingsPage /></PageTransition></ProtectedRoute>} />
             <Route path="/dashboard/ai-tools" element={<ProtectedRoute><PageTransition><AIToolsPage /></PageTransition></ProtectedRoute>} />
             <Route path="/dashboard/integrations" element={<ProtectedRoute><PageTransition><IntegrationsPage /></PageTransition></ProtectedRoute>} />
+            <Route path="/dashboard/applications" element={<ProtectedRoute><PageTransition><ApplicationHelperPage /></PageTransition></ProtectedRoute>} />
             <Route path="/dashboard/analytics" element={<ProtectedRoute><PageTransition><AnalyticsPage /></PageTransition></ProtectedRoute>} />
             <Route path="/dashboard/media" element={<ProtectedRoute><PageTransition><MediaLibraryPage /></PageTransition></ProtectedRoute>} />
             <Route path="/dashboard/teams" element={<ProtectedRoute><PageTransition><TeamsPage /></PageTransition></ProtectedRoute>} />

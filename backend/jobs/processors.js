@@ -157,6 +157,7 @@ registerProcessor('export:pdf', async (input, { jobId, updateProgress }) => {
 
 registerProcessor('integration:opportunity-finder', async (input) => require('../routes/integrations').runOpportunityFinderJob(input));
 registerProcessor('integration:ai-match', async (input) => require('../routes/integrations').runAiMatchJob(input));
+registerProcessor('application:generate', async (input, context) => require('../applicationHelper').runApplicationGenerateJob(input, context));
 
 const processByType = async (type, input, context = {}) => {
   const processor = processors.get(type);

@@ -154,6 +154,20 @@ const INTEGRATION_MODEL_PROFILES = {
     ],
     fallbackModelId: null,
   },
+  'application-helper': {
+    id: 'application-helper',
+    name: 'Application Helper',
+    description: 'Tailored cover letters and application packages grounded in portfolio data.',
+    requiredCapabilities: ['chat', 'json'],
+    preferredModelIds: [
+      'nvidia:nemotron-3-super-120b-a12b',
+      'nvidia:nemotron-3-super',
+      'qwen:qwen-3-coder-480b-a35b-instruct',
+      'poolside:laguna-m1',
+      'nex:n2-pro',
+    ],
+    fallbackModelId: null,
+  },
 };
 
 const MODEL_REGISTRY = [

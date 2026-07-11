@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 import { useDropzone } from 'react-dropzone';
 import { uploadMedia } from '../utils/uploadMedia';
 import { Metric } from '../components/shared/ui';
+import ExperienceEditor from '../components/shared/ExperienceEditor';
 
 function DiscoverActivityStats({ stats, loading, error }) {
   const items = [
@@ -238,6 +239,11 @@ export default function ProfileSettingsPage({ noLayout = false }) {
               {saving ? 'Saving...' : 'Save profile'}
             </button>
           </footer>
+        </div>
+
+        {/* Experience (employment, education, certifications) — saved per entry, independent of the profile form */}
+        <div className="mt-6">
+          <ExperienceEditor />
         </div>
       </div>
     </>

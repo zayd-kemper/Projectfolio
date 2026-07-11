@@ -15,7 +15,7 @@
     "verify:scalability": "node scripts/verifyScalability.js",
     "test:load": "node scripts/loadSmoke.js",
     "test:security-smoke": "node scripts/securityAuditSmoke.js",
-    "test": "node --test test/agentBrowserVerifier.test.js test/agentRoute.test.js test/aiCustomizer.test.js test/aiModels.test.js test/customSiteSecurity.test.js test/frontendMotionArchitecture.test.js test/integrationsAiParsing.test.js test/layeredCustomization.test.js test/portfolioAiContext.test.js test/siteAgent.test.js test/siteAgentPlanner.test.js test/scalability.test.js",
+    "test": "node --test test/applicationPlatforms.test.js test/profileExperiences.test.js test/applicationContext.test.js test/resumeRenderer.test.js test/coverLetter.test.js test/applicationPackage.test.js test/applicationsRoute.test.js test/agentBrowserVerifier.test.js test/agentRoute.test.js test/aiCustomizer.test.js test/aiModels.test.js test/customSiteSecurity.test.js test/frontendMotionArchitecture.test.js test/integrationsAiParsing.test.js test/layeredCustomization.test.js test/portfolioAiContext.test.js test/siteAgent.test.js test/siteAgentPlanner.test.js test/scalability.test.js",
     "test:agent-browser": "node --test test/agentBrowserVerifier.browser.test.js",
     "verify:agent-live": "node scripts/verifyAgentLiveRoutes.js",
     "verify:agent-quality": "node scripts/verifyAgentQualityGate.js"

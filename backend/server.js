@@ -177,6 +177,8 @@ app.use('/api/discover', require('./routes/discover'));
 app.use('/api/endorsements', require('./routes/endorsements'));
 app.use('/api/agent', require('./routes/agent'));
 app.use('/api/analytics', require('./routes/analytics'));
+app.use('/api/profile', require('./routes/profile'));
+app.use('/api/applications', require('./routes/applications'));
 
 app.use('/api/*', (req, res) => res.status(404).json({ error: `Route ${req.method} ${req.path} not found.` }));
 app.use((err, req, res, next) => {
