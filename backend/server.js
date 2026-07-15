@@ -16,6 +16,7 @@ const { query, closePool } = require('./config/database');
 const { getRedis, connectRedis, closeRedis, redisEnabled } = require('./config/redis');
 const { register, httpDuration } = require('./config/metrics');
 const { closeQueue } = require('./jobs/service');
+const { getSandboxOrigin } = require('./config/customSite');
 const logger = require('./utils/logger');
 
 const app = express();
@@ -23,7 +24,18 @@ const PORT = Number(process.env.PORT) || 5000;
 if (process.env.NODE_ENV === 'production') app.set('trust proxy', 1);
 
 app.use(pinoHttp({ logger }));
-app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+// Allow the app page to frame the custom-site sandbox origin; default-src 'self'
+// would otherwise block the cross-origin iframe. Only frame-src is overridden.
+const customSiteSandboxOrigin = getSandboxOrigin();
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  contentSecurityPolicy: {
+    useDefaults: true,
+    directives: {
+      'frame-src': ["'self'", ...(customSiteSandboxOrigin ? [customSiteSandboxOrigin] : [])],
+    },
+  },
+}));
 app.use(compression());
 app.use(cookieParser());
 
@@ -179,6 +191,7 @@ app.use('/api/agent', require('./routes/agent'));
 app.use('/api/analytics', require('./routes/analytics'));
 app.use('/api/profile', require('./routes/profile'));
 app.use('/api/applications', require('./routes/applications'));
+app.use('/api/import', require('./routes/import'));
 
 app.use('/api/*', (req, res) => res.status(404).json({ error: `Route ${req.method} ${req.path} not found.` }));
 app.use((err, req, res, next) => {

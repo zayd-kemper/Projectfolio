@@ -7,6 +7,7 @@ import { useAuth } from '../hooks/useAuth';
 import EngineeringIcon, { IconText } from '../components/shared/EngineeringIcon';
 import { PublicPortfolioSkeleton } from '../components/shared/Skeleton';
 import { recordPublicView } from '../utils/analytics';
+import { customSiteSrc } from '../utils/customSiteSrc';
 import { DEFAULT_PORTFOLIO_ANIMATIONS, usePortfolioMotion } from '../utils/portfolioMotion';
 
 const DEFAULT_SECTION_ORDER = ['header', 'projects', 'contact'];
@@ -590,7 +591,7 @@ export default function PublicPortfolioPage() {
       <div id="pf-root" className="min-h-screen bg-white">
         <iframe
           title={`${user.full_name || user.username} custom portfolio`}
-          src={`/api/portfolio/${encodeURIComponent(user.username)}/custom-site${version}`}
+          src={customSiteSrc(user.username, version)}
           className="w-full min-h-screen bg-white"
           style={{ border: 0, display: 'block', height: '100vh' }}
           sandbox="allow-scripts"
@@ -669,7 +670,7 @@ export default function PublicPortfolioPage() {
         {!minimal && (
           <div className={`pf-project-media ${wide ? 'md:w-64 md:flex-shrink-0' : featured ? 'h-72' : 'h-48'} overflow-hidden`} style={{ background: `linear-gradient(135deg, ${hexToRgba(accentColor, 0.12)}, ${hexToRgba(accentColor, 0.28)})` }}>
             {project.cover_image_url ? (
-              <img src={project.cover_image_url} alt={project.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+              <img loading="lazy" decoding="async" src={project.cover_image_url} alt={project.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-4xl font-bold opacity-20" style={{ color: accentColor }}>
                 {project.title?.charAt(0) || 'P'}
@@ -822,7 +823,11 @@ export default function PublicPortfolioPage() {
                 className="w-4 h-4 flex items-center justify-center rounded-full hover:bg-white/20 text-xs leading-none"
                 role="button"
                 aria-label={`Clear ${label} filter`}
-              >x</span>
+              >
+                <svg width="8" height="8" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                  <path d="M1.5 1.5l7 7M8.5 1.5l-7 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+              </span>
             ) : (
               <span aria-hidden="true" className="h-1.5 w-1.5 rotate-45 border-b border-r border-current opacity-50" />
             )}
@@ -1450,7 +1455,7 @@ export default function PublicPortfolioPage() {
         <Shell>
           <div className={`pf-media-feature rounded-xl overflow-hidden ${themeConfig.card} ${variant === 'poster' ? '' : 'grid md:grid-cols-[.9fr_1.1fr]'}`}>
             <div className="pf-media-visual min-h-[220px]" style={{ background: content.imageUrl ? undefined : `linear-gradient(135deg, ${hexToRgba(accentColor, 0.28)}, transparent)` }}>
-              {content.imageUrl && <img src={content.imageUrl} alt={content.alt || ''} className="w-full h-full min-h-[220px] object-cover" />}
+              {content.imageUrl && <img loading="lazy" decoding="async" src={content.imageUrl} alt={content.alt || ''} className="w-full h-full min-h-[220px] object-cover" />}
             </div>
             <div className="pf-media-copy p-7 md:p-9">
               {content.eyebrow && <p className="text-xs font-bold  mb-3" style={{ color: accentColor }}>{content.eyebrow}</p>}
@@ -1476,7 +1481,7 @@ export default function PublicPortfolioPage() {
           <div className={`pf-gallery-grid grid ${gridCols} ${spacious ? 'gap-5' : 'gap-3'}`}>
             {items.map((item, index) => (
               <figure key={index} className={`pf-gallery-item rounded-xl overflow-hidden bg-gray-100 ${isMasonry && index % 3 === 0 ? 'md:row-span-2' : ''}`}>
-                <img src={item.url} alt={item.alt || item.caption || ''} className={`w-full ${isMasonry && index % 3 === 0 ? 'h-80' : 'h-48'} object-cover`} />
+                <img loading="lazy" decoding="async" src={item.url} alt={item.alt || item.caption || ''} className={`w-full ${isMasonry && index % 3 === 0 ? 'h-80' : 'h-48'} object-cover`} />
                 {item.caption && <figcaption className={`text-xs p-3 ${themeConfig.body}`}>{item.caption}</figcaption>}
               </figure>
             ))}

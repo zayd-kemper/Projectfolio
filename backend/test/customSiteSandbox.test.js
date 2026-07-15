@@ -23,6 +23,15 @@ test('no sandbox origin: frame-ancestors self and app host always allowed', () =
   assert.equal(isSandboxHost('anything'), true);
 });
 
+test('server helmet config allows framing the sandbox origin', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const src = fs.readFileSync(path.join(__dirname, '..', 'server.js'), 'utf8');
+  assert.match(src, /contentSecurityPolicy/);
+  assert.match(src, /'frame-src'/);
+  assert.match(src, /getSandboxOrigin/);
+});
+
 test('sandboxRedirectTarget redirects app-host requests to the sandbox origin, not sandbox-host ones', () => {
   process.env.CUSTOM_SITE_SANDBOX_ORIGIN = 'https://usercontent.example.com';
   assert.equal(
