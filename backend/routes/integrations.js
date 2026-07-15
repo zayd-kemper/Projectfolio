@@ -1137,8 +1137,8 @@ router.post('/ai-match', requireAuth, validateSchema({ body: aiMatchSchema }), r
   res.status(202).json({ job_id: job.id, status: job.status });
 });
 
-const invokeIntegrationHandler = async (handler, input) => {
-  const user = await query('SELECT id, email, username, full_name, avatar_url FROM users WHERE id = $1', [input.userId]);
+const invokeIntegrationHandler = async (handler, input, { queryFn = query, checkFn = hasQualifiedProject } = {}) => {
+  const user = await queryFn('SELECT id, email, username, full_name, avatar_url FROM users WHERE id = $1', [input.userId]);
   if (!user.rows[0]) throw new Error('User no longer exists.');
   return new Promise((resolve, reject) => {
     const response = {
@@ -1150,7 +1150,14 @@ const invokeIntegrationHandler = async (handler, input) => {
         return this;
       },
     };
-    Promise.resolve(handler({ user: user.rows[0], body: input.body || {}, params: {}, query: {} }, response)).catch(reject);
+    const req = { user: user.rows[0], body: input.body || {}, params: {}, query: {} };
+    Promise.resolve()
+      .then(async () => {
+        // Worker jobs bypass route middleware, so the gate re-runs here before any AI call.
+        if (await respondUnqualified(req, response, checkFn)) return;
+        return handler(req, response);
+      })
+      .catch(reject);
   });
 };
 
@@ -1160,5 +1167,6 @@ router.parseModelJson = parseModelJson;
 router.buildOpportunityFinderFallbackParsed = buildOpportunityFinderFallbackParsed;
 router.requireQualifiedProject = requireQualifiedProject;
 router.respondUnqualified = respondUnqualified;
+router.invokeIntegrationHandler = invokeIntegrationHandler;
 
 module.exports = router;

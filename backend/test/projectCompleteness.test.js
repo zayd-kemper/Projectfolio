@@ -126,3 +126,24 @@ test('respondUnqualified sends the 403 gate payload and reports true only for un
   const allowed = await integrationsRouter.respondUnqualified({ user: { id: 'u1' } }, { status() { throw new Error('no'); }, json() { throw new Error('no'); } }, async () => true);
   assert.equal(allowed, false);
 });
+
+test('integration jobs are gated before the handler runs', async () => {
+  let handlerRan = false;
+  const handler = async () => { handlerRan = true; };
+  const queryFn = async () => ({ rows: [{ id: 'u1', email: 'e', username: 'u', full_name: 'f', avatar_url: null }] });
+  await assert.rejects(
+    () => integrationsRouter.invokeIntegrationHandler(handler, { userId: 'u1', body: {} }, { queryFn, checkFn: async () => false }),
+    (err) => err.message === AI_TOOLS_GATE_MESSAGE
+  );
+  assert.equal(handlerRan, false);
+});
+
+test('integration jobs run the handler for qualified users', async () => {
+  const queryFn = async () => ({ rows: [{ id: 'u1', email: 'e', username: 'u', full_name: 'f', avatar_url: null }] });
+  const result = await integrationsRouter.invokeIntegrationHandler(
+    async (req, res) => res.json({ ok: true, userId: req.user.id }),
+    { userId: 'u1', body: {} },
+    { queryFn, checkFn: async () => true }
+  );
+  assert.deepEqual(result, { ok: true, userId: 'u1' });
+});
