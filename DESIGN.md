@@ -29,7 +29,12 @@ Opacity modifiers work (`bg-surface/60`, `ring-accent/30`).
 
 ### Dark-mode mechanism
 
-- `useDarkMode` toggles `dark` on `<html>`; the `.app-surface` class (on `DashboardLayout`, `DashboardShellSkeleton`, and DiscoverPage's root) scopes where dark token values apply, and also sets `color: rgb(var(--ink))` plus `color-scheme: dark` so unclassed text and native controls resolve correctly. Public pages never carry `.app-surface` and stay light.
+- The persisted theme is stamped on `<html>` at bootstrap in `main.jsx` (before first paint), so refreshes and deep links render dark without waiting for a layout hook; `useDarkMode` keeps it in sync afterward. The `.app-surface` class (on `DashboardLayout`, `DashboardShellSkeleton`, DiscoverPage's root, and ProjectEditorPage's root) scopes where dark token values apply, and also sets `color: rgb(var(--ink))` plus `color-scheme: dark` so unclassed text and native controls resolve correctly. Public pages never carry `.app-surface` and stay light.
+- **Portaled content (dialogs, popovers) mounts on `<body>`, outside the app shell — it must carry `app-surface` on its content root** or its token utilities stay light in dark mode. `ConfirmDialog` and the Teams create dialog already do this.
+
+### shadcn bridge
+
+The shadcn/base-ui kit in `frontend/src/components/ui/` consumes semantic vars (`--popover`, `--border`, `--ring`, `--primary`, …) that are **bridged onto the project tokens** in `globals.css` (`--popover: rgb(var(--surface))`, `--ring: rgb(var(--accent))`, etc.), so ui components and the token vocabulary share one source of truth and self-flip under `.app-surface`. Exception: shadcn's `--accent` (its subtle hover fill) is deliberately **not** defined — the project's action-blue `--accent` owns that name; ui components wanting a quiet hover fill use `surface-muted`. The `--chart-*` oklch palette (used by `components/charts/`) keeps its own light/dark values. Note: the ui kit's Tailwind-v4-syntax variants (`data-open:`, `ring-3`) are inert under the project's Tailwind 3 build — behavior (focus trap, Escape, aria) still works; style dialog content with token classes.
 - The legacy raw-class compatibility shim and the `dashboard-root` class are **gone** — every app surface uses token utilities directly. Never reintroduce raw `text-gray-*` / `bg-gray-*` / blue-accent classes inside app UI.
 - Semantic state colors (emerald success, amber warning, red danger states) keep explicit `dark:` variants — acceptable until success/warning tokens are added. Deliberately theme-independent chrome (image scrims, dark code `<pre>` blocks, the device-preview mockup) keeps literal colors.
 
@@ -44,7 +49,7 @@ Opacity modifiers work (`bg-surface/60`, `ring-accent/30`).
 
 CSS classes in `globals.css @layer components` — use these before writing ad-hoc styles:
 
-- Buttons: `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger` (all have hover/active/disabled states built in)
+- Buttons: `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger` (all have hover/active/disabled states built in, plus a 2px accent `focus-visible` outline — `.btn-danger` is for destructive actions only, never Sign out)
 - Surfaces: `.card`; add `.card-interactive` **only on clickable cards** (hover lift + `shadow-lift`)
 - Lists: `.row-hover` for hoverable rows
 - Forms: `.form-input`, `.form-textarea`, `.form-label`
@@ -55,8 +60,12 @@ CSS classes in `globals.css @layer components` — use these before writing ad-h
 Shared React primitives in `frontend/src/components/shared/`:
 - `ui.jsx`: `Avatar`, `IconPill`, `Metric`, `EmptyState`
 - `format.js`: `cx`, `formatCount`
-- `EngineeringIcon.jsx`: the only icon system — named SVG tokens, never emoji
+- `EngineeringIcon.jsx`: the only icon system — named SVG tokens, never emoji, never literal "x" text glyphs (use `name="close"`)
 - `Skeleton.jsx`: page-level loading regions
+- `ConfirmDialog.jsx`: the one confirmation pattern for destructive actions — built on `ui/alert-dialog` (focus trap, Escape, `aria-modal`), token-styled. **Never use `window.confirm()`.** (PortfolioSettingsPage still has legacy `confirm()` calls pending its section extraction.)
+- `BrandMarks.jsx`: `GoogleMark`, `LinkedInMark` — self-hosted OAuth provider SVGs; never hotlink favicons or fake logos with styled text
+
+Toasts (`react-hot-toast`, configured in `main.jsx`): 4s default, 6s errors. Per-user accent colors appear only in avatars/covers — interactive chrome (e.g. Follow buttons) always uses the system accent.
 
 Discover-specific: `ProjectMiniCard`, `PortfolioCard` stay in `components/discover/DiscoverPrimitives.jsx`.
 
@@ -86,4 +95,6 @@ Side-stripe accent borders (>1px left/right color); gradient text; glassmorphism
 ## Migration status
 
 - **All app surfaces tokenized**; shim retired. Semantic state colors and intentional theme-independent chrome are the only remaining literal colors.
-- Open refactor (structural, not styling): PortfolioSettingsPage (198KB) section extraction into `components/portfolio-settings/` + progressive-disclosure shell; TeamDetailPage section extraction + member presence/activity signals. Both are mechanical extractions — move JSX verbatim, one section per commit, build between commits.
+- **Portfolio Studio is the one design destination** (`pages/PortfolioStudioPage.jsx`, route `/dashboard/portfolio`): left column with a Chat|Controls segmented switch (URL `?mode=chat|controls&section=…`, last-used mode persisted in localStorage), live-preview iframe right (desktop/mobile toggle; re-keys after agent apply/revert and manual saves via the `onSaved` prop on `PortfolioSettingsPage`), layering status bar under the column. Chat mode hosts `AgentWorkspace` (`compact`); Controls mode embeds `PortfolioSettingsPage noLayout` (URL pills `?section=appearance|sections|seo|custom-code` unchanged). The agent subsystem lives in `components/site-agent/` — `AgentWorkspace.jsx`, `useSiteAgent.js` (orchestration hook), `customSitePreview.js`. Nav: `Portfolio` (was Site Agent) and `Opportunities` (was AI Tools). Settings holds Profile + Account only; `/dashboard/agent`, `/dashboard/portfolio-settings`, and `settings?tab=portfolio` all redirect into the studio (section preserved). `SiteAgentPage.jsx` was removed.
+- **Custom-code sites are origin-isolated.** The `custom-code` section's HTML/CSS/JS renders as a standalone executable document served only from the dedicated sandbox origin (`CUSTOM_SITE_SANDBOX_ORIGIN`), framed via `VITE_CUSTOM_SITE_ORIGIN` (`utils/customSiteSrc.js`) with `sandbox="allow-scripts"` and never `allow-same-origin`. Author JS therefore never runs on the app's credentialed origin. The in-studio live preview (`customSitePreview.js`) mirrors the production nonce-CSP including `frame-ancestors`. See CLAUDE.md → "Custom-site sandbox origin".
+- Remaining refactor (mechanical): extract each pill group's JSX from PortfolioSettingsPage (~1,800 lines) into `components/portfolio-settings/` panel files; TeamDetailPage section extraction + member presence/activity signals. Move JSX verbatim, one section per commit, build between commits. The agent change-set review panels still use viewport-based `lg:grid-cols-2` grids that cramp in the compact column — switch to `compact`-aware or container-query layouts when touched.
