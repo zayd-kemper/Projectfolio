@@ -115,7 +115,7 @@ const safeJsonForScript = (value) => JSON.stringify(value ?? {})
   .replace(/\u2028/g, '\\u2028')
   .replace(/\u2029/g, '\\u2029');
 
-const buildCustomSiteCsp = (nonce) => [
+const buildCustomSiteCsp = (nonce, { frameAncestors = "'self'" } = {}) => [
   "default-src 'none'",
   "base-uri 'none'",
   "form-action 'none'",
@@ -129,7 +129,7 @@ const buildCustomSiteCsp = (nonce) => [
   "frame-src 'none'",
   "worker-src 'none'",
   "manifest-src 'none'",
-  "frame-ancestors 'self'",
+  `frame-ancestors ${frameAncestors}`,
 ].join('; ');
 
 const buildCustomSiteDocument = ({ code = {}, data = {}, nonce }) => {
