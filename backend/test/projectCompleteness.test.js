@@ -110,3 +110,19 @@ test('requireQualifiedProject forwards check errors to next(err)', async () => {
   await middleware({ user: { id: 'u1' } }, {}, (err) => { forwarded = err; });
   assert.equal(forwarded, boom);
 });
+
+test('respondUnqualified sends the 403 gate payload and reports true only for unqualified users', async () => {
+  let statusCode = null;
+  let payload = null;
+  const res = {
+    status(code) { statusCode = code; return this; },
+    json(body) { payload = body; return this; },
+  };
+  const denied = await integrationsRouter.respondUnqualified({ user: { id: 'u1' } }, res, async () => false);
+  assert.equal(denied, true);
+  assert.equal(statusCode, 403);
+  assert.equal(payload.error, AI_TOOLS_GATE_MESSAGE);
+  assert.equal(payload.code, 'AI_TOOLS_PROJECT_GATE');
+  const allowed = await integrationsRouter.respondUnqualified({ user: { id: 'u1' } }, { status() { throw new Error('no'); }, json() { throw new Error('no'); } }, async () => true);
+  assert.equal(allowed, false);
+});

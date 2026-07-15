@@ -50,6 +50,13 @@ const requireQualifiedProject = (checkFn = hasQualifiedProject) => async (req, r
   }
 };
 
+// Handler-level gate for the worker/job path, which bypasses route middleware.
+const respondUnqualified = async (req, res, checkFn = hasQualifiedProject) => {
+  if (await checkFn(req.user.id)) return false;
+  res.status(403).json({ error: AI_TOOLS_GATE_MESSAGE, code: 'AI_TOOLS_PROJECT_GATE' });
+  return true;
+};
+
 const escapeHtml = (value) => String(value ?? '')
   .replace(/&/g, '&amp;')
   .replace(/</g, '&lt;')
@@ -1152,5 +1159,6 @@ router.runAiMatchJob = (input) => invokeIntegrationHandler(handleAiMatchV2, inpu
 router.parseModelJson = parseModelJson;
 router.buildOpportunityFinderFallbackParsed = buildOpportunityFinderFallbackParsed;
 router.requireQualifiedProject = requireQualifiedProject;
+router.respondUnqualified = respondUnqualified;
 
 module.exports = router;
