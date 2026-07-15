@@ -5,7 +5,24 @@ const {
   buildCustomSiteCsp,
   buildCustomSiteDocument,
   validateCustomSiteCode,
+  sanitizeCustomSiteHtml,
+  normalizeForStorage,
 } = require('../utils/customSiteSecurity');
+
+test('sanitizeCustomSiteHtml strips script and event handlers while keeping structure', () => {
+  const dirty = '<section class="hero"><h1>Hi</h1><img src="https://x/y.png" onerror="alert(1)"><script>steal()</script></section>';
+  const clean = sanitizeCustomSiteHtml(dirty);
+  assert.match(clean, /<section class="hero">/);
+  assert.match(clean, /<h1>Hi<\/h1>/);
+  assert.doesNotMatch(clean, /<script/i);
+  assert.doesNotMatch(clean, /onerror/i);
+});
+
+test('normalizeForStorage returns parser-sanitized html', () => {
+  const out = normalizeForStorage({ html: '<div onclick="x()">ok</div>', css: '', js: '' });
+  assert.doesNotMatch(out.html, /onclick/i);
+  assert.match(out.html, />ok</);
+});
 
 test('custom site validation blocks HTML escape and inline execution paths', () => {
   const result = validateCustomSiteCode({

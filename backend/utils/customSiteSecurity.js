@@ -1,4 +1,32 @@
+const sanitizeHtml = require('sanitize-html');
 const { sanitizeCustomCss } = require('./contentSecurity');
+
+// Parser-based allow-list sanitizer for custom-site HTML. Defense-in-depth behind
+// the regex deny-list in validateCustomSiteCode: even obfuscated markup that slips
+// past the regexes is dropped here because anything not on the allow-list is removed.
+const CUSTOM_SITE_HTML_OPTIONS = {
+  allowedTags: [
+    'a', 'abbr', 'article', 'aside', 'b', 'blockquote', 'br', 'button', 'caption', 'code',
+    'div', 'em', 'figcaption', 'figure', 'footer', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+    'header', 'hr', 'i', 'img', 'li', 'main', 'mark', 'nav', 'ol', 'p', 'picture', 'pre',
+    'section', 'small', 'source', 'span', 'strong', 'sub', 'sup', 'table', 'tbody', 'td',
+    'tfoot', 'th', 'thead', 'time', 'tr', 'u', 'ul', 'video',
+  ],
+  allowedAttributes: {
+    '*': ['class', 'id', 'style', 'title', 'role', 'aria-*', 'data-*'],
+    a: ['href', 'target', 'rel'],
+    img: ['src', 'srcset', 'alt', 'width', 'height', 'loading'],
+    source: ['src', 'srcset', 'type', 'media'],
+    video: ['src', 'poster', 'width', 'height', 'controls', 'muted', 'loop', 'playsinline'],
+    time: ['datetime'],
+  },
+  allowedSchemes: ['https', 'mailto', 'tel'],
+  allowedSchemesByTag: { img: ['https', 'data'], source: ['https', 'data'], video: ['https', 'data'] },
+  allowProtocolRelative: false,
+  transformTags: {
+    a: sanitizeHtml.simpleTransform('a', { rel: 'noopener noreferrer' }, true),
+  },
+};
 
 const CUSTOM_SITE_LIMITS = {
   html: 120_000,
@@ -97,10 +125,12 @@ const validateCustomSiteCode = (code = {}, options = {}) => {
   return { ok: errors.length === 0, errors, warnings };
 };
 
+const sanitizeCustomSiteHtml = (value) => sanitizeHtml(asSource(value), CUSTOM_SITE_HTML_OPTIONS);
+
 const normalizeForStorage = (code = {}) => {
   const normalized = normalizeCustomSiteCode(code);
   return {
-    html: normalized.html.slice(0, CUSTOM_SITE_LIMITS.html),
+    html: sanitizeCustomSiteHtml(normalized.html).slice(0, CUSTOM_SITE_LIMITS.html),
     css: (sanitizeCustomCss(normalized.css) || '').slice(0, CUSTOM_SITE_LIMITS.css),
     js: normalized.js.slice(0, CUSTOM_SITE_LIMITS.js),
   };
@@ -169,6 +199,7 @@ module.exports = {
   CUSTOM_SITE_LIMITS,
   normalizeCustomSiteCode,
   normalizeForStorage,
+  sanitizeCustomSiteHtml,
   validateCustomSiteCode,
   buildCustomSiteCsp,
   buildCustomSiteDocument,
