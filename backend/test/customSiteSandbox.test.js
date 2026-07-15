@@ -23,6 +23,13 @@ test('no sandbox origin: frame-ancestors self and app host always allowed', () =
   assert.equal(isSandboxHost('anything'), true);
 });
 
+test('site agent source never writes executable custom_site_js', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const src = fs.readFileSync(path.join(__dirname, '..', 'utils', 'siteAgent.js'), 'utf8');
+  assert.doesNotMatch(src, /custom_site_js\s*=/, 'agent must not populate executable custom_site_js');
+});
+
 test('server helmet config allows framing the sandbox origin', () => {
   const fs = require('node:fs');
   const path = require('node:path');
