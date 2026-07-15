@@ -73,3 +73,40 @@ test('threshold and gate message', () => {
   assert.match(AI_TOOLS_GATE_MESSAGE, /50%/);
   assert.match(AI_TOOLS_GATE_MESSAGE, /project/i);
 });
+
+const integrationsRouter = require('../routes/integrations');
+
+test('requireQualifiedProject blocks unqualified users with 403 and the gate message', async () => {
+  const middleware = integrationsRouter.requireQualifiedProject(async () => false);
+  let statusCode = null;
+  let payload = null;
+  let nextCalled = false;
+  const res = {
+    status(code) { statusCode = code; return this; },
+    json(body) { payload = body; return this; },
+  };
+  await middleware({ user: { id: 'u1' } }, res, () => { nextCalled = true; });
+  assert.equal(statusCode, 403);
+  assert.equal(payload.error, AI_TOOLS_GATE_MESSAGE);
+  assert.equal(payload.code, 'AI_TOOLS_PROJECT_GATE');
+  assert.equal(nextCalled, false);
+});
+
+test('requireQualifiedProject passes qualified users through to next()', async () => {
+  const middleware = integrationsRouter.requireQualifiedProject(async () => true);
+  let nextCalled = false;
+  const res = {
+    status() { throw new Error('should not respond'); },
+    json() { throw new Error('should not respond'); },
+  };
+  await middleware({ user: { id: 'u1' } }, res, () => { nextCalled = true; });
+  assert.equal(nextCalled, true);
+});
+
+test('requireQualifiedProject forwards check errors to next(err)', async () => {
+  const boom = new Error('db down');
+  const middleware = integrationsRouter.requireQualifiedProject(async () => { throw boom; });
+  let forwarded = null;
+  await middleware({ user: { id: 'u1' } }, {}, (err) => { forwarded = err; });
+  assert.equal(forwarded, boom);
+});

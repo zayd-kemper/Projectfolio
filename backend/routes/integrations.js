@@ -11,6 +11,7 @@ const { safeFetchText } = require('../utils/safeFetch');
 const { buildPortfolioAiContext, compactText } = require('../utils/portfolioAiContext');
 const { parseAiJson } = require('../utils/aiCustomizer');
 const { callAiModel, chooseModelForIntegration } = require('../utils/aiModels');
+const { AI_TOOLS_GATE_MESSAGE, hasQualifiedProject } = require('../utils/projectCompleteness');
 const logger = require('../utils/logger');
 require('dotenv').config();
 
@@ -37,6 +38,16 @@ const opportunityFinderSchema = {
 
 const aiMatchSchema = {
   url: s.url({ required: true, max: 2048 }),
+};
+
+// Gate for the AI tools: deny before quota spend, job creation, or any AI provider call.
+const requireQualifiedProject = (checkFn = hasQualifiedProject) => async (req, res, next) => {
+  try {
+    if (await checkFn(req.user.id)) return next();
+    return res.status(403).json({ error: AI_TOOLS_GATE_MESSAGE, code: 'AI_TOOLS_PROJECT_GATE' });
+  } catch (err) {
+    return next(err);
+  }
 };
 
 const escapeHtml = (value) => String(value ?? '')
@@ -756,7 +767,7 @@ Reply ONLY with valid JSON, no markdown fences:
   }
 };
 
-router.post('/opportunity-finder', requireAuth, validateSchema({ body: opportunityFinderSchema }), userQuota('integrations.opportunity-finder', { windowMs: 60 * 60 * 1000, max: 30 }), userCostBudget('integrations.opportunity-finder', { windowMs: 24 * 60 * 60 * 1000, maxCost: 120, cost: 12, message: 'Daily AI opportunity budget reached.' }), async (req, res) => {
+router.post('/opportunity-finder', requireAuth, validateSchema({ body: opportunityFinderSchema }), requireQualifiedProject(), userQuota('integrations.opportunity-finder', { windowMs: 60 * 60 * 1000, max: 30 }), userCostBudget('integrations.opportunity-finder', { windowMs: 24 * 60 * 60 * 1000, maxCost: 120, cost: 12, message: 'Daily AI opportunity budget reached.' }), async (req, res) => {
   const job = await createJob({
     userId: req.user.id, type: 'integration:opportunity-finder',
     input: { userId: req.user.id, body: req.body }, idempotencyKey: req.get('Idempotency-Key') || null,
@@ -1111,7 +1122,7 @@ JSON shape:
   }
 };
 
-router.post('/ai-match', requireAuth, validateSchema({ body: aiMatchSchema }), userQuota('integrations.ai-match', { windowMs: 60 * 60 * 1000, max: 30 }), userCostBudget('integrations.ai-match', { windowMs: 24 * 60 * 60 * 1000, maxCost: 100, cost: 10, message: 'Daily AI match budget reached.' }), async (req, res) => {
+router.post('/ai-match', requireAuth, validateSchema({ body: aiMatchSchema }), requireQualifiedProject(), userQuota('integrations.ai-match', { windowMs: 60 * 60 * 1000, max: 30 }), userCostBudget('integrations.ai-match', { windowMs: 24 * 60 * 60 * 1000, maxCost: 100, cost: 10, message: 'Daily AI match budget reached.' }), async (req, res) => {
   const job = await createJob({
     userId: req.user.id, type: 'integration:ai-match',
     input: { userId: req.user.id, body: req.body }, idempotencyKey: req.get('Idempotency-Key') || null,
@@ -1140,5 +1151,6 @@ router.runOpportunityFinderJob = (input) => invokeIntegrationHandler(handleOppor
 router.runAiMatchJob = (input) => invokeIntegrationHandler(handleAiMatchV2, input);
 router.parseModelJson = parseModelJson;
 router.buildOpportunityFinderFallbackParsed = buildOpportunityFinderFallbackParsed;
+router.requireQualifiedProject = requireQualifiedProject;
 
 module.exports = router;
