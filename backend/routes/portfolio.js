@@ -13,6 +13,7 @@ const {
   validateCustomSiteCode,
 } = require('../utils/customSiteSecurity');
 const { computeEffectiveDesignSettings } = require('../utils/layeredCustomization');
+const { frameAncestorsValue, sandboxRedirectTarget } = require('../config/customSite');
 
 const router = express.Router();
 
@@ -85,10 +86,10 @@ const buildCustomSiteData = ({ user = {}, projects = [], endorsements = [], sett
   })),
 });
 
-const sendCustomSiteDocument = (res, { status = 200, nonce, document, cachePublic = true }) => {
+const sendCustomSiteDocument = (res, { status = 200, nonce, document, cachePublic = true, frameAncestors } = {}) => {
   res.status(status);
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  res.setHeader('Content-Security-Policy', buildCustomSiteCsp(nonce));
+  res.setHeader('Content-Security-Policy', buildCustomSiteCsp(nonce, { frameAncestors }));
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Referrer-Policy', 'no-referrer');
   res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), fullscreen=()');
@@ -98,8 +99,9 @@ const sendCustomSiteDocument = (res, { status = 200, nonce, document, cachePubli
   return res.send(document);
 };
 
-const buildCustomSiteUnavailableDocument = (message, nonce) => buildCustomSiteDocument({
+const buildCustomSiteUnavailableDocument = (message, nonce, frameAncestors) => buildCustomSiteDocument({
   nonce,
+  frameAncestors,
   data: {},
   code: {
     html: `
@@ -286,6 +288,12 @@ router.get('/:username', optionalAuth, async (req, res) => {
 
 router.get('/:username/custom-site', optionalAuth, async (req, res) => {
   const nonce = crypto.randomBytes(16).toString('base64');
+  const frameAncestors = frameAncestorsValue();
+  // Executable author code must only run on the dedicated sandbox origin, never on
+  // the app's credentialed origin. If a sandbox origin is configured and this
+  // request hit a different host, redirect there instead of serving the document.
+  const redirectTarget = sandboxRedirectTarget(req.get('host'), req.params.username, req._parsedUrl?.search || '');
+  if (redirectTarget) return res.redirect(302, redirectTarget);
   try {
     const userResult = await query(
       `SELECT u.id, u.full_name, u.username, u.headline, u.bio,
@@ -309,8 +317,9 @@ router.get('/:username/custom-site', optionalAuth, async (req, res) => {
       return sendCustomSiteDocument(res, {
         status: 404,
         nonce,
+        frameAncestors,
         cachePublic: false,
-        document: buildCustomSiteUnavailableDocument('This portfolio could not be found.', nonce),
+        document: buildCustomSiteUnavailableDocument('This portfolio could not be found.', nonce, frameAncestors),
       });
     }
 
@@ -319,8 +328,9 @@ router.get('/:username/custom-site', optionalAuth, async (req, res) => {
       return sendCustomSiteDocument(res, {
         status: 403,
         nonce,
+        frameAncestors,
         cachePublic: false,
-        document: buildCustomSiteUnavailableDocument('This portfolio is private.', nonce),
+        document: buildCustomSiteUnavailableDocument('This portfolio is private.', nonce, frameAncestors),
       });
     }
 
@@ -328,8 +338,9 @@ router.get('/:username/custom-site', optionalAuth, async (req, res) => {
       return sendCustomSiteDocument(res, {
         status: 404,
         nonce,
+        frameAncestors,
         cachePublic: false,
-        document: buildCustomSiteUnavailableDocument('This portfolio is using the standard ProjectFolio layout.', nonce),
+        document: buildCustomSiteUnavailableDocument('This portfolio is using the standard ProjectFolio layout.', nonce, frameAncestors),
       });
     }
 
@@ -343,8 +354,9 @@ router.get('/:username/custom-site', optionalAuth, async (req, res) => {
       return sendCustomSiteDocument(res, {
         status: 422,
         nonce,
+        frameAncestors,
         cachePublic: false,
-        document: buildCustomSiteUnavailableDocument('The custom site did not pass security validation.', nonce),
+        document: buildCustomSiteUnavailableDocument('The custom site did not pass security validation.', nonce, frameAncestors),
       });
     }
 
@@ -372,6 +384,7 @@ router.get('/:username/custom-site', optionalAuth, async (req, res) => {
 
     const document = buildCustomSiteDocument({
       nonce,
+      frameAncestors,
       code,
       data: buildCustomSiteData({
         user,
@@ -381,14 +394,15 @@ router.get('/:username/custom-site', optionalAuth, async (req, res) => {
       }),
     });
 
-    return sendCustomSiteDocument(res, { nonce, document });
+    return sendCustomSiteDocument(res, { nonce, document, frameAncestors });
   } catch (error) {
     console.error('Custom site render error:', error);
     return sendCustomSiteDocument(res, {
       status: 500,
       nonce,
+      frameAncestors,
       cachePublic: false,
-      document: buildCustomSiteUnavailableDocument('The custom site could not be loaded.', nonce),
+      document: buildCustomSiteUnavailableDocument('The custom site could not be loaded.', nonce, frameAncestors),
     });
   }
 });

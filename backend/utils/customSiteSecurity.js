@@ -132,10 +132,10 @@ const buildCustomSiteCsp = (nonce, { frameAncestors = "'self'" } = {}) => [
   `frame-ancestors ${frameAncestors}`,
 ].join('; ');
 
-const buildCustomSiteDocument = ({ code = {}, data = {}, nonce }) => {
+const buildCustomSiteDocument = ({ code = {}, data = {}, nonce, frameAncestors } = {}) => {
   const normalized = normalizeForStorage(code);
   const dataJson = safeJsonForScript(data);
-  const csp = buildCustomSiteCsp(nonce);
+  const csp = buildCustomSiteCsp(nonce, { frameAncestors });
   return [
     '<!doctype html>',
     '<html lang="en">',

@@ -35,4 +35,21 @@ const isSandboxHost = (host) => {
   return String(host || '').toLowerCase() === hostOf(sandbox).toLowerCase();
 };
 
-module.exports = { getSandboxOrigin, getAppOrigins, frameAncestorsValue, isSandboxHost };
+// Given the incoming request host, decides whether the executable custom-site
+// document must be redirected to the sandbox origin. Returns the absolute target
+// URL when the request hit a non-sandbox host (e.g. the app origin), or null when
+// it should be served in place (already on the sandbox host, or no sandbox
+// origin configured for dev).
+const sandboxRedirectTarget = (host, username, search = '') => {
+  const sandbox = getSandboxOrigin();
+  if (!sandbox || isSandboxHost(host)) return null;
+  return `${sandbox}/api/portfolio/${encodeURIComponent(username)}/custom-site${search || ''}`;
+};
+
+module.exports = {
+  getSandboxOrigin,
+  getAppOrigins,
+  frameAncestorsValue,
+  isSandboxHost,
+  sandboxRedirectTarget,
+};
