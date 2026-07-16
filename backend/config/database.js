@@ -1,8 +1,13 @@
 // backend/config/database.js
 // This file manages the connection to your PostgreSQL database
 
-const { Pool } = require('pg');
+const { Pool, types } = require('pg');
 const logger = require('../utils/logger');
+
+// DATE columns round-trip as plain YYYY-MM-DD strings. The default parser
+// returns a timezone-shifted JS Date that res.json() serializes as a full ISO
+// timestamp, which fails s.date() validation when clients echo it back.
+types.setTypeParser(types.builtins.DATE, (value) => value);
 const { dbDuration, observePool } = require('./metrics');
 require('dotenv').config();
 

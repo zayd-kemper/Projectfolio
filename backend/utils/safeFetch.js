@@ -31,6 +31,15 @@ const validateTarget = async (rawUrl) => {
   return { target, address: addresses[0] };
 };
 
+// Pins DNS to the address that passed the SSRF check. Node >=20 enables
+// autoSelectFamily (happy-eyeballs) by default and calls lookup with
+// options.all=true expecting an ARRAY callback; the scalar shape there throws
+// "Invalid IP address: undefined" and breaks every fetch.
+const makeLookup = (address) => (hostname, options, callback) => {
+  if (options && options.all) return callback(null, [{ address: address.address, family: address.family }]);
+  return callback(null, address.address, address.family);
+};
+
 const safeFetchText = async (rawUrl, { maxBytes = 1024 * 1024, timeoutMs = 10000, redirects = 3 } = {}) => {
   const { target, address } = await validateTarget(rawUrl);
   const transport = target.protocol === 'https:' ? https : http;
@@ -38,7 +47,7 @@ const safeFetchText = async (rawUrl, { maxBytes = 1024 * 1024, timeoutMs = 10000
     const request = transport.request(target, {
       method: 'GET',
       headers: { 'User-Agent': 'ProjectFolio/1.0', Accept: 'text/html,application/xhtml+xml,text/plain;q=0.9' },
-      lookup: (hostname, options, callback) => callback(null, address.address, address.family),
+      lookup: makeLookup(address),
       servername: target.hostname,
     }, async (response) => {
       if (response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
@@ -68,4 +77,4 @@ const safeFetchText = async (rawUrl, { maxBytes = 1024 * 1024, timeoutMs = 10000
   });
 };
 
-module.exports = { isPrivateAddress, validateTarget, safeFetchText };
+module.exports = { isPrivateAddress, validateTarget, safeFetchText, makeLookup };
