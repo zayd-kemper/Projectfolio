@@ -132,6 +132,7 @@ const INTEGRATION_MODEL_PROFILES = {
     description: 'Deep opportunity-to-portfolio fit analysis with grounded recommendations.',
     requiredCapabilities: ['chat', 'json'],
     preferredModelIds: [
+      'nvidia:gpt-oss-20b',
       'nvidia:nemotron-3-super-120b-a12b',
       'nvidia:nemotron-3-super',
       'qwen:qwen-3-coder-480b-a35b-instruct',
@@ -146,6 +147,7 @@ const INTEGRATION_MODEL_PROFILES = {
     description: 'Portfolio-aware opportunity ranking across curated programs and cautious suggestions.',
     requiredCapabilities: ['chat', 'json'],
     preferredModelIds: [
+      'nvidia:gpt-oss-20b',
       'nvidia:nemotron-3-super-120b-a12b',
       'nvidia:nemotron-3-super',
       'qwen:qwen-3-coder-480b-a35b-instruct',
