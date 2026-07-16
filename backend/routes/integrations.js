@@ -11,6 +11,7 @@ const { safeFetchText } = require('../utils/safeFetch');
 const { buildPortfolioAiContext, compactText } = require('../utils/portfolioAiContext');
 const { parseAiJson } = require('../utils/aiCustomizer');
 const { callAiModel, chooseModelForIntegration } = require('../utils/aiModels');
+const { AI_TOOLS_GATE_MESSAGE, hasQualifiedProject } = require('../utils/projectCompleteness');
 const logger = require('../utils/logger');
 require('dotenv').config();
 
@@ -37,6 +38,23 @@ const opportunityFinderSchema = {
 
 const aiMatchSchema = {
   url: s.url({ required: true, max: 2048 }),
+};
+
+// Gate for the AI tools: deny before quota spend, job creation, or any AI provider call.
+const requireQualifiedProject = (checkFn = hasQualifiedProject) => async (req, res, next) => {
+  try {
+    if (await checkFn(req.user.id)) return next();
+    return res.status(403).json({ error: AI_TOOLS_GATE_MESSAGE, code: 'AI_TOOLS_PROJECT_GATE' });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+// Handler-level gate for the worker/job path, which bypasses route middleware.
+const respondUnqualified = async (req, res, checkFn = hasQualifiedProject) => {
+  if (await checkFn(req.user.id)) return false;
+  res.status(403).json({ error: AI_TOOLS_GATE_MESSAGE, code: 'AI_TOOLS_PROJECT_GATE' });
+  return true;
 };
 
 const escapeHtml = (value) => String(value ?? '')
@@ -756,7 +774,7 @@ Reply ONLY with valid JSON, no markdown fences:
   }
 };
 
-router.post('/opportunity-finder', requireAuth, validateSchema({ body: opportunityFinderSchema }), userQuota('integrations.opportunity-finder', { windowMs: 60 * 60 * 1000, max: 30 }), userCostBudget('integrations.opportunity-finder', { windowMs: 24 * 60 * 60 * 1000, maxCost: 120, cost: 12, message: 'Daily AI opportunity budget reached.' }), async (req, res) => {
+router.post('/opportunity-finder', requireAuth, validateSchema({ body: opportunityFinderSchema }), requireQualifiedProject(), userQuota('integrations.opportunity-finder', { windowMs: 60 * 60 * 1000, max: 30 }), userCostBudget('integrations.opportunity-finder', { windowMs: 24 * 60 * 60 * 1000, maxCost: 120, cost: 12, message: 'Daily AI opportunity budget reached.' }), async (req, res) => {
   const job = await createJob({
     userId: req.user.id, type: 'integration:opportunity-finder',
     input: { userId: req.user.id, body: req.body }, idempotencyKey: req.get('Idempotency-Key') || null,
@@ -914,6 +932,8 @@ Reply ONLY with valid JSON, no markdown fences:
   }
 };
 
+// Completeness gate enforced by requireQualifiedProject (route) and
+// invokeIntegrationHandler (jobs) — do not invoke this handler directly.
 const handleOpportunityFinderV2 = async (req, res) => {
   const { filters } = req.body;
   const allOpportunities = readOpportunityCatalog();
@@ -1020,6 +1040,8 @@ JSON shape:
   }
 };
 
+// Completeness gate enforced by requireQualifiedProject (route) and
+// invokeIntegrationHandler (jobs) — do not invoke this handler directly.
 const handleAiMatchV2 = async (req, res) => {
   const { url } = req.body;
   if (!url) return res.status(400).json({ error: 'URL is required.' });
@@ -1111,7 +1133,7 @@ JSON shape:
   }
 };
 
-router.post('/ai-match', requireAuth, validateSchema({ body: aiMatchSchema }), userQuota('integrations.ai-match', { windowMs: 60 * 60 * 1000, max: 30 }), userCostBudget('integrations.ai-match', { windowMs: 24 * 60 * 60 * 1000, maxCost: 100, cost: 10, message: 'Daily AI match budget reached.' }), async (req, res) => {
+router.post('/ai-match', requireAuth, validateSchema({ body: aiMatchSchema }), requireQualifiedProject(), userQuota('integrations.ai-match', { windowMs: 60 * 60 * 1000, max: 30 }), userCostBudget('integrations.ai-match', { windowMs: 24 * 60 * 60 * 1000, maxCost: 100, cost: 10, message: 'Daily AI match budget reached.' }), async (req, res) => {
   const job = await createJob({
     userId: req.user.id, type: 'integration:ai-match',
     input: { userId: req.user.id, body: req.body }, idempotencyKey: req.get('Idempotency-Key') || null,
@@ -1119,8 +1141,8 @@ router.post('/ai-match', requireAuth, validateSchema({ body: aiMatchSchema }), u
   res.status(202).json({ job_id: job.id, status: job.status });
 });
 
-const invokeIntegrationHandler = async (handler, input) => {
-  const user = await query('SELECT id, email, username, full_name, avatar_url FROM users WHERE id = $1', [input.userId]);
+const invokeIntegrationHandler = async (handler, input, { queryFn = query, checkFn = hasQualifiedProject } = {}) => {
+  const user = await queryFn('SELECT id, email, username, full_name, avatar_url FROM users WHERE id = $1', [input.userId]);
   if (!user.rows[0]) throw new Error('User no longer exists.');
   return new Promise((resolve, reject) => {
     const response = {
@@ -1132,7 +1154,14 @@ const invokeIntegrationHandler = async (handler, input) => {
         return this;
       },
     };
-    Promise.resolve(handler({ user: user.rows[0], body: input.body || {}, params: {}, query: {} }, response)).catch(reject);
+    const req = { user: user.rows[0], body: input.body || {}, params: {}, query: {} };
+    Promise.resolve()
+      .then(async () => {
+        // Worker jobs bypass route middleware, so the gate re-runs here before any AI call.
+        if (await respondUnqualified(req, response, checkFn)) return;
+        return handler(req, response);
+      })
+      .catch(reject);
   });
 };
 
@@ -1140,5 +1169,8 @@ router.runOpportunityFinderJob = (input) => invokeIntegrationHandler(handleOppor
 router.runAiMatchJob = (input) => invokeIntegrationHandler(handleAiMatchV2, input);
 router.parseModelJson = parseModelJson;
 router.buildOpportunityFinderFallbackParsed = buildOpportunityFinderFallbackParsed;
+router.requireQualifiedProject = requireQualifiedProject;
+router.respondUnqualified = respondUnqualified;
+router.invokeIntegrationHandler = invokeIntegrationHandler;
 
 module.exports = router;
