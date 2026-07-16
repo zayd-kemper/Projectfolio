@@ -932,6 +932,8 @@ Reply ONLY with valid JSON, no markdown fences:
   }
 };
 
+// Completeness gate enforced by requireQualifiedProject (route) and
+// invokeIntegrationHandler (jobs) — do not invoke this handler directly.
 const handleOpportunityFinderV2 = async (req, res) => {
   const { filters } = req.body;
   const allOpportunities = readOpportunityCatalog();
@@ -1038,6 +1040,8 @@ JSON shape:
   }
 };
 
+// Completeness gate enforced by requireQualifiedProject (route) and
+// invokeIntegrationHandler (jobs) — do not invoke this handler directly.
 const handleAiMatchV2 = async (req, res) => {
   const { url } = req.body;
   if (!url) return res.status(400).json({ error: 'URL is required.' });
