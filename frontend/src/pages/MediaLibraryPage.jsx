@@ -164,7 +164,7 @@ export default function MediaLibraryPage() {
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:[[data-sidebar-collapsed]_&]:grid-cols-5">
           {[1, 2, 3, 4, 5, 6].map((item) => <div key={item} className="skeleton-shimmer aspect-square rounded-xl" />)}
         </div>
       ) : filtered.length === 0 ? (
@@ -173,7 +173,7 @@ export default function MediaLibraryPage() {
           <p>No {filter !== 'all' ? filter + 's' : 'files'} yet. Upload files above to attach them to projects.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:[[data-sidebar-collapsed]_&]:grid-cols-5">
           {filtered.map((item) => (
             <div key={item.id} className="card group relative overflow-hidden">
               <div className="flex aspect-square items-center justify-center overflow-hidden bg-surface-muted">
