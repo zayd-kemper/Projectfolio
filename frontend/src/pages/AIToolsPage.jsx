@@ -285,9 +285,10 @@ function AIMatchTool() {
       setProgramName(parsed.program_name || 'Program');
       setResult(parsed);
     } catch (err) {
-      setError(err.message?.includes('JSON')
-        ? 'AI returned an unexpected format. Please try again.'
-        : 'Analysis failed. Check the URL and try again.');
+      setError(err.response?.data?.error
+        || (err.message?.includes('JSON')
+          ? 'AI returned an unexpected format. Please try again.'
+          : 'Analysis failed. Check the URL and try again.'));
     } finally {
       setLoading(false);
       setLoadingStep('');
@@ -558,8 +559,8 @@ function OpportunityFinderTool() {
       const completed = await resolveJobResponse(response, { timeoutMs: 5 * 60_000 });
       setResult(completed.result);
       setActiveFilter('all');
-    } catch {
-      setError('Failed to find opportunities. Please try again.');
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to find opportunities. Please try again.');
     } finally {
       setLoading(false);
       setLoadingStep('');
