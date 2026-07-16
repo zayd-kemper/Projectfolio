@@ -240,3 +240,26 @@ test('OpenRouter request body omits JSON response_format unless model opts in', 
     else process.env.OPENROUTER_API_KEY = previousKey;
   }
 });
+
+test('AI tool profiles default to GPT-OSS and fall back to Nemotron', () => {
+  const models = reloadAiModelsWithEnv({
+    ENABLE_NVIDIA_MODELS: 'true',
+    NVIDIA_API_KEY: 'test-nvidia-key',
+    NVIDIA_BASE_URL: 'https://integrate.api.nvidia.com/v1',
+    ENABLE_OPENROUTER_MODELS: 'true',
+    OPENROUTER_API_KEY: 'test-openrouter-key',
+    OPENROUTER_BASE_URL: 'https://openrouter.ai/api/v1',
+  });
+  assert.equal(models.chooseModelForIntegration('ai-match').model.id, 'nvidia:gpt-oss-20b');
+  assert.equal(models.chooseModelForIntegration('opportunity-finder').model.id, 'nvidia:gpt-oss-20b');
+  // Application helper is intentionally unchanged (Nemotron-first).
+  assert.equal(models.chooseModelForIntegration('application-helper').model.id, 'nvidia:nemotron-3-super-120b-a12b');
+
+  const withoutNvidiaDirect = reloadAiModelsWithEnv({
+    ENABLE_OPENROUTER_MODELS: 'true',
+    OPENROUTER_API_KEY: 'test-openrouter-key',
+    OPENROUTER_BASE_URL: 'https://openrouter.ai/api/v1',
+  });
+  assert.equal(withoutNvidiaDirect.chooseModelForIntegration('ai-match').model.id, 'nvidia:nemotron-3-super-120b-a12b');
+  assert.equal(withoutNvidiaDirect.chooseModelForIntegration('opportunity-finder').model.id, 'nvidia:nemotron-3-super-120b-a12b');
+});
