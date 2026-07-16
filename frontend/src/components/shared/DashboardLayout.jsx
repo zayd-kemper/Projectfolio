@@ -17,11 +17,34 @@ const NAV_ITEMS = [
   { to: '/discover', label: 'Discover', icon: 'source-network', external: false },
 ];
 
+const SIDEBAR_COLLAPSE_KEY = 'pf-sidebar-collapsed';
+
+const readStoredCollapsed = () => {
+  try {
+    return localStorage.getItem(SIDEBAR_COLLAPSE_KEY) === '1';
+  } catch {
+    return false;
+  }
+};
+
 export default function DashboardLayout({ children }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(readStoredCollapsed);
   const [darkMode, setDarkMode] = useDarkMode();
+
+  const toggleCollapsed = () => {
+    setCollapsed((current) => {
+      const next = !current;
+      try {
+        localStorage.setItem(SIDEBAR_COLLAPSE_KEY, next ? '1' : '0');
+      } catch {
+        // Storage unavailable (private mode) — collapse still works for the session.
+      }
+      return next;
+    });
+  };
 
   const handleLogout = () => {
     logout();
@@ -30,67 +53,73 @@ export default function DashboardLayout({ children }) {
 
   const portfolioUrl = user ? `/${user.username}` : '/';
 
-  const SidebarContent = () => (
+  const SidebarContent = ({ collapsed: rail = false }) => (
     <div className="flex h-full flex-col">
-      <div className="border-b border-line-subtle px-4 py-5">
-        <div className="flex items-center gap-2">
+      <div className={`border-b border-line-subtle py-5 ${rail ? 'px-2' : 'px-4'}`}>
+        <div className={`flex items-center gap-2 ${rail ? 'flex-col' : ''}`}>
           <EngineeringIcon name="brand-projectfolio" size="1.45rem" />
-          <span className="font-semibold text-ink">ProjectFolio</span>
-          <div className="ml-auto">
+          {!rail && <span className="font-semibold text-ink">ProjectFolio</span>}
+          <div className={rail ? '' : 'ml-auto'}>
             <NotificationBell />
           </div>
         </div>
       </div>
 
-      <nav className="flex-1 space-y-1 px-3 py-4">
+      <nav className={`flex-1 space-y-1 py-4 ${rail ? 'px-2' : 'px-3'}`}>
         {NAV_ITEMS.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
             end={item.end}
             onClick={() => setMobileOpen(false)}
-            className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+            title={rail ? item.label : undefined}
+            className={({ isActive }) => `nav-item ${isActive ? 'active' : ''} ${rail ? 'justify-center' : ''}`}
           >
             <EngineeringIcon name={item.icon} size="1rem" />
-            <span>{item.label}</span>
+            {!rail && <span>{item.label}</span>}
           </NavLink>
         ))}
       </nav>
 
-      <div className="space-y-2 border-t border-line-subtle px-3 pb-4 pt-4">
+      <div className={`space-y-2 border-t border-line-subtle pb-4 pt-4 ${rail ? 'px-2' : 'px-3'}`}>
         <a
           href={portfolioUrl}
           target="_blank"
           rel="noreferrer"
-          className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-accent-text transition-colors hover:bg-accent-surface"
+          title={rail ? 'View My Portfolio' : undefined}
+          className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-accent-text transition-colors hover:bg-accent-surface ${rail ? 'justify-center' : ''}`}
         >
           <EngineeringIcon name="link" size="1rem" />
-          <span>View My Portfolio</span>
+          {!rail && <span>View My Portfolio</span>}
         </a>
 
         <button
           type="button"
           onClick={() => setDarkMode((d) => !d)}
-          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-ink-muted transition-colors hover:bg-surface-muted"
+          title={rail ? (darkMode ? 'Light mode' : 'Dark mode') : undefined}
+          className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-ink-muted transition-colors hover:bg-surface-muted ${rail ? 'justify-center' : ''}`}
         >
           <EngineeringIcon name={darkMode ? 'theme-sun' : 'theme-moon'} size="1rem" />
-          <span>{darkMode ? 'Light mode' : 'Dark mode'}</span>
+          {!rail && <span>{darkMode ? 'Light mode' : 'Dark mode'}</span>}
         </button>
 
-        <div className="flex items-center gap-2">
+        <div className={`flex items-center gap-2 ${rail ? 'flex-col' : ''}`}>
           <NavLink
             to="/dashboard/settings"
-            className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-surface-muted"
+            title={rail ? 'Account settings' : undefined}
+            className={`flex min-w-0 cursor-pointer items-center gap-3 rounded-lg transition-colors hover:bg-surface-muted ${rail ? 'justify-center p-1.5' : 'flex-1 px-3 py-2'}`}
           >
             <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-accent-surface text-sm font-bold text-accent-text">
               {user?.avatar_url
                 ? <img src={user.avatar_url} alt="" className="h-full w-full object-cover" />
                 : user?.full_name?.charAt(0)?.toUpperCase()}
             </div>
-            <div className="min-w-0 flex-1">
-              <div className="truncate text-sm font-medium text-ink">{user?.full_name}</div>
-              <div className="truncate text-xs text-ink-muted">@{user?.username}</div>
-            </div>
+            {!rail && (
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-sm font-medium text-ink">{user?.full_name}</div>
+                <div className="truncate text-xs text-ink-muted">@{user?.username}</div>
+              </div>
+            )}
           </NavLink>
           <button
             type="button"
@@ -108,8 +137,21 @@ export default function DashboardLayout({ children }) {
 
   return (
     <div className="app-surface flex min-h-screen bg-surface-page">
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col border-r border-line-subtle bg-surface-rail lg:flex">
-        <SidebarContent />
+      <aside className={`fixed inset-y-0 left-0 z-30 hidden flex-col border-r border-line-subtle bg-surface-rail transition-[width] duration-300 ease-in-out lg:flex ${collapsed ? 'w-[68px]' : 'w-60'}`}>
+        <SidebarContent collapsed={collapsed} />
+        <div className="border-t border-line-subtle px-3 py-2">
+          <button
+            type="button"
+            onClick={toggleCollapsed}
+            aria-expanded={!collapsed}
+            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-ink-muted transition-colors hover:bg-surface-muted ${collapsed ? 'justify-center' : ''}`}
+          >
+            <EngineeringIcon name="list-menu" size="1rem" />
+            {!collapsed && <span>Collapse</span>}
+          </button>
+        </div>
       </aside>
 
       {mobileOpen && (
@@ -121,7 +163,7 @@ export default function DashboardLayout({ children }) {
         </div>
       )}
 
-      <main className="min-h-screen min-w-0 flex-1 overflow-x-hidden lg:pl-60">
+      <main className={`min-h-screen min-w-0 flex-1 overflow-x-hidden transition-[padding] duration-300 ease-in-out ${collapsed ? 'lg:pl-[68px]' : 'lg:pl-60'}`}>
         <div className="sticky top-0 z-20 flex items-center gap-3 border-b border-line-subtle bg-surface-rail px-4 py-3 lg:hidden">
           <button
             type="button"
@@ -137,7 +179,10 @@ export default function DashboardLayout({ children }) {
           </span>
         </div>
 
-        <div className="mx-auto w-full min-w-0 max-w-6xl p-6 lg:p-8">
+        <div
+          {...(collapsed ? { 'data-sidebar-collapsed': '' } : {})}
+          className={`mx-auto w-full min-w-0 p-6 transition-[max-width] duration-300 ease-in-out lg:p-8 ${collapsed ? 'max-w-[84rem]' : 'max-w-6xl'}`}
+        >
           {children}
         </div>
       </main>
