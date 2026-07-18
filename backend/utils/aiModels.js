@@ -170,6 +170,23 @@ const INTEGRATION_MODEL_PROFILES = {
     ],
     fallbackModelId: null,
   },
+  // The advisor's model-swap point: reorder or replace these ids (or flip
+  // provider env flags) to move from cheap test models to premium ones.
+  advisor: {
+    id: 'advisor',
+    name: 'Portfolio Advisor',
+    description: 'Portfolio growth analysis, suggestions, and roadmap grounded in portfolio evidence.',
+    requiredCapabilities: ['chat', 'json'],
+    preferredModelIds: [
+      'nvidia:gpt-oss-20b',
+      'nvidia:nemotron-3-super-120b-a12b',
+      'nvidia:nemotron-3-super',
+      'qwen:qwen-3-coder-480b-a35b-instruct',
+      'poolside:laguna-m1',
+      'nex:n2-pro',
+    ],
+    fallbackModelId: null,
+  },
 };
 
 const MODEL_REGISTRY = [

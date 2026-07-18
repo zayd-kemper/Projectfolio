@@ -39,6 +39,7 @@ const TeamDetailPage = lazy(() => import('./pages/TeamDetailPage'));
 const PublicTeamPage = lazy(() => import('./pages/PublicTeamPage'));
 const DiscoverPage = lazy(() => import('./pages/DiscoverPage'));
 const AIToolsPage = lazy(() => import('./pages/AIToolsPage'));
+const AdvisorPage = lazy(() => import('./pages/AdvisorPage'));
 
 // Protected route wrapper
 function ProtectedRoute({ children }) {
@@ -103,6 +104,7 @@ function App() {
             <Route path="/dashboard/account" element={<ProtectedRoute><Navigate to="/dashboard/settings?tab=account" replace /></ProtectedRoute>} />
             <Route path="/dashboard/settings" element={<ProtectedRoute><PageTransition><SettingsPage /></PageTransition></ProtectedRoute>} />
             <Route path="/dashboard/ai-tools" element={<ProtectedRoute><PageTransition><AIToolsPage /></PageTransition></ProtectedRoute>} />
+            <Route path="/dashboard/advisor" element={<ProtectedRoute><PageTransition><AdvisorPage /></PageTransition></ProtectedRoute>} />
             <Route path="/dashboard/integrations" element={<ProtectedRoute><PageTransition><IntegrationsPage /></PageTransition></ProtectedRoute>} />
             <Route path="/dashboard/applications" element={<ProtectedRoute><PageTransition><ApplicationHelperPage /></PageTransition></ProtectedRoute>} />
             <Route path="/dashboard/analytics" element={<ProtectedRoute><PageTransition><AnalyticsPage /></PageTransition></ProtectedRoute>} />

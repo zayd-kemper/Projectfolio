@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { to: '/dashboard/media', label: 'Media Library', icon: 'media-frame' },
   { to: '/dashboard/analytics', label: 'Analytics', icon: 'analytics-gauge' },
   { to: '/dashboard/ai-tools', label: 'AI Tools', icon: 'ai-core' },
+  { to: '/dashboard/advisor', label: 'Advisor', icon: 'trend-line' },
   { to: '/dashboard/applications', label: 'Applications', icon: 'briefcase' },
   { to: '/dashboard/integrations', label: 'Integrations', icon: 'connector' },
   { to: '/dashboard/teams', label: 'Teams', icon: 'team-node' },
