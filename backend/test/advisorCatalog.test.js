@@ -5,6 +5,7 @@ const { DISCIPLINES } = require('../advisor/analyzer');
 
 const VALID_KINDS = ['project', 'skill'];
 const VALID_LEVELS = ['beginner', 'intermediate', 'advanced'];
+const VALID_TUTORIAL_SOURCES = ['github', 'youtube', 'devto', 'docs', 'course'];
 
 test('the curated catalog covers all six disciplines with well-formed entries', () => {
   const ids = ADVISOR_CATALOG.map((entry) => entry.id);
@@ -25,6 +26,49 @@ test('the curated catalog covers all six disciplines with well-formed entries', 
     assert.ok(Array.isArray(entry.outcomes) && entry.outcomes.length > 0, `entry ${entry.id} outcomes`);
     assert.ok(Number.isFinite(entry.estimated_weeks) && entry.estimated_weeks > 0, `entry ${entry.id} estimated_weeks`);
   }
+});
+
+test('every catalog entry ships five unique real tutorial links', () => {
+  for (const entry of ADVISOR_CATALOG) {
+    assert.ok(Array.isArray(entry.tutorials), `${entry.id} has a tutorials array`);
+    assert.equal(entry.tutorials.length, 5, `${entry.id} has 5 tutorials`);
+    const urls = new Set();
+    for (const tutorial of entry.tutorials) {
+      assert.ok(tutorial.title && tutorial.title.length > 3, `${entry.id} tutorial title`);
+      assert.ok(VALID_TUTORIAL_SOURCES.includes(tutorial.source), `${entry.id} tutorial source "${tutorial.source}"`);
+      assert.match(tutorial.url, /^https:\/\/[^ ]+$/, `${entry.id} tutorial url`);
+      urls.add(tutorial.url);
+    }
+    assert.equal(urls.size, 5, `${entry.id} tutorial urls unique`);
+  }
+});
+
+test('curatedTutorialsFor prefers technology overlap even across disciplines', () => {
+  const { curatedTutorialsFor } = require('../advisor/catalog');
+
+  // ROS 2 tech with an electrical primary discipline should still surface
+  // robotics tutorials rather than arbitrary electrical ones.
+  const tutorials = curatedTutorialsFor({ discipline: 'electrical', technologies: ['ROS 2'], limit: 3 });
+  assert.ok(tutorials.length >= 2);
+  assert.ok(
+    tutorials.some((tutorial) => /ros|robot|gazebo|nav2/i.test(`${tutorial.title} ${tutorial.url}`)),
+    'cross-discipline tech overlap wins'
+  );
+
+  // No overlap anywhere falls back to the primary discipline's tutorials.
+  const fallback = curatedTutorialsFor({ discipline: 'electrical', technologies: ['U-Boot'], limit: 3 });
+  assert.ok(fallback.length >= 2, 'still returns discipline tutorials without overlap');
+});
+
+test('curatedTutorialsFor ignores generic languages when scoring overlap', () => {
+  const { curatedTutorialsFor } = require('../advisor/catalog');
+  // A Python-tagged embedded project must not surface data-science tutorials
+  // over its own discipline.
+  const tutorials = curatedTutorialsFor({ discipline: 'electrical', technologies: ['Embedded Linux', 'Python', 'C'], limit: 3 });
+  assert.ok(
+    !tutorials.some((tutorial) => /mlflow|madewithml|fastapi|kaggle|pandas/i.test(tutorial.url)),
+    'generic language overlap must not beat the discipline'
+  );
 });
 
 const roboticsAnalysis = () => ({

@@ -169,6 +169,50 @@ describe('AdvisorPage', () => {
     expect(screen.getByRole('progressbar', { name: 'Roadmap progress' })).toHaveAttribute('aria-valuenow', '50');
   });
 
+  it('renders tutorial links on project cards and labels composed learning paths', async () => {
+    const api = (await import('../utils/api')).default;
+    const PACKAGE = {
+      version: 1,
+      analysis: { discipline_label: 'Robotics & Autonomous Systems', current_level: 'intermediate', confidence: 'high', summary: 's', strengths: [], skill_gaps: [], source: 'ai' },
+      suggestions: {
+        projects: [
+          {
+            title: 'Autonomous mapping robot', description: 'Curated one.', technologies: ['ROS 2'],
+            difficulty: 'intermediate', estimated_weeks: 8, builds_on: [], source: 'curated',
+            tutorials_source: 'curated',
+            tutorials: [{ title: 'slam_toolbox', source: 'github', url: 'https://github.com/SteveMacenski/slam_toolbox' }],
+          },
+          {
+            title: 'Swarm choreography rig', description: 'AI one, nothing findable online.', technologies: ['ROS 2'],
+            difficulty: 'advanced', estimated_weeks: 8, builds_on: [], source: 'ai',
+            tutorials_source: 'composed',
+            tutorials: [
+              { title: 'ROS 2 documentation and tutorials', source: 'docs', url: 'https://docs.ros.org' },
+              { title: 'Gazebo simulation docs', source: 'docs', url: 'https://gazebosim.org/docs' },
+            ],
+          },
+        ],
+        skills: [],
+      },
+      roadmap: { narrative: 'n', steps: [{ id: 'step-1', title: 'Go', kind: 'project' }] },
+      meta: { session_id: 's1', fallback: false },
+    };
+    api.get.mockImplementation((url) => {
+      if (url === '/advisor/sessions') return Promise.resolve({ data: { sessions: SESSIONS } });
+      if (url === '/advisor/sessions/s1') {
+        return Promise.resolve({ data: { session: { id: 's1', status: 'ready', goals: {}, package: PACKAGE, progress: {} } } });
+      }
+      return Promise.reject(new Error(`unexpected GET ${url}`));
+    });
+
+    render(<AdvisorPage />);
+    fireEvent.click(await screen.findByText('Build standout projects'));
+
+    expect(await screen.findByRole('link', { name: /slam_toolbox/ })).toHaveAttribute('href', 'https://github.com/SteveMacenski/slam_toolbox');
+    expect(screen.getByRole('link', { name: /Gazebo simulation docs/ })).toHaveAttribute('href', 'https://gazebosim.org/docs');
+    expect(screen.getByText(/Learning path/)).toBeInTheDocument();
+  });
+
   it('is registered as a protected route and a dashboard nav item', async () => {
     const fs = await import('node:fs');
     const path = await import('node:path');
