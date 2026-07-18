@@ -37,8 +37,30 @@ const curatedPick = () => ({
   technologies: ['ROS 2', 'Lidar'],
   outcomes: ['Proof of robotics capability'],
   estimated_weeks: 8,
+  tutorials: [
+    { title: 'ROS 2 documentation and tutorials', source: 'docs', url: 'https://docs.ros.org' },
+    { title: 'slam_toolbox', source: 'github', url: 'https://github.com/SteveMacenski/slam_toolbox' },
+  ],
   source: 'curated',
   match_reason: 'Curated pick: matches your primary discipline.',
+});
+
+test('assembleAdvisorPackage carries curated tutorials onto curated project suggestions', () => {
+  const pkg = assembleAdvisorPackage({
+    session: { id: 'sess-tut' },
+    goals: { objective: 'projects', growth: 'horizontal' },
+    deterministicAnalysis: deterministicAnalysis(),
+    aiAnalysis: null,
+    curatedPicks: [curatedPick()],
+    aiSuggestions: { suggestions: { projects: [], skills: [] }, roadmap: { narrative: 'n', steps: [] } },
+    model: 'stub:model',
+    fallbackReason: 'offline',
+  });
+
+  const curated = pkg.suggestions.projects.find((project) => project.source === 'curated');
+  assert.equal(curated.tutorials.length, 2);
+  assert.equal(curated.tutorials_source, 'curated');
+  assert.match(curated.tutorials[0].url, /^https:\/\//);
 });
 
 test('assembleAdvisorPackage merges curated picks with AI output under stable step ids', () => {
@@ -241,7 +263,13 @@ test('runAdvisorGenerateJob runs two AI calls, assembles the package, and marks 
   const db = require('../config/database');
   const aiModels = require('../utils/aiModels');
   const portfolioAiContext = require('../utils/portfolioAiContext');
+  const resourceFinder = require('../advisor/resourceFinder');
   const advisor = require('../advisor');
+
+  // Keep runner tests off the network: enrichment lookups are stubbed inert.
+  resourceFinder.findProjectTutorials = async () => [];
+  resourceFinder.findSkillResources = async () => [];
+  resourceFinder.verifyUrlAlive = async () => true;
 
   const session = {
     id: 'sess-run-1',
@@ -305,6 +333,170 @@ test('runAdvisorGenerateJob runs two AI calls, assembles the package, and marks 
   assert.ok(readyUpdate, 'session row is updated to ready with the package');
   assert.ok(progress.length >= 3, 'progress is reported along the way');
   assert.ok(progress.every((value, index) => index === 0 || value >= progress[index - 1]), 'progress never goes backwards');
+});
+
+test('runAdvisorGenerateJob attaches found tutorials to AI projects and drops dead AI resource links', async () => {
+  const db = require('../config/database');
+  const aiModels = require('../utils/aiModels');
+  const portfolioAiContext = require('../utils/portfolioAiContext');
+  const resourceFinder = require('../advisor/resourceFinder');
+  const advisor = require('../advisor');
+
+  const session = { id: 'sess-enrich', user_id: 'user-1', goals: { objective: 'projects', growth: 'vertical' }, status: 'generating' };
+  db.query = async (text) => (/SELECT \* FROM advisor_sessions/.test(text) ? { rows: [session] } : { rows: [] });
+  portfolioAiContext.buildPortfolioAiContext = async () => portfolioContext();
+  aiModels.chooseModelForIntegration = () => ({ model: { id: 'stub:model' }, profile: { id: 'advisor' }, routed: false });
+
+  let call = 0;
+  aiModels.callAiModel = async () => {
+    call += 1;
+    if (call === 1) {
+      return { content: JSON.stringify({ discipline: 'robotics', discipline_label: 'Robotics', confidence: 'high', current_level: 'intermediate', summary: 's', strengths: [], skill_gaps: [], interests: [], direction: 'd' }) };
+    }
+    return {
+      content: JSON.stringify({
+        suggestions: {
+          projects: [{
+            title: 'Drone precision landing',
+            description: 'Vision landing.',
+            why_recommended: 'Fits.',
+            technologies: ['PX4', 'OpenCV'],
+            difficulty: 'advanced',
+            estimated_weeks: 6,
+            builds_on: [],
+            search_keywords: ['drone precision landing'],
+          }],
+          skills: [{
+            name: 'Motion planning',
+            why: 'Needed.',
+            resources: [
+              { name: 'Live doc', type: 'docs', provider: 'OMPL', url: 'https://ompl.kavrakilab.org/primer.html' },
+              { name: 'Dead link', type: 'docs', provider: 'Ghost', url: 'https://gone.example/404' },
+            ],
+          }],
+        },
+        roadmap: { narrative: 'Plan.', steps: [{ title: 'Ship', kind: 'project' }] },
+      }),
+    };
+  };
+
+  const finderCalls = [];
+  resourceFinder.findProjectTutorials = async (options) => {
+    finderCalls.push(options);
+    return [{ title: 'PX4/PX4-Autopilot: PX4 Autopilot Software', source: 'github', url: 'https://github.com/PX4/PX4-Autopilot' }];
+  };
+  resourceFinder.findSkillResources = async () => [
+    { name: 'Awesome robotics', type: 'docs', provider: 'GitHub', url: 'https://github.com/kiloreux/awesome-robotics' },
+  ];
+  resourceFinder.verifyUrlAlive = async (url) => !url.includes('gone.example');
+
+  const result = await advisor.runAdvisorGenerateJob(
+    { userId: 'user-1', sessionId: 'sess-enrich' },
+    { jobId: 'job-enrich', updateProgress: async () => {} }
+  );
+
+  const aiProject = result.package.suggestions.projects.find((project) => project.source === 'ai');
+  // The found link leads; sparse lists get curated top-ups appended after it.
+  assert.equal(aiProject.tutorials[0].url, 'https://github.com/PX4/PX4-Autopilot');
+  assert.equal(aiProject.tutorials_source, 'found');
+  assert.ok(finderCalls[0].keywords.includes('drone precision landing'), 'model search_keywords drive the lookup');
+
+  const skill = result.package.suggestions.skills.find((entry) => entry.source === 'ai');
+  const urls = skill.resources.map((resource) => resource.url);
+  assert.ok(!urls.includes('https://gone.example/404'), 'dead AI links are dropped');
+  assert.ok(urls.includes('https://ompl.kavrakilab.org/primer.html'), 'live AI links survive');
+  assert.ok(urls.includes('https://github.com/kiloreux/awesome-robotics'), 'finder resources are appended');
+});
+
+test('assembleAdvisorPackage composes a curated learning path when no tutorials were found online', () => {
+  const pkg = assembleAdvisorPackage({
+    session: { id: 'sess-compose' },
+    goals: { objective: 'projects', growth: 'vertical' },
+    deterministicAnalysis: deterministicAnalysis(),
+    aiAnalysis: null,
+    curatedPicks: [],
+    aiSuggestions: {
+      suggestions: {
+        projects: [{
+          title: 'Custom swarm choreography rig',
+          description: 'Multi-robot dance.',
+          why_recommended: 'Novel.',
+          technologies: ['ROS 2', 'Python'],
+          difficulty: 'advanced',
+          estimated_weeks: 8,
+          builds_on: [],
+          found_tutorials: [],
+        }],
+        skills: [],
+      },
+      roadmap: { narrative: 'n', steps: [] },
+    },
+    model: 'stub:model',
+    fallbackReason: 'offline',
+  });
+
+  const project = pkg.suggestions.projects[0];
+  assert.equal(project.tutorials_source, 'composed', 'no found tutorials means a composed path');
+  assert.ok(project.tutorials.length >= 2, 'composed path pulls from curated catalog tutorials');
+  assert.ok(project.tutorials.every((tutorial) => /^https:\/\//.test(tutorial.url)));
+  // ROS 2 overlap should surface robotics catalog tutorials.
+  assert.ok(project.tutorials.some((tutorial) => /ros|robot|gazebo|nav2|slam/i.test(`${tutorial.title} ${tutorial.url}`)));
+});
+
+test('assembleAdvisorPackage tops up sparse found-tutorial lists with curated links', () => {
+  const pkg = assembleAdvisorPackage({
+    session: { id: 'sess-topup' },
+    goals: { objective: 'projects', growth: 'vertical' },
+    deterministicAnalysis: deterministicAnalysis(),
+    aiAnalysis: null,
+    curatedPicks: [],
+    aiSuggestions: {
+      suggestions: {
+        projects: [{
+          title: 'ROS 2 telemetry node',
+          description: 'd', why_recommended: 'w',
+          technologies: ['ROS 2'], difficulty: 'advanced', estimated_weeks: 6, builds_on: [],
+          found_tutorials: [{ title: 'Found repo', source: 'github', url: 'https://github.com/example/found' }],
+        }],
+        skills: [],
+      },
+      roadmap: { narrative: 'n', steps: [] },
+    },
+    model: 'stub:model',
+    fallbackReason: 'offline',
+  });
+
+  const project = pkg.suggestions.projects[0];
+  assert.equal(project.tutorials_source, 'found', 'a real found link keeps the found label');
+  assert.ok(project.tutorials.length >= 3, 'sparse lists are topped up with curated links');
+  assert.equal(project.tutorials[0].url, 'https://github.com/example/found', 'found links come first');
+});
+
+test('assembleAdvisorPackage backfills thin skills with curated discipline resources', () => {
+  const pkg = assembleAdvisorPackage({
+    session: { id: 'sess-thin-skill' },
+    goals: { objective: 'skills', growth: 'horizontal' },
+    deterministicAnalysis: deterministicAnalysis(),
+    aiAnalysis: null,
+    curatedPicks: [],
+    aiSuggestions: {
+      suggestions: {
+        projects: [],
+        skills: [{ name: 'Swarm coordination theory', why: 'Niche topic, nothing found online.', resources: [] }],
+      },
+      roadmap: { narrative: 'n', steps: [] },
+    },
+    model: 'stub:model',
+    fallbackReason: 'offline',
+  });
+
+  const skill = pkg.suggestions.skills[0];
+  assert.ok(skill.resources.length >= 2, 'thin skill gains curated resources');
+  assert.ok(skill.resources.every((resource) => /^https:\/\//.test(resource.url)));
+  assert.ok(
+    skill.resources.some((resource) => /ros|robot|control|gazebo/i.test(`${resource.name} ${resource.url}`)),
+    'backfill comes from the primary discipline'
+  );
 });
 
 test('runAdvisorGenerateJob still succeeds with the deterministic analysis when the AI analysis call fails', async () => {
@@ -413,4 +605,6 @@ test('advisor prompts are mentor-toned, evidence-grounded, and demand strict JSO
   assert.match(suggestionsPrompt.user, /Autonomous mapping robot/);
   assert.match(suggestionsPrompt.user, /do not duplicate/i);
   assert.match(suggestionsPrompt.user, /"roadmap"/);
+  // search_keywords drive the real-tutorial lookup for every AI project.
+  assert.match(suggestionsPrompt.user, /"search_keywords"/);
 });

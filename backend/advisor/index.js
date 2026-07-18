@@ -6,6 +6,8 @@
 const PACKAGE_VERSION = 1;
 
 const { compactText } = require('../utils/portfolioAiContext');
+const { curatedTutorialsFor } = require('./catalog');
+const resourceFinder = require('./resourceFinder');
 
 const asArray = (value) => (Array.isArray(value) ? value : []);
 
@@ -76,6 +78,8 @@ const assembleAdvisorPackage = ({
       difficulty: pick.level,
       estimated_weeks: pick.estimated_weeks,
       builds_on: [],
+      tutorials: asArray(pick.tutorials),
+      tutorials_source: 'curated',
       source: 'curated',
       catalog_id: pick.id,
     }));
@@ -83,16 +87,32 @@ const assembleAdvisorPackage = ({
   const curatedTitles = new Set(curatedProjects.map((project) => titleKey(project.title)));
   const aiProjects = asArray(aiSuggestions?.suggestions?.projects)
     .filter((project) => !curatedTitles.has(titleKey(project.title)))
-    .map((project) => ({
-      title: compactText(project.title, 200),
-      description: project.description,
-      why_recommended: project.why_recommended,
-      technologies: asArray(project.technologies),
-      difficulty: snapEnum(project.difficulty, LEVELS, 'intermediate'),
-      estimated_weeks: clampWeeks(project.estimated_weeks, 4),
-      builds_on: asArray(project.builds_on),
-      source: 'ai',
-    }));
+    .map((project) => {
+      const found = asArray(project.found_tutorials);
+      // Fewer than two real finds gets curated links appended so every AI
+      // project ships with a usable set; zero finds becomes a composed path.
+      let tutorials = found;
+      if (found.length < 2) {
+        const seen = new Set(found.map((tutorial) => tutorial.url));
+        tutorials = [...found, ...curatedTutorialsFor({
+          discipline: deterministicAnalysis.primary_discipline,
+          technologies: asArray(project.technologies),
+          limit: 3,
+        }).filter((tutorial) => !seen.has(tutorial.url))];
+      }
+      return {
+        title: compactText(project.title, 200),
+        description: project.description,
+        why_recommended: project.why_recommended,
+        technologies: asArray(project.technologies),
+        difficulty: snapEnum(project.difficulty, LEVELS, 'intermediate'),
+        estimated_weeks: clampWeeks(project.estimated_weeks, 4),
+        builds_on: asArray(project.builds_on),
+        tutorials,
+        tutorials_source: found.length ? 'found' : tutorials.length ? 'composed' : null,
+        source: 'ai',
+      };
+    });
 
   const curatedSkills = curatedPicks
     .filter((pick) => pick.kind === 'skill')
@@ -107,17 +127,36 @@ const assembleAdvisorPackage = ({
   const curatedSkillNames = new Set(curatedSkills.map((skill) => titleKey(skill.name)));
   const aiSkills = asArray(aiSuggestions?.suggestions?.skills)
     .filter((skill) => !curatedSkillNames.has(titleKey(skill.name)))
-    .map((skill) => ({
-      name: compactText(skill.name, 160),
-      why: skill.why,
-      resources: asArray(skill.resources).map((resource) => ({
+    .map((skill) => {
+      const resources = asArray(skill.resources).map((resource) => ({
         name: compactText(resource.name, 160),
         type: snapEnum(resource.type, ['course', 'docs', 'book', 'platform'], 'platform'),
         provider: compactText(resource.provider, 120) || null,
         url: safeHttpUrl(resource.url),
-      })),
-      source: 'ai',
-    }));
+      }));
+      // A skill without at least two linkable resources gets curated
+      // discipline tutorials as a floor.
+      if (resources.filter((resource) => resource.url).length < 2) {
+        const seen = new Set(resources.map((resource) => resource.url).filter(Boolean));
+        const backfill = curatedTutorialsFor({
+          discipline: deterministicAnalysis.primary_discipline,
+          technologies: [skill.name],
+          limit: 3,
+        }).filter((tutorial) => !seen.has(tutorial.url)).map((tutorial) => ({
+          name: tutorial.title,
+          type: tutorial.source === 'course' ? 'course' : 'docs',
+          provider: tutorial.source === 'github' ? 'GitHub' : tutorial.source === 'youtube' ? 'YouTube' : null,
+          url: tutorial.url,
+        }));
+        resources.push(...backfill);
+      }
+      return {
+        name: compactText(skill.name, 160),
+        why: skill.why,
+        resources,
+        source: 'ai',
+      };
+    });
 
   return {
     version: PACKAGE_VERSION,
@@ -166,6 +205,41 @@ const assembleAdvisorPackage = ({
 // checked off if the generated roadmap actually contains it.
 const isValidStepId = (pkg, stepId) =>
   asArray(pkg?.roadmap?.steps).some((step) => step.id === stepId);
+
+// Grounds AI suggestions in real links: every AI project gets tutorials looked
+// up via free public APIs (real URLs by construction), every AI-supplied
+// resource URL is liveness-checked, and thin skills get finder backfill.
+const enrichAiSuggestions = async (aiSuggestions) => {
+  if (!aiSuggestions?.suggestions) return aiSuggestions;
+
+  const projects = await Promise.all(asArray(aiSuggestions.suggestions.projects).map(async (project) => {
+    const keywords = asArray(project.search_keywords).length
+      ? asArray(project.search_keywords)
+      : [project.title];
+    const tutorials = await resourceFinder
+      .findProjectTutorials({ keywords, technologies: asArray(project.technologies), limit: 3 })
+      .catch(() => []);
+    return { ...project, found_tutorials: tutorials };
+  }));
+
+  const skills = await Promise.all(asArray(aiSuggestions.suggestions.skills).map(async (skill) => {
+    const checked = await Promise.all(asArray(skill.resources).map(async (resource) => {
+      if (!resource?.url) return resource;
+      return (await resourceFinder.verifyUrlAlive(resource.url)) ? resource : null;
+    }));
+    const live = checked.filter(Boolean);
+    let extra = [];
+    if (live.filter((resource) => resource.url).length < 2) {
+      extra = await resourceFinder
+        .findSkillResources({ name: skill.name, keywords: asArray(skill.technologies) })
+        .catch(() => []);
+    }
+    const seen = new Set(live.map((resource) => resource.url).filter(Boolean));
+    return { ...skill, resources: [...live, ...extra.filter((resource) => !seen.has(resource.url))] };
+  }));
+
+  return { ...aiSuggestions, suggestions: { ...aiSuggestions.suggestions, projects, skills } };
+};
 
 // Orchestration for the advisor:generate background job (mirrors
 // applicationHelper's runApplicationGenerateJob). Two AI calls, not one:
@@ -237,6 +311,9 @@ const runAdvisorGenerateJob = async (input, { updateProgress }) => {
     } catch {
       aiSuggestions = await callJson(suggestionsPrompt, 3500);
     }
+    // enrichAiSuggestions is defined at module scope above (tutorial lookup,
+    // dead-link pruning) — this call is what the failing enrichment test drives.
+    aiSuggestions = await enrichAiSuggestions(aiSuggestions);
     await updateProgress(85);
 
     const pkg = assembleAdvisorPackage({

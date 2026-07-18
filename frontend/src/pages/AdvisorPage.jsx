@@ -405,6 +405,30 @@ export default function AdvisorPage() {
                 {project.builds_on?.length > 0 && (
                   <p className="text-xs text-ink-faint">Builds on: {project.builds_on.join(', ')}</p>
                 )}
+                {project.tutorials?.length > 0 && (
+                  <div className="border-t border-line-subtle pt-2">
+                    <p className="mb-1 text-xs font-medium text-ink">
+                      {project.tutorials_source === 'composed'
+                        ? 'Learning path — assembled from curated guides for this build'
+                        : 'Tutorials'}
+                    </p>
+                    <ul className="space-y-1 text-sm">
+                      {project.tutorials.map((tutorial) => (
+                        <li key={tutorial.url}>
+                          <a
+                            href={tutorial.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-accent-text underline-offset-2 hover:underline"
+                          >
+                            {tutorial.title}
+                          </a>
+                          <span className="text-ink-faint"> · {tutorial.source}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             ))}
           </div>

@@ -78,7 +78,8 @@ JSON shape:
         "technologies": ["Tech"],
         "difficulty": "beginner|intermediate|advanced",
         "estimated_weeks": 4,
-        "builds_on": ["Existing project title"]
+        "builds_on": ["Existing project title"],
+        "search_keywords": ["2-4 short web-search terms for finding tutorials about this exact project"]
       }
     ],
     "skills": [
