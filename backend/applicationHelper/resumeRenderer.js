@@ -47,9 +47,18 @@ const experienceBlock = (entry) => {
     </div>`;
 };
 
+// Project descriptions carry the real substance of a student portfolio — clip to
+// a resume-appropriate length rather than dropping them.
+const clipDescription = (project, max = 260) => {
+  const detail = String(project.description || '').trim().replace(/\s+/g, ' ');
+  if (!detail) return '';
+  return detail.length > max ? `${detail.slice(0, max).trim()}…` : detail;
+};
+
 const projectBlock = (project) => {
   const dates = formatDateRange(project);
   const tech = (project.technologies || []).map(escapeHtml).join(', ');
+  const description = clipDescription(project);
   return `
     <div class="entry">
       <div class="entry-head">
@@ -57,6 +66,7 @@ const projectBlock = (project) => {
         ${dates ? `<span class="entry-dates">${escapeHtml(dates)}</span>` : ''}
       </div>
       ${project.tagline ? `<div class="entry-meta">${escapeHtml(project.tagline)}</div>` : ''}
+      ${description ? `<p class="entry-desc">${escapeHtml(description)}</p>` : ''}
       ${tech ? `<div class="entry-meta">Technologies: ${tech}</div>` : ''}
     </div>`;
 };
@@ -196,6 +206,7 @@ const buildPlainTextResume = ({ context, platform, tailoring, condensed = false 
   const projectEntries = projects.map((project) => ({
     title: project.title,
     organization: project.tagline || '',
+    description: clipDescription(project),
     highlights: (project.technologies || []).length ? [`Technologies: ${project.technologies.join(', ')}`] : [],
     start_date: project.start_date,
     end_date: project.end_date,

@@ -290,7 +290,7 @@ export default function PublicTeamPage() {
       className={`group hover:shadow-md transition-all duration-200 overflow-hidden ${cardRadius} ${theme.card}`}>
       <div className="h-48 overflow-hidden" style={{ background: `linear-gradient(135deg,${accentColor}18,${accentColor}32)` }}>
         {project.cover_image_url
-          ? <img src={project.cover_image_url} alt={project.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+          ? <img loading="lazy" decoding="async" src={project.cover_image_url} alt={project.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
           : <div className="w-full h-full flex items-center justify-center opacity-30"><EngineeringIcon name="research-scope" size="2.75rem" /></div>}
       </div>
       <div className="p-5">
@@ -310,7 +310,7 @@ export default function PublicTeamPage() {
                 <div key={c.id} title={c.name}
                   className="w-6 h-6 rounded-full border-2 border-white bg-blue-100 overflow-hidden flex items-center justify-center text-xs font-bold text-blue-700"
                   style={{ marginLeft: '-4px' }}>
-                  {c.avatar ? <img src={c.avatar} alt="" className="w-full h-full object-cover" /> : c.name?.charAt(0)}
+                  {c.avatar ? <img loading="lazy" decoding="async" src={c.avatar} alt="" className="w-full h-full object-cover" /> : c.name?.charAt(0)}
                 </div>
               ))}
             </div>
@@ -337,7 +337,7 @@ export default function PublicTeamPage() {
       <div className="w-16 h-16 rounded-xl flex-shrink-0 overflow-hidden"
         style={{ background: `linear-gradient(135deg,${accentColor}18,${accentColor}32)` }}>
         {project.cover_image_url
-          ? <img src={project.cover_image_url} alt={project.title} className="w-full h-full object-cover" />
+          ? <img loading="lazy" decoding="async" src={project.cover_image_url} alt={project.title} className="w-full h-full object-cover" />
           : <div className="w-full h-full flex items-center justify-center opacity-30"><EngineeringIcon name="research-scope" size="1.4rem" /></div>}
       </div>
       <div className="flex-1 min-w-0">
@@ -412,7 +412,7 @@ export default function PublicTeamPage() {
               className={`group hover:shadow-md transition-all duration-200 flex overflow-hidden rounded-xl ${theme.card}`}>
               <div className="w-48 flex-shrink-0 overflow-hidden" style={{ background: `linear-gradient(135deg,${accentColor}18,${accentColor}32)` }}>
                 {project.cover_image_url
-                  ? <img src={project.cover_image_url} alt={project.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                  ? <img loading="lazy" decoding="async" src={project.cover_image_url} alt={project.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                   : <div className="w-full h-full flex items-center justify-center opacity-30"><EngineeringIcon name="research-scope" size="2.25rem" /></div>}
               </div>
               <div className="p-5 flex-1 min-w-0">
@@ -439,7 +439,7 @@ export default function PublicTeamPage() {
             <div className="md:w-1/2 h-56 md:h-auto overflow-hidden flex-shrink-0"
               style={{ background: `linear-gradient(135deg,${accentColor}18,${accentColor}35)` }}>
               {visibleProjects[0].cover_image_url
-                ? <img src={visibleProjects[0].cover_image_url} alt={visibleProjects[0].title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                ? <img loading="lazy" decoding="async" src={visibleProjects[0].cover_image_url} alt={visibleProjects[0].title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 : <div className="w-full h-full flex items-center justify-center opacity-30"><EngineeringIcon name="research-scope" size="3rem" /></div>}
             </div>
             <div className="p-8 flex-1 flex flex-col justify-center">
@@ -512,7 +512,7 @@ export default function PublicTeamPage() {
               <div className="w-6 h-6 rounded-full overflow-hidden flex items-center justify-center text-xs font-bold flex-shrink-0"
                 style={{ background: `${accentColor}30`, color: accentColor }}>
                 {member.avatar_url
-                  ? <img src={member.avatar_url} alt="" className="w-full h-full object-cover" />
+                  ? <img loading="lazy" decoding="async" src={member.avatar_url} alt="" className="w-full h-full object-cover" />
                   : member.full_name?.charAt(0)}
               </div>
               <span className={`text-sm ${theme.body}`}>{member.full_name}</span>
@@ -624,7 +624,7 @@ export default function PublicTeamPage() {
                     <div className="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center text-xs font-bold flex-shrink-0"
                       style={{ background: `${accentColor}25`, color: accentColor }}>
                       {member.avatar_url
-                        ? <img src={member.avatar_url} alt="" className="w-full h-full object-cover" />
+                        ? <img loading="lazy" decoding="async" src={member.avatar_url} alt="" className="w-full h-full object-cover" />
                         : member.full_name?.charAt(0)}
                     </div>
                     <div className="min-w-0">

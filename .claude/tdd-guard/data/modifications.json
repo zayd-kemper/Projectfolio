@@ -1,0 +1,12 @@
+{
+  "session_id": "31d3afdc-597d-423b-954e-8aa825fb4e57",
+  "transcript_path": "C:\\Users\\zaydk.DESKTOP-N9GKMF3\\.claude\\projects\\C--Users-zaydk-DESKTOP-N9GKMF3-Desktop-CompSci-projectfolio--claude-worktrees-fixes-analytics-onboarding-advisor\\31d3afdc-597d-423b-954e-8aa825fb4e57.jsonl",
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Edit",
+  "tool_input": {
+    "file_path": "C:\\Users\\zaydk.DESKTOP-N9GKMF3\\Desktop\\CompSci\\projectfolio\\.claude\\worktrees\\fixes-analytics-onboarding-advisor\\frontend\\src\\pages\\AnalyticsPage.jsx",
+    "old_string": "        </div>\n      )}\n    </DashboardLayout>\n  );\n}",
+    "new_string": "        </div>\n      )}\n    </>\n  );\n\n  return noLayout ? inner : <DashboardLayout>{inner}</DashboardLayout>;\n}",
+    "replace_all": false
+  }
+}

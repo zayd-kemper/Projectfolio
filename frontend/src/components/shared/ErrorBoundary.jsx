@@ -34,7 +34,7 @@ export default class ErrorBoundary extends Component {
             {error?.message || 'An unexpected error occurred.'}
           </p>
           {import.meta.env.DEV && error?.stack && (
-            <pre className="mb-4 max-h-64 overflow-auto rounded-lg bg-surface-muted p-3 text-left text-[11px] text-ink-muted dark:text-ink-faint">
+            <pre className="mb-4 max-h-64 overflow-auto rounded-lg bg-surface-muted p-3 text-left text-[11px] text-ink-muted">
               {error.stack}
             </pre>
           )}

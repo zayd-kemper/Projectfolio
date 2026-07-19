@@ -48,7 +48,7 @@ function MobileFilters({ mode, setMode, context, postType, setContext, setPostTy
           />
         ))}
       </div>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 gap-2 min-[400px]:grid-cols-2">
         <select
           value={context}
           onChange={(event) => setContext(event.target.value)}
@@ -403,7 +403,7 @@ export default function DiscoverPage() {
               <button
                 type="button"
                 onClick={() => handleSearch('')}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-ink-faint hover:text-ink-secondary"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-ink-muted hover:text-ink-secondary"
                 aria-label="Clear search"
               >
                 <EngineeringIcon name="signal-error" size="0.9rem" />

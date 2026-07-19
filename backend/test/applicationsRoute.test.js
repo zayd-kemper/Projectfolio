@@ -6,7 +6,33 @@ const path = require('node:path');
 
 const db = require('../config/database');
 const jobsService = require('../jobs/service');
+const safeFetch = require('../utils/safeFetch');
+const aiModels = require('../utils/aiModels');
 const applicationsRouter = require('../routes/applications');
+
+test('extractPostingInfo fetches the posting and returns AI-extracted title and company', async () => {
+  safeFetch.safeFetchText = async (url) => {
+    assert.equal(url, 'https://jobs.example/123');
+    return { ok: true, text: '<title>Mechanical Design Engineer - Orbit Dynamics | Jobs</title><p>Design engineer role…</p>' };
+  };
+  aiModels.chooseModelForIntegration = (profileId) => {
+    assert.equal(profileId, 'application-helper');
+    return { id: 'stub:model' };
+  };
+  aiModels.callAiModel = async () => ({
+    content: JSON.stringify({ job_title: 'Mechanical Design Engineer', company: 'Orbit Dynamics' }),
+  });
+
+  const res = makeRes();
+  await applicationsRouter.handlers.extractPostingInfo({
+    user: { id: 'u1' },
+    body: { url: 'https://jobs.example/123' },
+  }, res, (err) => { throw err; });
+
+  assert.equal(res.body.job_title, 'Mechanical Design Engineer');
+  assert.equal(res.body.company, 'Orbit Dynamics');
+  assert.equal(res.body.source, 'ai');
+});
 
 test('the generate processor is registered and the router is mounted', () => {
   const processorsSource = fs.readFileSync(path.join(__dirname, '..', 'jobs', 'processors.js'), 'utf8');
@@ -21,6 +47,25 @@ const makeRes = () => {
   res.json = (payload) => { res.body = payload; return res; };
   return res;
 };
+
+test('extractPostingInfo falls back to the title-tag heuristic when the model fails', async () => {
+  safeFetch.safeFetchText = async () => ({
+    ok: true,
+    text: '<title>Robotics Intern - Vector Automation | Careers</title><p>Role details</p>',
+  });
+  aiModels.chooseModelForIntegration = () => ({ id: 'stub:model' });
+  aiModels.callAiModel = async () => { throw new Error('model down'); };
+
+  const res = makeRes();
+  await applicationsRouter.handlers.extractPostingInfo({
+    user: { id: 'u1' },
+    body: { url: 'https://jobs.example/456' },
+  }, res, (err) => { throw err; });
+
+  assert.equal(res.body.job_title, 'Robotics Intern');
+  assert.equal(res.body.company, 'Vector Automation');
+  assert.equal(res.body.source, 'heuristic');
+});
 
 test('createApplication inserts a session, enqueues the generate job, and returns 202', async () => {
   const queries = [];

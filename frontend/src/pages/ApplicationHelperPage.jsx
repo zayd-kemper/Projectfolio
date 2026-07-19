@@ -9,12 +9,36 @@ const STATUS_STYLES = {
   failed: 'text-danger',
 };
 
-export default function ApplicationHelperPage() {
+export default function ApplicationHelperPage({ noLayout = false }) {
   const [platforms, setPlatforms] = useState([]);
   const [selected, setSelected] = useState(null);
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pkg, setPkg] = useState(null);
+  // Controlled so "Auto-fill from posting" can populate them programmatically.
+  const [details, setDetails] = useState({ job_title: '', company: '', job_posting_url: '' });
+  const [autoFilling, setAutoFilling] = useState(false);
+
+  const setDetail = (name) => (event) =>
+    setDetails((prev) => ({ ...prev, [name]: event.target.value }));
+
+  const handleAutoFill = async () => {
+    const url = details.job_posting_url.trim();
+    if (!url || autoFilling) return;
+    setAutoFilling(true);
+    try {
+      const response = await api.post('/applications/posting-info', { url });
+      setDetails((prev) => ({
+        ...prev,
+        job_title: response.data?.job_title || prev.job_title,
+        company: response.data?.company || prev.company,
+      }));
+    } catch {
+      // lookup failed — fields stay editable by hand
+    } finally {
+      setAutoFilling(false);
+    }
+  };
 
   const loadSessions = () =>
     api.get('/applications')
@@ -66,11 +90,12 @@ export default function ApplicationHelperPage() {
     return () => { active = false; };
   }, []);
 
-  return (
-    <DashboardLayout>
-      <div className="mx-auto max-w-5xl space-y-8">
+  const inner = (
+    <div className="mx-auto max-w-5xl space-y-8">
+        {/* Inside the Integrate & Apply tab the surrounding page already provides
+            the h1; only the guidance line is repeated there. */}
         <div>
-          <h1 className="page-title">Application Helper</h1>
+          {!noLayout && <h1 className="page-title">Application Helper</h1>}
           <p className="page-subtitle">
             Pick where you're applying and get a tailored resume, cover letter, and paste-ready snippets built from your portfolio.
           </p>
@@ -108,16 +133,26 @@ export default function ApplicationHelperPage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="form-label" htmlFor="app-job-title">Job title</label>
-                  <input id="app-job-title" name="job_title" className="form-input" placeholder="e.g. Design Engineer" />
+                  <input id="app-job-title" name="job_title" className="form-input" placeholder="e.g. Design Engineer" value={details.job_title} onChange={setDetail('job_title')} />
                 </div>
                 <div>
                   <label className="form-label" htmlFor="app-company">Company</label>
-                  <input id="app-company" name="company" className="form-input" placeholder="e.g. Orbit Dynamics" />
+                  <input id="app-company" name="company" className="form-input" placeholder="e.g. Orbit Dynamics" value={details.company} onChange={setDetail('company')} />
                 </div>
               </div>
               <div>
                 <label className="form-label" htmlFor="app-posting-url">Job posting URL (optional)</label>
-                <input id="app-posting-url" name="job_posting_url" className="form-input" placeholder="https://…" />
+                <div className="flex gap-2">
+                  <input id="app-posting-url" name="job_posting_url" className="form-input flex-1" placeholder="https://…" value={details.job_posting_url} onChange={setDetail('job_posting_url')} />
+                  <button
+                    type="button"
+                    className="btn-secondary whitespace-nowrap text-sm"
+                    disabled={!details.job_posting_url.trim() || autoFilling}
+                    onClick={handleAutoFill}
+                  >
+                    {autoFilling ? 'Reading posting…' : 'Auto-fill from posting'}
+                  </button>
+                </div>
                 <p className="mt-1 text-xs text-ink-muted">If provided, the posting is analyzed so the letter and resume emphasize what the role asks for.</p>
               </div>
               <div>
@@ -164,6 +199,37 @@ export default function ApplicationHelperPage() {
                 </div>
                 <p className="whitespace-pre-wrap text-sm text-ink-secondary">{pkg.cover_letter?.text}</p>
               </div>
+              <div className="rounded-lg border border-line bg-surface-muted p-4">
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <h3 className="text-sm font-medium text-ink">Project Summary</h3>
+                  <button
+                    type="button"
+                    className="btn-secondary text-xs"
+                    onClick={() => navigator.clipboard.writeText(
+                      [pkg.snippets?.project_summary, pkg.candidate?.links?.portfolio].filter(Boolean).join('\n\nPortfolio: ')
+                    ).catch(() => {})}
+                  >
+                    Copy project summary
+                  </button>
+                </div>
+                {pkg.snippets?.project_summary && (
+                  <p className="whitespace-pre-wrap text-sm text-ink-secondary">{pkg.snippets.project_summary}</p>
+                )}
+                {pkg.candidate?.links?.portfolio && (
+                  <p className="mt-2 text-sm">
+                    <span className="text-ink-muted">Portfolio: </span>
+                    <a
+                      href={pkg.candidate.links.portfolio}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-mono text-accent-text underline-offset-2 hover:underline"
+                    >
+                      {pkg.candidate.links.portfolio}
+                    </a>
+                  </p>
+                )}
+              </div>
+
               {pkg.platform?.tips?.length > 0 && (
                 <div>
                   <p className="mb-1 text-sm font-medium text-ink">Tips for {pkg.platform.name}</p>
@@ -198,7 +264,8 @@ export default function ApplicationHelperPage() {
             )}
           </div>
         </section>
-      </div>
-    </DashboardLayout>
+    </div>
   );
+
+  return noLayout ? inner : <DashboardLayout>{inner}</DashboardLayout>;
 }

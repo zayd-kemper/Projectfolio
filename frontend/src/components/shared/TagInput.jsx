@@ -1,6 +1,7 @@
 // frontend/src/components/shared/TagInput.jsx
 // Reusable tag input: type to filter suggestions, Enter/comma to add custom values.
 import { useState, useRef, useEffect } from 'react';
+import EngineeringIcon from './EngineeringIcon';
 
 // ── SUGGESTION LISTS ──────────────────────────────────────────────────────────
 
@@ -220,7 +221,7 @@ export default function TagInput({
               type="button"
               onMouseDown={e => { e.preventDefault(); removeTag(tag); }}
               className="text-accent-text hover:text-accent-hover leading-none ml-0.5"
-            >x</button>
+            ><EngineeringIcon name="close" size="0.7em" /></button>
           </span>
         ))}
         <input
@@ -252,7 +253,7 @@ export default function TagInput({
                     : 'text-ink-secondary hover:bg-surface-muted'
                 }`}
               >
-                <span className="text-ink-faint dark:text-ink-muted text-xs">+</span>
+                <span className="text-ink-muted text-xs">+</span>
                 {s}
               </button>
             ))}
@@ -260,7 +261,7 @@ export default function TagInput({
         </div>
       )}
 
-      <p className="text-xs text-ink-faint mt-1.5">
+      <p className="text-xs text-ink-muted mt-1.5">
         Select from the list or type anything and press <kbd className="bg-surface-muted border border-line rounded px-1 font-mono text-[10px]">Enter</kbd>. Use <kbd className="bg-surface-muted border border-line rounded px-1 font-mono text-[10px]">Backspace</kbd> to remove the last tag.
       </p>
     </div>

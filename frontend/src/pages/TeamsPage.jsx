@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import DashboardLayout from '../components/shared/DashboardLayout';
 import EngineeringIcon from '../components/shared/EngineeringIcon';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
 
@@ -16,7 +17,7 @@ const iconForTeamType = (type) => {
   return 'team-node';
 };
 
-function TeamCardMenu({ team, isAdmin }) {
+export function TeamCardMenu({ team, isAdmin }) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
@@ -26,8 +27,15 @@ function TeamCardMenu({ team, isAdmin }) {
     const handler = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) setOpen(false);
     };
+    const keyHandler = (event) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
     document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
+    document.addEventListener('keydown', keyHandler);
+    return () => {
+      document.removeEventListener('mousedown', handler);
+      document.removeEventListener('keydown', keyHandler);
+    };
   }, [open]);
 
   if (!isAdmin) return null;
@@ -47,17 +55,21 @@ function TeamCardMenu({ team, isAdmin }) {
     <div className="relative flex-shrink-0" ref={menuRef}>
       <button
         onClick={(event) => { event.preventDefault(); event.stopPropagation(); setOpen((value) => !value); }}
-        className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-faint transition-colors hover:bg-surface-muted hover:text-ink-secondary"
+        className="touch-target flex h-8 w-8 items-center justify-center rounded-lg text-ink-muted transition-colors hover:bg-surface-muted hover:text-ink-secondary"
         title="Team options"
+        aria-label={`Options for ${team.name || 'team'}`}
+        aria-haspopup="menu"
+        aria-expanded={open}
       >
         <EngineeringIcon name="list-menu" size="1rem" />
       </button>
 
       {open && (
-        <div className="absolute right-0 top-9 z-50 w-52 animate-fade-up rounded-xl border border-line bg-surface py-1 shadow-pop">
+        <div role="menu" aria-label="Team options" className="absolute right-0 top-9 z-50 w-52 animate-fade-up rounded-xl border border-line bg-surface py-1 shadow-pop">
           {items.map(([id, icon, label, action]) => (
             <button
               key={id}
+              role="menuitem"
               onClick={action}
               className="flex w-full items-center gap-2.5 px-4 py-2.5 text-sm text-ink-secondary transition-colors hover:bg-surface-muted"
             >
@@ -70,6 +82,7 @@ function TeamCardMenu({ team, isAdmin }) {
             href={`/team/${team.slug}`}
             target="_blank"
             rel="noreferrer"
+            role="menuitem"
             onClick={(event) => event.stopPropagation()}
             className="flex w-full items-center gap-2.5 px-4 py-2.5 text-sm text-ink-secondary transition-colors hover:bg-surface-muted"
           >
@@ -128,55 +141,61 @@ export default function TeamsPage() {
         <button onClick={() => setShowCreate(true)} className="btn-primary">+ New Team</button>
       </div>
 
-      {showCreate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded-xl bg-surface p-6 shadow-pop">
-            <h3 className="mb-5 text-xl font-semibold text-ink">Create a team</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="form-label">Team name *</label>
-                <input
-                  value={form.name}
-                  onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
-                  placeholder="e.g. Robotics Club, Smith Lab"
-                  className="form-input"
-                />
-              </div>
-              <div>
-                <label className="form-label">Type</label>
-                <select value={form.type} onChange={(event) => setForm((current) => ({ ...current, type: event.target.value }))} className="form-input">
-                  {TEAM_TYPES.map((type) => <option key={type}>{type}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="form-label">Description</label>
-                <textarea
-                  value={form.description}
-                  onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
-                  rows={3}
-                  className="form-textarea"
-                  placeholder="What does your team work on?"
-                />
-              </div>
-              <div>
-                <label className="form-label">Website (optional)</label>
-                <input
-                  value={form.website}
-                  onChange={(event) => setForm((current) => ({ ...current, website: event.target.value }))}
-                  placeholder="https://yourteam.com"
-                  className="form-input"
-                />
-              </div>
+      <Dialog open={showCreate} onOpenChange={setShowCreate}>
+        <DialogContent aria-modal="true" className="app-surface w-full gap-0 bg-surface p-6 text-ink shadow-pop sm:max-w-md">
+          <DialogHeader className="mb-5 gap-1">
+            <DialogTitle className="text-xl font-semibold text-ink">Create a team</DialogTitle>
+            <DialogDescription className="text-sm text-ink-muted">
+              A shared portfolio for your club, lab, or organization.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={(event) => { event.preventDefault(); handleCreate(); }} className="space-y-4">
+            <div>
+              <label htmlFor="team-name" className="form-label">Team name *</label>
+              <input
+                id="team-name"
+                value={form.name}
+                onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
+                placeholder="e.g. Robotics Club, Smith Lab"
+                className="form-input"
+              />
             </div>
-            <div className="mt-6 flex gap-3">
-              <button onClick={handleCreate} disabled={creating} className="btn-primary flex-1 justify-center">
+            <div>
+              <label htmlFor="team-type" className="form-label">Type</label>
+              <select id="team-type" value={form.type} onChange={(event) => setForm((current) => ({ ...current, type: event.target.value }))} className="form-input">
+                {TEAM_TYPES.map((type) => <option key={type}>{type}</option>)}
+              </select>
+            </div>
+            <div>
+              <label htmlFor="team-description" className="form-label">Description</label>
+              <textarea
+                id="team-description"
+                value={form.description}
+                onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
+                rows={3}
+                className="form-textarea"
+                placeholder="What does your team work on?"
+              />
+            </div>
+            <div>
+              <label htmlFor="team-website" className="form-label">Website (optional)</label>
+              <input
+                id="team-website"
+                value={form.website}
+                onChange={(event) => setForm((current) => ({ ...current, website: event.target.value }))}
+                placeholder="https://yourteam.com"
+                className="form-input"
+              />
+            </div>
+            <div className="flex gap-3 pt-2">
+              <button type="submit" disabled={creating} className="btn-primary flex-1 justify-center">
                 {creating ? 'Creating...' : 'Create team'}
               </button>
-              <button onClick={() => setShowCreate(false)} className="btn-secondary">Cancel</button>
+              <button type="button" onClick={() => setShowCreate(false)} className="btn-secondary">Cancel</button>
             </div>
-          </div>
-        </div>
-      )}
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {loading ? (
         <div className="space-y-3">

@@ -1,11 +1,10 @@
 // frontend/src/pages/SettingsPage.jsx
 import { lazy, Suspense } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, Navigate, useSearchParams } from 'react-router-dom';
 import DashboardLayout from '../components/shared/DashboardLayout';
 import EngineeringIcon from '../components/shared/EngineeringIcon';
 
 const ProfileSettingsPage = lazy(() => import('./ProfileSettingsPage'));
-const PortfolioSettingsPage = lazy(() => import('./PortfolioSettingsPage'));
 const AccountSettingsPage = lazy(() => import('./AccountSettingsPage'));
 
 const TABS = [
@@ -13,11 +12,6 @@ const TABS = [
     id: 'profile',
     label: 'Profile',
     icon: 'team-node',
-  },
-  {
-    id: 'portfolio',
-    label: 'Portfolio',
-    icon: 'gallery-grid',
   },
   {
     id: 'account',
@@ -28,7 +22,15 @@ const TABS = [
 
 export default function SettingsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = TABS.find((tab) => tab.id === searchParams.get('tab')) ? searchParams.get('tab') : 'profile';
+  const tabParam = searchParams.get('tab');
+
+  // Portfolio design moved to Portfolio Studio — carry the section through.
+  if (tabParam === 'portfolio') {
+    const section = searchParams.get('section');
+    return <Navigate to={`/dashboard/portfolio?mode=controls${section ? `&section=${section}` : ''}`} replace />;
+  }
+
+  const activeTab = TABS.find((tab) => tab.id === tabParam) ? tabParam : 'profile';
 
   const setTab = (id) => {
     setSearchParams({ tab: id }, { replace: true });
@@ -39,7 +41,7 @@ export default function SettingsPage() {
     <DashboardLayout>
       <div className="mb-6">
         <h1 className="page-title mb-1">Settings</h1>
-        <p className="page-subtitle">Manage your profile, portfolio appearance, and account.</p>
+        <p className="page-subtitle">Manage your profile and account.</p>
       </div>
 
       <div className="mb-8 flex gap-1 border-b border-line" role="tablist" aria-label="Settings sections">
@@ -65,9 +67,18 @@ export default function SettingsPage() {
         })}
       </div>
 
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-surface px-4 py-3">
+        <div className="flex items-center gap-2 text-sm text-ink-muted">
+          <EngineeringIcon name="satellite" size="1rem" />
+          <span>Portfolio design has moved to its own workspace.</span>
+        </div>
+        <Link to="/dashboard/portfolio" className="text-sm font-semibold text-accent-text hover:underline">
+          Open Portfolio
+        </Link>
+      </div>
+
       <Suspense fallback={<div className="py-10 text-sm text-ink-muted">Loading settings...</div>}>
         {activeTab === 'profile' && <ProfileSettingsPage noLayout />}
-        {activeTab === 'portfolio' && <PortfolioSettingsPage noLayout />}
         {activeTab === 'account' && <AccountSettingsPage noLayout />}
       </Suspense>
     </DashboardLayout>

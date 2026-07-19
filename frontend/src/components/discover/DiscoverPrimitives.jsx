@@ -19,7 +19,7 @@ export function ProjectMiniCard({ post, onProjectClick }) {
         style={{ backgroundColor: `${accent}16` }}
       >
         {post.project_cover ? (
-          <img src={post.project_cover} alt="" className="h-full w-full object-cover" />
+          <img loading="lazy" decoding="async" src={post.project_cover} alt="" className="h-full w-full object-cover" />
         ) : (
           <EngineeringIcon name={CATEGORY_ICON_BY_TYPE[post.project_type] || 'project-module'} size="2rem" />
         )}
@@ -75,7 +75,7 @@ export function PortfolioCard({ portfolio, rank, user, compact = false, onFollow
       )}
     >
       {rank ? (
-        <span className="mt-1 w-5 flex-none text-center font-mono text-xs font-semibold text-ink-faint">{rank}</span>
+        <span className="mt-1 w-5 flex-none text-center font-mono text-xs font-semibold text-ink-muted">{rank}</span>
       ) : null}
       <Avatar url={portfolio.avatar_url} name={portfolio.full_name} accent={accent} size={compact ? 'sm' : 'md'} />
       <div className="min-w-0 flex-1">
@@ -102,12 +102,11 @@ export function PortfolioCard({ portfolio, rank, user, compact = false, onFollow
           type="button"
           onClick={follow}
           className={cx(
-            'rounded-lg border px-2.5 py-1 text-xs font-semibold transition-colors',
+            'rounded-lg border px-2.5 py-1 text-xs font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
             following
               ? 'border-line text-ink-muted hover:border-ink-faint'
-              : 'border-transparent text-white'
+              : 'border-transparent bg-accent text-white hover:bg-accent-hover'
           )}
-          style={following ? undefined : { backgroundColor: accent }}
         >
           {following ? 'Following' : 'Follow'}
         </button>

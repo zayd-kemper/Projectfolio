@@ -1,0 +1,1246 @@
+- generic [ref=e245]:
+  - generic [ref=e246]:
+    - link "Back to dashboard" [ref=e247] [cursor=pointer]:
+      - /url: /dashboard
+    - textbox "Project title" [ref=e249]: slugify
+    - generic [ref=e250]:
+      - button "Undo" [disabled] [ref=e251]
+      - button "Redo" [disabled] [ref=e252]
+      - generic [ref=e254]: draft
+      - button "Save draft" [ref=e255] [cursor=pointer]
+      - button "Publish" [ref=e256] [cursor=pointer]
+  - generic [ref=e257]:
+    - button "Content" [ref=e258] [cursor=pointer]
+    - button "Settings" [ref=e261] [cursor=pointer]
+  - button "Media" [ref=e265] [cursor=pointer]
+  - generic [ref=e269]:
+    - textbox "One-line description of this project (shows on portfolio)" [ref=e270]: Slugify a string
+    - generic [ref=e272]:
+      - button "+ Add block" [ref=e275] [cursor=pointer]:
+        - generic [ref=e276]: +
+        - text: Add block
+      - generic [ref=e278]:
+        - generic [ref=e279]:
+          - button "Drag to reorder" [ref=e280]
+          - generic [ref=e289]:
+            - generic [ref=e290]:
+              - button "H1" [ref=e291] [cursor=pointer]
+              - button "H2" [ref=e292] [cursor=pointer]
+              - button "H3" [ref=e293] [cursor=pointer]
+            - textbox "Heading 1" [ref=e294]: slugify
+          - button "x" [ref=e295] [cursor=pointer]
+        - button "+ Add block" [ref=e298] [cursor=pointer]:
+          - generic [ref=e299]: +
+          - text: Add block
+      - generic [ref=e301]:
+        - generic [ref=e302]:
+          - button "Drag to reorder" [ref=e303]
+          - textbox [ref=e314]:
+            - blockquote [ref=e315]:
+              - paragraph [ref=e316]: Slugify a string
+            - paragraph [ref=e317]: Useful for URLs, filenames, and IDs.
+            - paragraph [ref=e318]:
+              - text: It handles most major languages, including
+              - link "German (umlauts)" [ref=e319]:
+                - /url: https://en.wikipedia.org/wiki/Germanic_umlaut
+              - text: ", Vietnamese, Arabic, Russian,"
+              - link "and more" [ref=e320]:
+                - /url: https://github.com/sindresorhus/transliterate#supported-languages
+              - text: .
+          - button "x" [ref=e321] [cursor=pointer]
+        - button "+ Add block" [ref=e324] [cursor=pointer]:
+          - generic [ref=e325]: +
+          - text: Add block
+      - generic [ref=e327]:
+        - generic [ref=e328]:
+          - button "Drag to reorder" [ref=e329]
+          - generic [ref=e338]:
+            - generic [ref=e339]:
+              - button "H1" [ref=e340] [cursor=pointer]
+              - button "H2" [ref=e341] [cursor=pointer]
+              - button "H3" [ref=e342] [cursor=pointer]
+            - textbox "Heading 2" [ref=e343]: Install
+          - button "x" [ref=e344] [cursor=pointer]
+        - button "+ Add block" [ref=e347] [cursor=pointer]:
+          - generic [ref=e348]: +
+          - text: Add block
+      - generic [ref=e350]:
+        - generic [ref=e351]:
+          - button "Drag to reorder" [ref=e352]
+          - generic [ref=e361]:
+            - generic [ref=e362]:
+              - combobox [ref=e367]:
+                - option "python" [selected]
+                - option "javascript"
+                - option "typescript"
+                - option "cpp"
+                - option "c"
+                - option "java"
+                - option "matlab"
+                - option "bash"
+                - option "sql"
+                - option "json"
+                - option "yaml"
+                - option "arduino"
+                - option "rust"
+                - option "go"
+                - option "r"
+                - option "julia"
+                - option "latex"
+                - option "html"
+                - option "css"
+              - button "copy" [ref=e368] [cursor=pointer]
+            - generic [ref=e369]:
+              - generic [ref=e370]: "1"
+              - textbox "// your code here" [ref=e372]: npm install @sindresorhus/slugify
+          - button "x" [ref=e373] [cursor=pointer]
+        - button "+ Add block" [ref=e376] [cursor=pointer]:
+          - generic [ref=e377]: +
+          - text: Add block
+      - generic [ref=e379]:
+        - generic [ref=e380]:
+          - button "Drag to reorder" [ref=e381]
+          - generic [ref=e390]:
+            - generic [ref=e391]:
+              - button "H1" [ref=e392] [cursor=pointer]
+              - button "H2" [ref=e393] [cursor=pointer]
+              - button "H3" [ref=e394] [cursor=pointer]
+            - textbox "Heading 2" [ref=e395]: Usage
+          - button "x" [ref=e396] [cursor=pointer]
+        - button "+ Add block" [ref=e399] [cursor=pointer]:
+          - generic [ref=e400]: +
+          - text: Add block
+      - generic [ref=e402]:
+        - generic [ref=e403]:
+          - button "Drag to reorder" [ref=e404]
+          - generic [ref=e413]:
+            - generic [ref=e414]:
+              - combobox [ref=e419]:
+                - option "python" [selected]
+                - option "javascript"
+                - option "typescript"
+                - option "cpp"
+                - option "c"
+                - option "java"
+                - option "matlab"
+                - option "bash"
+                - option "sql"
+                - option "json"
+                - option "yaml"
+                - option "arduino"
+                - option "rust"
+                - option "go"
+                - option "r"
+                - option "julia"
+                - option "latex"
+                - option "html"
+                - option "css"
+              - button "copy" [ref=e420] [cursor=pointer]
+            - generic [ref=e421]:
+              - generic [ref=e422]:
+                - generic [ref=e423]: "1"
+                - generic [ref=e424]: "2"
+                - generic [ref=e425]: "3"
+                - generic [ref=e426]: "4"
+                - generic [ref=e427]: "5"
+                - generic [ref=e428]: "6"
+                - generic [ref=e429]: "7"
+                - generic [ref=e430]: "8"
+                - generic [ref=e431]: "9"
+                - generic [ref=e432]: "10"
+                - generic [ref=e433]: "11"
+                - generic [ref=e434]: "12"
+                - generic [ref=e435]: "13"
+              - textbox "// your code here" [ref=e436]: import slugify from '@sindresorhus/slugify'; slugify('I ♥ Dogs'); //=> 'i-love-dogs' slugify(' Déjà Vu! '); //=> 'deja-vu' slugify('fooBar 123 $#%'); //=> 'foo-bar-123' slugify('я люблю единорогов'); //=> 'ya-lyublyu-edinorogov'
+          - button "x" [ref=e437] [cursor=pointer]
+        - button "+ Add block" [ref=e440] [cursor=pointer]:
+          - generic [ref=e441]: +
+          - text: Add block
+      - generic [ref=e443]:
+        - generic [ref=e444]:
+          - button "Drag to reorder" [ref=e445]
+          - generic [ref=e454]:
+            - generic [ref=e455]:
+              - button "H1" [ref=e456] [cursor=pointer]
+              - button "H2" [ref=e457] [cursor=pointer]
+              - button "H3" [ref=e458] [cursor=pointer]
+            - textbox "Heading 2" [ref=e459]: API
+          - button "x" [ref=e460] [cursor=pointer]
+        - button "+ Add block" [ref=e463] [cursor=pointer]:
+          - generic [ref=e464]: +
+          - text: Add block
+      - generic [ref=e466]:
+        - generic [ref=e467]:
+          - button "Drag to reorder" [ref=e468]
+          - generic [ref=e477]:
+            - generic [ref=e478]:
+              - button "H1" [ref=e479] [cursor=pointer]
+              - button "H2" [ref=e480] [cursor=pointer]
+              - button "H3" [ref=e481] [cursor=pointer]
+            - textbox "Heading 3" [ref=e482]: slugify(string, options?)
+          - button "x" [ref=e483] [cursor=pointer]
+        - button "+ Add block" [ref=e486] [cursor=pointer]:
+          - generic [ref=e487]: +
+          - text: Add block
+      - generic [ref=e489]:
+        - generic [ref=e490]:
+          - button "Drag to reorder" [ref=e491]
+          - generic [ref=e500]:
+            - generic [ref=e501]:
+              - button "H1" [ref=e502] [cursor=pointer]
+              - button "H2" [ref=e503] [cursor=pointer]
+              - button "H3" [ref=e504] [cursor=pointer]
+            - textbox "Heading 4" [ref=e505]: string
+          - button "x" [ref=e506] [cursor=pointer]
+        - button "+ Add block" [ref=e509] [cursor=pointer]:
+          - generic [ref=e510]: +
+          - text: Add block
+      - generic [ref=e512]:
+        - generic [ref=e513]:
+          - button "Drag to reorder" [ref=e514]
+          - textbox [ref=e525]:
+            - paragraph [ref=e526]:
+              - text: "Type:"
+              - code [ref=e527]: string
+            - paragraph [ref=e528]: String to slugify.
+          - button "x" [ref=e529] [cursor=pointer]
+        - button "+ Add block" [ref=e532] [cursor=pointer]:
+          - generic [ref=e533]: +
+          - text: Add block
+      - generic [ref=e535]:
+        - generic [ref=e536]:
+          - button "Drag to reorder" [ref=e537]
+          - generic [ref=e546]:
+            - generic [ref=e547]:
+              - button "H1" [ref=e548] [cursor=pointer]
+              - button "H2" [ref=e549] [cursor=pointer]
+              - button "H3" [ref=e550] [cursor=pointer]
+            - textbox "Heading 4" [ref=e551]: options
+          - button "x" [ref=e552] [cursor=pointer]
+        - button "+ Add block" [ref=e555] [cursor=pointer]:
+          - generic [ref=e556]: +
+          - text: Add block
+      - generic [ref=e558]:
+        - generic [ref=e559]:
+          - button "Drag to reorder" [ref=e560]
+          - textbox [ref=e571]:
+            - paragraph [ref=e572]:
+              - text: "Type:"
+              - code [ref=e573]: object
+          - button "x" [ref=e574] [cursor=pointer]
+        - button "+ Add block" [ref=e577] [cursor=pointer]:
+          - generic [ref=e578]: +
+          - text: Add block
+      - generic [ref=e580]:
+        - generic [ref=e581]:
+          - button "Drag to reorder" [ref=e582]
+          - generic [ref=e591]:
+            - generic [ref=e592]:
+              - button "H1" [ref=e593] [cursor=pointer]
+              - button "H2" [ref=e594] [cursor=pointer]
+              - button "H3" [ref=e595] [cursor=pointer]
+            - textbox "Heading 5" [ref=e596]: separator
+          - button "x" [ref=e597] [cursor=pointer]
+        - button "+ Add block" [ref=e600] [cursor=pointer]:
+          - generic [ref=e601]: +
+          - text: Add block
+      - generic [ref=e603]:
+        - generic [ref=e604]:
+          - button "Drag to reorder" [ref=e605]
+          - textbox [ref=e616]:
+            - paragraph [ref=e617]:
+              - text: "Type:"
+              - code [ref=e618]: string
+              - text: "Default:"
+              - code [ref=e619]: "'-'"
+          - button "x" [ref=e620] [cursor=pointer]
+        - button "+ Add block" [ref=e623] [cursor=pointer]:
+          - generic [ref=e624]: +
+          - text: Add block
+      - generic [ref=e626]:
+        - generic [ref=e627]:
+          - button "Drag to reorder" [ref=e628]
+          - generic [ref=e637]:
+            - generic [ref=e638]:
+              - combobox [ref=e643]:
+                - option "python" [selected]
+                - option "javascript"
+                - option "typescript"
+                - option "cpp"
+                - option "c"
+                - option "java"
+                - option "matlab"
+                - option "bash"
+                - option "sql"
+                - option "json"
+                - option "yaml"
+                - option "arduino"
+                - option "rust"
+                - option "go"
+                - option "r"
+                - option "julia"
+                - option "latex"
+                - option "html"
+                - option "css"
+              - button "copy" [ref=e644] [cursor=pointer]
+            - generic [ref=e645]:
+              - generic [ref=e646]:
+                - generic [ref=e647]: "1"
+                - generic [ref=e648]: "2"
+                - generic [ref=e649]: "3"
+                - generic [ref=e650]: "4"
+                - generic [ref=e651]: "5"
+                - generic [ref=e652]: "6"
+                - generic [ref=e653]: "7"
+                - generic [ref=e654]: "8"
+                - generic [ref=e655]: "9"
+                - generic [ref=e656]: "10"
+              - textbox "// your code here" [ref=e657]: "import slugify from '@sindresorhus/slugify'; slugify('BAR and baz'); //=> 'bar-and-baz' slugify('BAR and baz', {separator: '_'}); //=> 'bar_and_baz' slugify('BAR and baz', {separator: ''}); //=> 'barandbaz'"
+          - button "x" [ref=e658] [cursor=pointer]
+        - button "+ Add block" [ref=e661] [cursor=pointer]:
+          - generic [ref=e662]: +
+          - text: Add block
+      - generic [ref=e664]:
+        - generic [ref=e665]:
+          - button "Drag to reorder" [ref=e666]
+          - generic [ref=e675]:
+            - generic [ref=e676]:
+              - button "H1" [ref=e677] [cursor=pointer]
+              - button "H2" [ref=e678] [cursor=pointer]
+              - button "H3" [ref=e679] [cursor=pointer]
+            - textbox "Heading 5" [ref=e680]: lowercase
+          - button "x" [ref=e681] [cursor=pointer]
+        - button "+ Add block" [ref=e684] [cursor=pointer]:
+          - generic [ref=e685]: +
+          - text: Add block
+      - generic [ref=e687]:
+        - generic [ref=e688]:
+          - button "Drag to reorder" [ref=e689]
+          - textbox [ref=e700]:
+            - paragraph [ref=e701]:
+              - text: "Type:"
+              - code [ref=e702]: boolean
+              - text: "Default:"
+              - code [ref=e703]: "true"
+            - paragraph [ref=e704]: Make the slug lowercase.
+          - button "x" [ref=e705] [cursor=pointer]
+        - button "+ Add block" [ref=e708] [cursor=pointer]:
+          - generic [ref=e709]: +
+          - text: Add block
+      - generic [ref=e711]:
+        - generic [ref=e712]:
+          - button "Drag to reorder" [ref=e713]
+          - generic [ref=e722]:
+            - generic [ref=e723]:
+              - combobox [ref=e728]:
+                - option "python" [selected]
+                - option "javascript"
+                - option "typescript"
+                - option "cpp"
+                - option "c"
+                - option "java"
+                - option "matlab"
+                - option "bash"
+                - option "sql"
+                - option "json"
+                - option "yaml"
+                - option "arduino"
+                - option "rust"
+                - option "go"
+                - option "r"
+                - option "julia"
+                - option "latex"
+                - option "html"
+                - option "css"
+              - button "copy" [ref=e729] [cursor=pointer]
+            - generic [ref=e730]:
+              - generic [ref=e731]:
+                - generic [ref=e732]: "1"
+                - generic [ref=e733]: "2"
+                - generic [ref=e734]: "3"
+                - generic [ref=e735]: "4"
+                - generic [ref=e736]: "5"
+                - generic [ref=e737]: "6"
+                - generic [ref=e738]: "7"
+              - textbox "// your code here" [ref=e739]: "import slugify from '@sindresorhus/slugify'; slugify('Déjà Vu!'); //=> 'deja-vu' slugify('Déjà Vu!', {lowercase: false}); //=> 'Deja-Vu'"
+          - button "x" [ref=e740] [cursor=pointer]
+        - button "+ Add block" [ref=e743] [cursor=pointer]:
+          - generic [ref=e744]: +
+          - text: Add block
+      - generic [ref=e746]:
+        - generic [ref=e747]:
+          - button "Drag to reorder" [ref=e748]
+          - generic [ref=e757]:
+            - generic [ref=e758]:
+              - button "H1" [ref=e759] [cursor=pointer]
+              - button "H2" [ref=e760] [cursor=pointer]
+              - button "H3" [ref=e761] [cursor=pointer]
+            - textbox "Heading 5" [ref=e762]: decamelize
+          - button "x" [ref=e763] [cursor=pointer]
+        - button "+ Add block" [ref=e766] [cursor=pointer]:
+          - generic [ref=e767]: +
+          - text: Add block
+      - generic [ref=e769]:
+        - generic [ref=e770]:
+          - button "Drag to reorder" [ref=e771]
+          - textbox [ref=e782]:
+            - paragraph [ref=e783]:
+              - text: "Type:"
+              - code [ref=e784]: boolean
+              - text: "Default:"
+              - code [ref=e785]: "true"
+            - paragraph [ref=e786]:
+              - text: Convert camelcase to separate words. Internally it does
+              - code [ref=e787]: fooBar
+              - text: →
+              - code [ref=e788]: foo bar
+              - text: .
+          - button "x" [ref=e789] [cursor=pointer]
+        - button "+ Add block" [ref=e792] [cursor=pointer]:
+          - generic [ref=e793]: +
+          - text: Add block
+      - generic [ref=e795]:
+        - generic [ref=e796]:
+          - button "Drag to reorder" [ref=e797]
+          - generic [ref=e806]:
+            - generic [ref=e807]:
+              - combobox [ref=e812]:
+                - option "python" [selected]
+                - option "javascript"
+                - option "typescript"
+                - option "cpp"
+                - option "c"
+                - option "java"
+                - option "matlab"
+                - option "bash"
+                - option "sql"
+                - option "json"
+                - option "yaml"
+                - option "arduino"
+                - option "rust"
+                - option "go"
+                - option "r"
+                - option "julia"
+                - option "latex"
+                - option "html"
+                - option "css"
+              - button "copy" [ref=e813] [cursor=pointer]
+            - generic [ref=e814]:
+              - generic [ref=e815]:
+                - generic [ref=e816]: "1"
+                - generic [ref=e817]: "2"
+                - generic [ref=e818]: "3"
+                - generic [ref=e819]: "4"
+                - generic [ref=e820]: "5"
+                - generic [ref=e821]: "6"
+                - generic [ref=e822]: "7"
+              - textbox "// your code here" [ref=e823]: "import slugify from '@sindresorhus/slugify'; slugify('fooBar'); //=> 'foo-bar' slugify('fooBar', {decamelize: false}); //=> 'foobar'"
+          - button "x" [ref=e824] [cursor=pointer]
+        - button "+ Add block" [ref=e827] [cursor=pointer]:
+          - generic [ref=e828]: +
+          - text: Add block
+      - generic [ref=e830]:
+        - generic [ref=e831]:
+          - button "Drag to reorder" [ref=e832]
+          - generic [ref=e841]:
+            - generic [ref=e842]:
+              - button "H1" [ref=e843] [cursor=pointer]
+              - button "H2" [ref=e844] [cursor=pointer]
+              - button "H3" [ref=e845] [cursor=pointer]
+            - textbox "Heading 5" [ref=e846]: customReplacements
+          - button "x" [ref=e847] [cursor=pointer]
+        - button "+ Add block" [ref=e850] [cursor=pointer]:
+          - generic [ref=e851]: +
+          - text: Add block
+      - generic [ref=e853]:
+        - generic [ref=e854]:
+          - button "Drag to reorder" [ref=e855]
+          - textbox [ref=e866]:
+            - paragraph [ref=e867]:
+              - text: "Type:"
+              - code [ref=e868]: Array<string[]>
+              - text: "Default:"
+              - code [ref=e869]: "[ ['&', ' and '], ['🦄', ' unicorn '], ['♥', ' love '] ]"
+            - paragraph [ref=e870]: Add your own custom replacements.
+            - paragraph [ref=e871]: The replacements are run on the original string before any other transformations.
+            - paragraph [ref=e872]:
+              - text: This only overrides a default replacement if you set an item with the same key, like
+              - code [ref=e873]: "&"
+              - text: .
+          - button "x" [ref=e874] [cursor=pointer]
+        - button "+ Add block" [ref=e877] [cursor=pointer]:
+          - generic [ref=e878]: +
+          - text: Add block
+      - generic [ref=e880]:
+        - generic [ref=e881]:
+          - button "Drag to reorder" [ref=e882]
+          - generic [ref=e891]:
+            - generic [ref=e892]:
+              - combobox [ref=e897]:
+                - option "python" [selected]
+                - option "javascript"
+                - option "typescript"
+                - option "cpp"
+                - option "c"
+                - option "java"
+                - option "matlab"
+                - option "bash"
+                - option "sql"
+                - option "json"
+                - option "yaml"
+                - option "arduino"
+                - option "rust"
+                - option "go"
+                - option "r"
+                - option "julia"
+                - option "latex"
+                - option "html"
+                - option "css"
+              - button "copy" [ref=e898] [cursor=pointer]
+            - generic [ref=e899]:
+              - generic [ref=e900]:
+                - generic [ref=e901]: "1"
+                - generic [ref=e902]: "2"
+                - generic [ref=e903]: "3"
+                - generic [ref=e904]: "4"
+                - generic [ref=e905]: "5"
+                - generic [ref=e906]: "6"
+                - generic [ref=e907]: "7"
+                - generic [ref=e908]: "8"
+              - textbox "// your code here" [ref=e909]: "import slugify from '@sindresorhus/slugify'; slugify('Foo@unicorn', { customReplacements: [ ['@', 'at'] ] }); //=> 'fooatunicorn'"
+          - button "x" [ref=e910] [cursor=pointer]
+        - button "+ Add block" [ref=e913] [cursor=pointer]:
+          - generic [ref=e914]: +
+          - text: Add block
+      - generic [ref=e916]:
+        - generic [ref=e917]:
+          - button "Drag to reorder" [ref=e918]
+          - textbox [ref=e929]:
+            - paragraph [ref=e930]: "Add a leading and trailing space to the replacement to have it separated by dashes:"
+          - button "x" [ref=e931] [cursor=pointer]
+        - button "+ Add block" [ref=e934] [cursor=pointer]:
+          - generic [ref=e935]: +
+          - text: Add block
+      - generic [ref=e937]:
+        - generic [ref=e938]:
+          - button "Drag to reorder" [ref=e939]
+          - generic [ref=e948]:
+            - generic [ref=e949]:
+              - combobox [ref=e954]:
+                - option "python" [selected]
+                - option "javascript"
+                - option "typescript"
+                - option "cpp"
+                - option "c"
+                - option "java"
+                - option "matlab"
+                - option "bash"
+                - option "sql"
+                - option "json"
+                - option "yaml"
+                - option "arduino"
+                - option "rust"
+                - option "go"
+                - option "r"
+                - option "julia"
+                - option "latex"
+                - option "html"
+                - option "css"
+              - button "copy" [ref=e955] [cursor=pointer]
+            - generic [ref=e956]:
+              - generic [ref=e957]:
+                - generic [ref=e958]: "1"
+                - generic [ref=e959]: "2"
+                - generic [ref=e960]: "3"
+                - generic [ref=e961]: "4"
+                - generic [ref=e962]: "5"
+                - generic [ref=e963]: "6"
+                - generic [ref=e964]: "7"
+                - generic [ref=e965]: "8"
+              - textbox "// your code here" [ref=e966]: "import slugify from '@sindresorhus/slugify'; slugify('foo@unicorn', { customReplacements: [ ['@', ' at '] ] }); //=> 'foo-at-unicorn'"
+          - button "x" [ref=e967] [cursor=pointer]
+        - button "+ Add block" [ref=e970] [cursor=pointer]:
+          - generic [ref=e971]: +
+          - text: Add block
+      - generic [ref=e973]:
+        - generic [ref=e974]:
+          - button "Drag to reorder" [ref=e975]
+          - textbox [ref=e986]:
+            - paragraph [ref=e987]: "Another example:"
+          - button "x" [ref=e988] [cursor=pointer]
+        - button "+ Add block" [ref=e991] [cursor=pointer]:
+          - generic [ref=e992]: +
+          - text: Add block
+      - generic [ref=e994]:
+        - generic [ref=e995]:
+          - button "Drag to reorder" [ref=e996]
+          - generic [ref=e1005]:
+            - generic [ref=e1006]:
+              - combobox [ref=e1011]:
+                - option "python" [selected]
+                - option "javascript"
+                - option "typescript"
+                - option "cpp"
+                - option "c"
+                - option "java"
+                - option "matlab"
+                - option "bash"
+                - option "sql"
+                - option "json"
+                - option "yaml"
+                - option "arduino"
+                - option "rust"
+                - option "go"
+                - option "r"
+                - option "julia"
+                - option "latex"
+                - option "html"
+                - option "css"
+              - button "copy" [ref=e1012] [cursor=pointer]
+            - generic [ref=e1013]:
+              - generic [ref=e1014]:
+                - generic [ref=e1015]: "1"
+                - generic [ref=e1016]: "2"
+                - generic [ref=e1017]: "3"
+                - generic [ref=e1018]: "4"
+                - generic [ref=e1019]: "5"
+                - generic [ref=e1020]: "6"
+                - generic [ref=e1021]: "7"
+                - generic [ref=e1022]: "8"
+              - textbox "// your code here" [ref=e1023]: "import slugify from '@sindresorhus/slugify'; slugify('I love 🐶', { customReplacements: [ ['🐶', 'dogs'] ] }); //=> 'i-love-dogs'"
+          - button "x" [ref=e1024] [cursor=pointer]
+        - button "+ Add block" [ref=e1027] [cursor=pointer]:
+          - generic [ref=e1028]: +
+          - text: Add block
+      - generic [ref=e1030]:
+        - generic [ref=e1031]:
+          - button "Drag to reorder" [ref=e1032]
+          - generic [ref=e1041]:
+            - generic [ref=e1042]:
+              - button "H1" [ref=e1043] [cursor=pointer]
+              - button "H2" [ref=e1044] [cursor=pointer]
+              - button "H3" [ref=e1045] [cursor=pointer]
+            - textbox "Heading 5" [ref=e1046]: preserveLeadingUnderscore
+          - button "x" [ref=e1047] [cursor=pointer]
+        - button "+ Add block" [ref=e1050] [cursor=pointer]:
+          - generic [ref=e1051]: +
+          - text: Add block
+      - generic [ref=e1053]:
+        - generic [ref=e1054]:
+          - button "Drag to reorder" [ref=e1055]
+          - textbox [ref=e1066]:
+            - paragraph [ref=e1067]:
+              - text: "Type:"
+              - code [ref=e1068]: boolean
+              - text: "Default:"
+              - code [ref=e1069]: "false"
+            - paragraph [ref=e1070]: If your string starts with an underscore, it will be preserved in the slugified string.
+            - paragraph [ref=e1071]: Sometimes leading underscores are intentional, for example, filenames representing hidden paths on a website.
+          - button "x" [ref=e1072] [cursor=pointer]
+        - button "+ Add block" [ref=e1075] [cursor=pointer]:
+          - generic [ref=e1076]: +
+          - text: Add block
+      - generic [ref=e1078]:
+        - generic [ref=e1079]:
+          - button "Drag to reorder" [ref=e1080]
+          - generic [ref=e1089]:
+            - generic [ref=e1090]:
+              - combobox [ref=e1095]:
+                - option "python" [selected]
+                - option "javascript"
+                - option "typescript"
+                - option "cpp"
+                - option "c"
+                - option "java"
+                - option "matlab"
+                - option "bash"
+                - option "sql"
+                - option "json"
+                - option "yaml"
+                - option "arduino"
+                - option "rust"
+                - option "go"
+                - option "r"
+                - option "julia"
+                - option "latex"
+                - option "html"
+                - option "css"
+              - button "copy" [ref=e1096] [cursor=pointer]
+            - generic [ref=e1097]:
+              - generic [ref=e1098]:
+                - generic [ref=e1099]: "1"
+                - generic [ref=e1100]: "2"
+                - generic [ref=e1101]: "3"
+                - generic [ref=e1102]: "4"
+                - generic [ref=e1103]: "5"
+                - generic [ref=e1104]: "6"
+                - generic [ref=e1105]: "7"
+              - textbox "// your code here" [ref=e1106]: "import slugify from '@sindresorhus/slugify'; slugify('_foo_bar'); //=> 'foo-bar' slugify('_foo_bar', {preserveLeadingUnderscore: true}); //=> '_foo-bar'"
+          - button "x" [ref=e1107] [cursor=pointer]
+        - button "+ Add block" [ref=e1110] [cursor=pointer]:
+          - generic [ref=e1111]: +
+          - text: Add block
+      - generic [ref=e1113]:
+        - generic [ref=e1114]:
+          - button "Drag to reorder" [ref=e1115]
+          - generic [ref=e1124]:
+            - generic [ref=e1125]:
+              - button "H1" [ref=e1126] [cursor=pointer]
+              - button "H2" [ref=e1127] [cursor=pointer]
+              - button "H3" [ref=e1128] [cursor=pointer]
+            - textbox "Heading 5" [ref=e1129]: preserveTrailingDash
+          - button "x" [ref=e1130] [cursor=pointer]
+        - button "+ Add block" [ref=e1133] [cursor=pointer]:
+          - generic [ref=e1134]: +
+          - text: Add block
+      - generic [ref=e1136]:
+        - generic [ref=e1137]:
+          - button "Drag to reorder" [ref=e1138]
+          - textbox [ref=e1149]:
+            - paragraph [ref=e1150]:
+              - text: "Type:"
+              - code [ref=e1151]: boolean
+              - text: "Default:"
+              - code [ref=e1152]: "false"
+            - paragraph [ref=e1153]: If your string ends with a dash, it will be preserved in the slugified string.
+            - paragraph [ref=e1154]: For example, using slugify on an input field would allow for validation while not preventing the user from writing a slug.
+          - button "x" [ref=e1155] [cursor=pointer]
+        - button "+ Add block" [ref=e1158] [cursor=pointer]:
+          - generic [ref=e1159]: +
+          - text: Add block
+      - generic [ref=e1161]:
+        - generic [ref=e1162]:
+          - button "Drag to reorder" [ref=e1163]
+          - generic [ref=e1172]:
+            - generic [ref=e1173]:
+              - combobox [ref=e1178]:
+                - option "python" [selected]
+                - option "javascript"
+                - option "typescript"
+                - option "cpp"
+                - option "c"
+                - option "java"
+                - option "matlab"
+                - option "bash"
+                - option "sql"
+                - option "json"
+                - option "yaml"
+                - option "arduino"
+                - option "rust"
+                - option "go"
+                - option "r"
+                - option "julia"
+                - option "latex"
+                - option "html"
+                - option "css"
+              - button "copy" [ref=e1179] [cursor=pointer]
+            - generic [ref=e1180]:
+              - generic [ref=e1181]:
+                - generic [ref=e1182]: "1"
+                - generic [ref=e1183]: "2"
+                - generic [ref=e1184]: "3"
+                - generic [ref=e1185]: "4"
+                - generic [ref=e1186]: "5"
+                - generic [ref=e1187]: "6"
+                - generic [ref=e1188]: "7"
+              - textbox "// your code here" [ref=e1189]: "import slugify from '@sindresorhus/slugify'; slugify('foo-bar-'); //=> 'foo-bar' slugify('foo-bar-', {preserveTrailingDash: true}); //=> 'foo-bar-'"
+          - button "x" [ref=e1190] [cursor=pointer]
+        - button "+ Add block" [ref=e1193] [cursor=pointer]:
+          - generic [ref=e1194]: +
+          - text: Add block
+      - generic [ref=e1196]:
+        - generic [ref=e1197]:
+          - button "Drag to reorder" [ref=e1198]
+          - generic [ref=e1207]:
+            - generic [ref=e1208]:
+              - button "H1" [ref=e1209] [cursor=pointer]
+              - button "H2" [ref=e1210] [cursor=pointer]
+              - button "H3" [ref=e1211] [cursor=pointer]
+            - textbox "Heading 5" [ref=e1212]: preserveCharacters
+          - button "x" [ref=e1213] [cursor=pointer]
+        - button "+ Add block" [ref=e1216] [cursor=pointer]:
+          - generic [ref=e1217]: +
+          - text: Add block
+      - generic [ref=e1219]:
+        - generic [ref=e1220]:
+          - button "Drag to reorder" [ref=e1221]
+          - textbox [ref=e1232]:
+            - paragraph [ref=e1233]:
+              - text: "Type:"
+              - code [ref=e1234]: string[]
+              - text: "Default:"
+              - code [ref=e1235]: "[]"
+            - paragraph [ref=e1236]: Preserve certain characters.
+            - paragraph [ref=e1237]:
+              - text: It cannot contain the
+              - code [ref=e1238]: separator
+              - text: .
+            - paragraph [ref=e1239]:
+              - text: For example, if you want to slugify URLs, but preserve the HTML fragment
+              - code [ref=e1240]: "#"
+              - text: character.
+          - button "x" [ref=e1241] [cursor=pointer]
+        - button "+ Add block" [ref=e1244] [cursor=pointer]:
+          - generic [ref=e1245]: +
+          - text: Add block
+      - generic [ref=e1247]:
+        - generic [ref=e1248]:
+          - button "Drag to reorder" [ref=e1249]
+          - generic [ref=e1258]:
+            - generic [ref=e1259]:
+              - combobox [ref=e1264]:
+                - option "python" [selected]
+                - option "javascript"
+                - option "typescript"
+                - option "cpp"
+                - option "c"
+                - option "java"
+                - option "matlab"
+                - option "bash"
+                - option "sql"
+                - option "json"
+                - option "yaml"
+                - option "arduino"
+                - option "rust"
+                - option "go"
+                - option "r"
+                - option "julia"
+                - option "latex"
+                - option "html"
+                - option "css"
+              - button "copy" [ref=e1265] [cursor=pointer]
+            - generic [ref=e1266]:
+              - generic [ref=e1267]:
+                - generic [ref=e1268]: "1"
+                - generic [ref=e1269]: "2"
+                - generic [ref=e1270]: "3"
+                - generic [ref=e1271]: "4"
+              - textbox "// your code here" [ref=e1272]: "import slugify from '@sindresorhus/slugify'; slugify('foo_bar#baz', {preserveCharacters: ['#']}); //=> 'foo-bar#baz'"
+          - button "x" [ref=e1273] [cursor=pointer]
+        - button "+ Add block" [ref=e1276] [cursor=pointer]:
+          - generic [ref=e1277]: +
+          - text: Add block
+      - generic [ref=e1279]:
+        - generic [ref=e1280]:
+          - button "Drag to reorder" [ref=e1281]
+          - generic [ref=e1290]:
+            - generic [ref=e1291]:
+              - button "H1" [ref=e1292] [cursor=pointer]
+              - button "H2" [ref=e1293] [cursor=pointer]
+              - button "H3" [ref=e1294] [cursor=pointer]
+            - textbox "Heading 5" [ref=e1295]: locale
+          - button "x" [ref=e1296] [cursor=pointer]
+        - button "+ Add block" [ref=e1299] [cursor=pointer]:
+          - generic [ref=e1300]: +
+          - text: Add block
+      - generic [ref=e1302]:
+        - generic [ref=e1303]:
+          - button "Drag to reorder" [ref=e1304]
+          - textbox [ref=e1315]:
+            - paragraph [ref=e1316]:
+              - text: "Type:"
+              - code [ref=e1317]: string
+              - text: "Default:"
+              - code [ref=e1318]: undefined
+            - paragraph [ref=e1319]: The locale to use for language-specific transliteration.
+            - paragraph [ref=e1320]:
+              - text: See the
+              - code [ref=e1321]: "@sindresorhus/transliterate"
+              - link "package" [ref=e1322]:
+                - /url: https://github.com/sindresorhus/transliterate#locale
+              - text: for more info.
+          - button "x" [ref=e1323] [cursor=pointer]
+        - button "+ Add block" [ref=e1326] [cursor=pointer]:
+          - generic [ref=e1327]: +
+          - text: Add block
+      - generic [ref=e1329]:
+        - generic [ref=e1330]:
+          - button "Drag to reorder" [ref=e1331]
+          - generic [ref=e1340]:
+            - generic [ref=e1341]:
+              - combobox [ref=e1346]:
+                - option "python" [selected]
+                - option "javascript"
+                - option "typescript"
+                - option "cpp"
+                - option "c"
+                - option "java"
+                - option "matlab"
+                - option "bash"
+                - option "sql"
+                - option "json"
+                - option "yaml"
+                - option "arduino"
+                - option "rust"
+                - option "go"
+                - option "r"
+                - option "julia"
+                - option "latex"
+                - option "html"
+                - option "css"
+              - button "copy" [ref=e1347] [cursor=pointer]
+            - generic [ref=e1348]:
+              - generic [ref=e1349]:
+                - generic [ref=e1350]: "1"
+                - generic [ref=e1351]: "2"
+                - generic [ref=e1352]: "3"
+                - generic [ref=e1353]: "4"
+                - generic [ref=e1354]: "5"
+                - generic [ref=e1355]: "6"
+                - generic [ref=e1356]: "7"
+              - textbox "// your code here" [ref=e1357]: "import slugify from '@sindresorhus/slugify'; slugify('Räksmörgås'); //=> 'raeksmoergas' slugify('Räksmörgås', {locale: 'sv'}); //=> 'raksmorgas'"
+          - button "x" [ref=e1358] [cursor=pointer]
+        - button "+ Add block" [ref=e1361] [cursor=pointer]:
+          - generic [ref=e1362]: +
+          - text: Add block
+      - generic [ref=e1364]:
+        - generic [ref=e1365]:
+          - button "Drag to reorder" [ref=e1366]
+          - generic [ref=e1375]:
+            - generic [ref=e1376]:
+              - button "H1" [ref=e1377] [cursor=pointer]
+              - button "H2" [ref=e1378] [cursor=pointer]
+              - button "H3" [ref=e1379] [cursor=pointer]
+            - textbox "Heading 5" [ref=e1380]: transliterate
+          - button "x" [ref=e1381] [cursor=pointer]
+        - button "+ Add block" [ref=e1384] [cursor=pointer]:
+          - generic [ref=e1385]: +
+          - text: Add block
+      - generic [ref=e1387]:
+        - generic [ref=e1388]:
+          - button "Drag to reorder" [ref=e1389]
+          - textbox [ref=e1400]:
+            - paragraph [ref=e1401]:
+              - text: "Type:"
+              - code [ref=e1402]: boolean
+              - text: "Default:"
+              - code [ref=e1403]: "true"
+            - paragraph [ref=e1404]: Whether to transliterate Unicode characters to ASCII.
+            - paragraph [ref=e1405]:
+              - text: When
+              - code [ref=e1406]: "false"
+              - text: ", non-ASCII characters will be preserved instead of being transliterated. This can improve performance when you don't need transliteration."
+          - button "x" [ref=e1407] [cursor=pointer]
+        - button "+ Add block" [ref=e1410] [cursor=pointer]:
+          - generic [ref=e1411]: +
+          - text: Add block
+      - generic [ref=e1413]:
+        - generic [ref=e1414]:
+          - button "Drag to reorder" [ref=e1415]
+          - generic [ref=e1424]:
+            - generic [ref=e1425]:
+              - combobox [ref=e1430]:
+                - option "python" [selected]
+                - option "javascript"
+                - option "typescript"
+                - option "cpp"
+                - option "c"
+                - option "java"
+                - option "matlab"
+                - option "bash"
+                - option "sql"
+                - option "json"
+                - option "yaml"
+                - option "arduino"
+                - option "rust"
+                - option "go"
+                - option "r"
+                - option "julia"
+                - option "latex"
+                - option "html"
+                - option "css"
+              - button "copy" [ref=e1431] [cursor=pointer]
+            - generic [ref=e1432]:
+              - generic [ref=e1433]:
+                - generic [ref=e1434]: "1"
+                - generic [ref=e1435]: "2"
+                - generic [ref=e1436]: "3"
+                - generic [ref=e1437]: "4"
+                - generic [ref=e1438]: "5"
+                - generic [ref=e1439]: "6"
+                - generic [ref=e1440]: "7"
+              - textbox "// your code here" [ref=e1441]: "import slugify from '@sindresorhus/slugify'; slugify('Déjà Vu'); //=> 'deja-vu' slugify('Déjà Vu', {transliterate: false}); //=> 'déjà-vu'"
+          - button "x" [ref=e1442] [cursor=pointer]
+        - button "+ Add block" [ref=e1445] [cursor=pointer]:
+          - generic [ref=e1446]: +
+          - text: Add block
+      - generic [ref=e1448]:
+        - generic [ref=e1449]:
+          - button "Drag to reorder" [ref=e1450]
+          - generic [ref=e1459]:
+            - generic [ref=e1460]:
+              - button "H1" [ref=e1461] [cursor=pointer]
+              - button "H2" [ref=e1462] [cursor=pointer]
+              - button "H3" [ref=e1463] [cursor=pointer]
+            - textbox "Heading 3" [ref=e1464]: slugifyWithCounter()
+          - button "x" [ref=e1465] [cursor=pointer]
+        - button "+ Add block" [ref=e1468] [cursor=pointer]:
+          - generic [ref=e1469]: +
+          - text: Add block
+      - generic [ref=e1471]:
+        - generic [ref=e1472]:
+          - button "Drag to reorder" [ref=e1473]
+          - textbox [ref=e1484]:
+            - paragraph [ref=e1485]:
+              - text: Returns a new instance of
+              - code [ref=e1486]: slugify(string, options?)
+              - text: with a counter to handle multiple occurrences of the same string.
+          - button "x" [ref=e1487] [cursor=pointer]
+        - button "+ Add block" [ref=e1490] [cursor=pointer]:
+          - generic [ref=e1491]: +
+          - text: Add block
+      - generic [ref=e1493]:
+        - generic [ref=e1494]:
+          - button "Drag to reorder" [ref=e1495]
+          - generic [ref=e1504]:
+            - generic [ref=e1505]:
+              - button "H1" [ref=e1506] [cursor=pointer]
+              - button "H2" [ref=e1507] [cursor=pointer]
+              - button "H3" [ref=e1508] [cursor=pointer]
+            - textbox "Heading 4" [ref=e1509]: Example
+          - button "x" [ref=e1510] [cursor=pointer]
+        - button "+ Add block" [ref=e1513] [cursor=pointer]:
+          - generic [ref=e1514]: +
+          - text: Add block
+      - generic [ref=e1516]:
+        - generic [ref=e1517]:
+          - button "Drag to reorder" [ref=e1518]
+          - generic [ref=e1527]:
+            - generic [ref=e1528]:
+              - combobox [ref=e1533]:
+                - option "python" [selected]
+                - option "javascript"
+                - option "typescript"
+                - option "cpp"
+                - option "c"
+                - option "java"
+                - option "matlab"
+                - option "bash"
+                - option "sql"
+                - option "json"
+                - option "yaml"
+                - option "arduino"
+                - option "rust"
+                - option "go"
+                - option "r"
+                - option "julia"
+                - option "latex"
+                - option "html"
+                - option "css"
+              - button "copy" [ref=e1534] [cursor=pointer]
+            - generic [ref=e1535]:
+              - generic [ref=e1536]:
+                - generic [ref=e1537]: "1"
+                - generic [ref=e1538]: "2"
+                - generic [ref=e1539]: "3"
+                - generic [ref=e1540]: "4"
+                - generic [ref=e1541]: "5"
+                - generic [ref=e1542]: "6"
+                - generic [ref=e1543]: "7"
+                - generic [ref=e1544]: "8"
+                - generic [ref=e1545]: "9"
+                - generic [ref=e1546]: "10"
+                - generic [ref=e1547]: "11"
+                - generic [ref=e1548]: "12"
+                - generic [ref=e1549]: "13"
+                - generic [ref=e1550]: "14"
+              - textbox "// your code here" [ref=e1551]: "import {slugifyWithCounter} from '@sindresorhus/slugify'; const slugify = slugifyWithCounter(); slugify('foo bar'); //=> 'foo-bar' slugify('foo bar'); //=> 'foo-bar-2' slugify.reset(); slugify('foo bar'); //=> 'foo-bar'"
+          - button "x" [ref=e1552] [cursor=pointer]
+        - button "+ Add block" [ref=e1555] [cursor=pointer]:
+          - generic [ref=e1556]: +
+          - text: Add block
+      - generic [ref=e1558]:
+        - generic [ref=e1559]:
+          - button "Drag to reorder" [ref=e1560]
+          - generic [ref=e1569]:
+            - generic [ref=e1570]:
+              - button "H1" [ref=e1571] [cursor=pointer]
+              - button "H2" [ref=e1572] [cursor=pointer]
+              - button "H3" [ref=e1573] [cursor=pointer]
+            - textbox "Heading 4" [ref=e1574]: Use-case example of counter
+          - button "x" [ref=e1575] [cursor=pointer]
+        - button "+ Add block" [ref=e1578] [cursor=pointer]:
+          - generic [ref=e1579]: +
+          - text: Add block
+      - generic [ref=e1581]:
+        - generic [ref=e1582]:
+          - button "Drag to reorder" [ref=e1583]
+          - textbox [ref=e1594]:
+            - paragraph [ref=e1595]: If, for example, you have a document with multiple sections where each subsection has an example.
+          - button "x" [ref=e1596] [cursor=pointer]
+        - button "+ Add block" [ref=e1599] [cursor=pointer]:
+          - generic [ref=e1600]: +
+          - text: Add block
+      - generic [ref=e1602]:
+        - generic [ref=e1603]:
+          - button "Drag to reorder" [ref=e1604]
+          - generic [ref=e1613]:
+            - generic [ref=e1614]:
+              - combobox [ref=e1619]:
+                - option "python" [selected]
+                - option "javascript"
+                - option "typescript"
+                - option "cpp"
+                - option "c"
+                - option "java"
+                - option "matlab"
+                - option "bash"
+                - option "sql"
+                - option "json"
+                - option "yaml"
+                - option "arduino"
+                - option "rust"
+                - option "go"
+                - option "r"
+                - option "julia"
+                - option "latex"
+                - option "html"
+                - option "css"
+              - button "copy" [ref=e1620] [cursor=pointer]
+            - generic [ref=e1621]:
+              - generic [ref=e1622]:
+                - generic [ref=e1623]: "1"
+                - generic [ref=e1624]: "2"
+                - generic [ref=e1625]: "3"
+                - generic [ref=e1626]: "4"
+                - generic [ref=e1627]: "5"
+                - generic [ref=e1628]: "6"
+                - generic [ref=e1629]: "7"
+              - textbox "// your code here" [ref=e1630]: "## Section 1 ### Example ## Section 2 ### Example"
+          - button "x" [ref=e1631] [cursor=pointer]
+        - button "+ Add block" [ref=e1634] [cursor=pointer]:
+          - generic [ref=e1635]: +
+          - text: Add block
+      - generic [ref=e1637]:
+        - generic [ref=e1638]:
+          - button "Drag to reorder" [ref=e1639]
+          - textbox [ref=e1650]:
+            - paragraph [ref=e1651]:
+              - text: You can then use
+              - code [ref=e1652]: slugifyWithCounter()
+              - text: to generate unique HTML
+              - code [ref=e1653]: id
+              - text: "'s to ensure anchors will link to the right headline."
+          - button "x" [ref=e1654] [cursor=pointer]
+        - button "+ Add block" [ref=e1657] [cursor=pointer]:
+          - generic [ref=e1658]: +
+          - text: Add block
+      - generic [ref=e1660]:
+        - generic [ref=e1661]:
+          - button "Drag to reorder" [ref=e1662]
+          - generic [ref=e1671]:
+            - generic [ref=e1672]:
+              - button "H1" [ref=e1673] [cursor=pointer]
+              - button "H2" [ref=e1674] [cursor=pointer]
+              - button "H3" [ref=e1675] [cursor=pointer]
+            - textbox "Heading 3" [ref=e1676]: slugify.reset()
+          - button "x" [ref=e1677] [cursor=pointer]
+        - button "+ Add block" [ref=e1680] [cursor=pointer]:
+          - generic [ref=e1681]: +
+          - text: Add block
+      - generic [ref=e1683]:
+        - generic [ref=e1684]:
+          - button "Drag to reorder" [ref=e1685]
+          - textbox [ref=e1696]:
+            - paragraph [ref=e1697]: Reset the counter
+          - button "x" [ref=e1698] [cursor=pointer]
+        - button "+ Add block" [ref=e1701] [cursor=pointer]:
+          - generic [ref=e1702]: +
+          - text: Add block
+      - generic [ref=e1704]:
+        - generic [ref=e1705]:
+          - button "Drag to reorder" [ref=e1706]
+          - generic [ref=e1715]:
+            - generic [ref=e1716]:
+              - button "H1" [ref=e1717] [cursor=pointer]
+              - button "H2" [ref=e1718] [cursor=pointer]
+              - button "H3" [ref=e1719] [cursor=pointer]
+            - textbox "Heading 4" [ref=e1720]: Example
+          - button "x" [ref=e1721] [cursor=pointer]
+        - button "+ Add block" [ref=e1724] [cursor=pointer]:
+          - generic [ref=e1725]: +
+          - text: Add block
+      - generic [ref=e1727]:
+        - generic [ref=e1728]:
+          - button "Drag to reorder" [ref=e1729]
+          - generic [ref=e1738]:
+            - generic [ref=e1739]:
+              - combobox [ref=e1744]:
+                - option "python" [selected]
+                - option "javascript"
+                - option "typescript"
+                - option "cpp"
+                - option "c"
+                - option "java"
+                - option "matlab"
+                - option "bash"
+                - option "sql"
+                - option "json"
+                - option "yaml"
+                - option "arduino"
+                - option "rust"
+                - option "go"
+                - option "r"
+                - option "julia"
+                - option "latex"
+                - option "html"
+                - option "css"
+              - button "copy" [ref=e1745] [cursor=pointer]
+            - generic [ref=e1746]:
+              - generic [ref=e1747]:
+                - generic [ref=e1748]: "1"
+                - generic [ref=e1749]: "2"
+                - generic [ref=e1750]: "3"
+                - generic [ref=e1751]: "4"
+                - generic [ref=e1752]: "5"
+                - generic [ref=e1753]: "6"
+                - generic [ref=e1754]: "7"
+                - generic [ref=e1755]: "8"
+                - generic [ref=e1756]: "9"
+                - generic [ref=e1757]: "10"
+                - generic [ref=e1758]: "11"
+                - generic [ref=e1759]: "12"
+                - generic [ref=e1760]: "13"
+                - generic [ref=e1761]: "14"
+              - textbox "// your code here" [ref=e1762]: "import {slugifyWithCounter} from '@sindresorhus/slugify'; const slugify = slugifyWithCounter(); slugify('foo bar'); //=> 'foo-bar' slugify('foo bar'); //=> 'foo-bar-2' slugify.reset(); slugify('foo bar'); //=> 'foo-bar'"
+          - button "x" [ref=e1763] [cursor=pointer]
+        - button "+ Add block" [ref=e1766] [cursor=pointer]:
+          - generic [ref=e1767]: +
+          - text: Add block
+      - generic [ref=e1769]:
+        - generic [ref=e1770]:
+          - button "Drag to reorder" [ref=e1771]
+          - generic [ref=e1780]:
+            - generic [ref=e1781]:
+              - button "H1" [ref=e1782] [cursor=pointer]
+              - button "H2" [ref=e1783] [cursor=pointer]
+              - button "H3" [ref=e1784] [cursor=pointer]
+            - textbox "Heading 2" [ref=e1785]: Related
+          - button "x" [ref=e1786] [cursor=pointer]
+        - button "+ Add block" [ref=e1789] [cursor=pointer]:
+          - generic [ref=e1790]: +
+          - text: Add block
+      - generic [ref=e1792]:
+        - generic [ref=e1793]:
+          - button "Drag to reorder" [ref=e1794]
+          - textbox [ref=e1805]:
+            - list [ref=e1806]:
+              - listitem [ref=e1807]:
+                - paragraph [ref=e1808]:
+                  - link "slugify-cli" [ref=e1809]:
+                    - /url: https://github.com/sindresorhus/slugify-cli
+                  - text: "- CLI for this module"
+              - listitem [ref=e1810]:
+                - paragraph [ref=e1811]:
+                  - link "transliterate" [ref=e1812]:
+                    - /url: https://github.com/sindresorhus/transliterate
+                  - text: "- Convert Unicode characters to Latin characters using transliteration"
+              - listitem [ref=e1813]:
+                - paragraph [ref=e1814]:
+                  - link "filenamify" [ref=e1815]:
+                    - /url: https://github.com/sindresorhus/filenamify
+                  - text: "- Convert a string to a valid safe filename"
+          - button "x" [ref=e1816] [cursor=pointer]
+        - button "+ Add block" [ref=e1819] [cursor=pointer]:
+          - generic [ref=e1820]: +
+          - text: Add block

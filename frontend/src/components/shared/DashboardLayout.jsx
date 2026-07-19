@@ -8,12 +8,12 @@ import EngineeringIcon from './EngineeringIcon';
 
 const NAV_ITEMS = [
   { to: '/dashboard', label: 'Projects', icon: 'project-module', end: true },
+  { to: '/dashboard/portfolio', label: 'Portfolio', icon: 'satellite' },
   { to: '/dashboard/media', label: 'Media Library', icon: 'media-frame' },
   { to: '/dashboard/analytics', label: 'Analytics', icon: 'analytics-gauge' },
-  { to: '/dashboard/ai-tools', label: 'AI Tools', icon: 'ai-core' },
+  { to: '/dashboard/ai-tools', label: 'Opportunities', icon: 'target' },
   { to: '/dashboard/advisor', label: 'Advisor', icon: 'trend-line' },
-  { to: '/dashboard/applications', label: 'Applications', icon: 'briefcase' },
-  { to: '/dashboard/integrations', label: 'Integrations', icon: 'connector' },
+  { to: '/dashboard/integrations', label: 'Integrate & Apply', icon: 'briefcase' },
   { to: '/dashboard/teams', label: 'Teams', icon: 'team-node' },
   { to: '/discover', label: 'Discover', icon: 'source-network', external: false },
 ];
@@ -112,7 +112,7 @@ export default function DashboardLayout({ children }) {
           >
             <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-accent-surface text-sm font-bold text-accent-text">
               {user?.avatar_url
-                ? <img src={user.avatar_url} alt="" className="h-full w-full object-cover" />
+                ? <img loading="lazy" decoding="async" src={user.avatar_url} alt="" className="h-full w-full object-cover" />
                 : user?.full_name?.charAt(0)?.toUpperCase()}
             </div>
             {!rail && (
@@ -127,7 +127,7 @@ export default function DashboardLayout({ children }) {
             onClick={handleLogout}
             title="Sign out"
             aria-label="Sign out"
-            className="flex-shrink-0 rounded-lg p-2 text-sm text-ink-faint transition-colors hover:bg-surface-muted hover:text-ink-secondary"
+            className="touch-target flex flex-shrink-0 items-center justify-center rounded-lg p-2 text-sm text-ink-muted transition-colors hover:bg-surface-muted hover:text-ink-secondary"
           >
             <EngineeringIcon name="key-access" size="1rem" />
           </button>

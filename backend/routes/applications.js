@@ -159,6 +159,65 @@ const downloadResume = async (req, res, next) => {
   }
 };
 
+// Fetches a job posting and extracts title/company so the form can be prefilled.
+// AI-extracted when a model is available; safeFetchText keeps the fetch SSRF-safe.
+const extractPostingInfo = async (req, res, next) => {
+  try {
+    const aiModels = require('../utils/aiModels');
+    const safeFetch = require('../utils/safeFetch');
+    const { parseAiJson } = require('../utils/aiCustomizer');
+    const { compactText } = require('../utils/portfolioAiContext');
+
+    const response = await safeFetch.safeFetchText(req.body.url, { maxBytes: 1024 * 1024, timeoutMs: 10000 });
+    const raw = response && (response.text || response.body);
+    if (!raw) return res.status(422).json({ error: 'Could not fetch that posting URL.' });
+
+    const stripped = String(raw)
+      .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+      .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    try {
+      const model = aiModels.chooseModelForIntegration('application-helper');
+      const aiResponse = await aiModels.callAiModel({
+        modelId: model.id,
+        messages: [
+          {
+            role: 'system',
+            content: 'Extract the job title and company name from this job posting. Reply with ONLY a JSON object: ' +
+              '{"job_title": string, "company": string}. Use empty strings when a value is not present in the text.',
+          },
+          { role: 'user', content: compactText(stripped, 6000) },
+        ],
+        temperature: 0,
+        maxTokens: 200,
+      });
+      const parsed = parseAiJson(aiResponse.content);
+      if (parsed && (parsed.job_title || parsed.company)) {
+        return res.json({
+          job_title: String(parsed.job_title || '').slice(0, 200),
+          company: String(parsed.company || '').slice(0, 200),
+          source: 'ai',
+        });
+      }
+      throw new Error('Model returned no usable fields');
+    } catch {
+      // Heuristic fallback: job boards put "Title - Company" or "Title at Company" in <title>.
+      const titleTag = String(raw).match(/<title[^>]*>([^<]*)<\/title>/i)?.[1]?.trim() || '';
+      const split = titleTag.split(/\s+[-–|]\s+|\s+at\s+/i);
+      return res.json({
+        job_title: (split[0] || '').slice(0, 200),
+        company: (split[1] || '').slice(0, 200),
+        source: 'heuristic',
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
 const listPlatforms = (req, res, next) => {
   try {
     res.json({ platforms: PLATFORMS });
@@ -181,6 +240,13 @@ const generateBudget = userCostBudget('applications.generate', {
 });
 
 router.get('/platforms', requireAuth, listPlatforms);
+router.post('/posting-info', requireAuth, validateSchema({
+  body: { url: s.url({ required: true, max: 1000 }) },
+}), userQuota('applications.posting-info', {
+  windowMs: 60 * 60 * 1000,
+  max: 30,
+  message: 'Too many posting lookups this hour. Please wait and try again.',
+}), extractPostingInfo);
 router.post('/', requireAuth, validateCreate, generateQuota, generateBudget, createApplication);
 router.get('/', requireAuth, listSessions);
 router.get('/:id/resume', requireAuth, validateSchema({ params: { id: s.uuid({ required: true }) } }), downloadResume);
@@ -188,7 +254,7 @@ router.get('/:id', requireAuth, validateSchema({ params: { id: s.uuid({ required
 router.post('/:id/regenerate', requireAuth, validateSchema({ params: { id: s.uuid({ required: true }) } }), generateQuota, generateBudget, regenerateSession);
 router.delete('/:id', requireAuth, validateSchema({ params: { id: s.uuid({ required: true }) } }), deleteSession);
 
-router.handlers = { createApplication, listSessions, getSession, regenerateSession, deleteSession, listPlatforms, downloadResume };
+router.handlers = { createApplication, listSessions, getSession, regenerateSession, deleteSession, listPlatforms, downloadResume, extractPostingInfo };
 router.checkCreatePayload = checkCreatePayload;
 
 module.exports = router;

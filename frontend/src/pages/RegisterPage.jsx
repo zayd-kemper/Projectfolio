@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import toast from 'react-hot-toast';
 import EngineeringIcon from '../components/shared/EngineeringIcon';
+import { GoogleMark, LinkedInMark } from '../components/shared/BrandMarks';
 import { API_BASE_URL } from '../utils/api';
 
 const oauthUrl = (provider) => `${API_BASE_URL}/auth/${provider}`;
@@ -60,7 +61,7 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        <div className="text-gray-500 text-sm">Evidence-first portfolios for technical work</div>
+        <div className="text-gray-400 text-sm">Evidence-first portfolios for technical work</div>
       </div>
 
       <div className="flex-1 flex items-center justify-center p-8">
@@ -71,7 +72,7 @@ export default function RegisterPage() {
           </div>
 
           <h1 className="text-3xl font-semibold text-gray-900 mb-2">Create your account</h1>
-          <p className="text-gray-500 text-sm mb-6">
+          <p className="text-gray-600 text-sm mb-6">
             Already have an account?{' '}
             <Link to="/login" className="text-blue-600 font-medium hover:underline">
               Sign in
@@ -83,21 +84,21 @@ export default function RegisterPage() {
               href={oauthUrl('google')}
               className="flex items-center justify-center gap-3 w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
             >
-              <img src="https://www.google.com/favicon.ico" className="w-4 h-4" alt="" aria-hidden="true" />
+              <GoogleMark className="w-4 h-4" />
               Continue with Google
             </a>
             <a
               href={oauthUrl('linkedin')}
               className="flex items-center justify-center gap-3 w-full px-4 py-2.5 bg-[#0077B5] text-white rounded-lg text-sm font-medium hover:bg-[#006399] transition-colors"
             >
-              <span aria-hidden="true" className="font-bold text-base leading-none">in</span>
+              <LinkedInMark className="w-4 h-4" />
               Continue with LinkedIn
             </a>
           </div>
 
           <div className="flex items-center gap-3 mb-6">
             <div className="flex-1 h-px bg-gray-200" />
-            <span className="text-xs text-gray-500">or use email</span>
+            <span className="text-xs text-gray-600">or use email</span>
             <div className="flex-1 h-px bg-gray-200" />
           </div>
 
@@ -139,14 +140,14 @@ export default function RegisterPage() {
                 placeholder="At least 8 characters"
                 className="form-input"
               />
-              <p className="mt-1.5 text-xs text-gray-500">Use at least 8 characters.</p>
+              <p className="mt-1.5 text-xs text-gray-600">Use at least 8 characters.</p>
             </div>
             <button type="submit" disabled={loading} className="btn-primary w-full justify-center py-3">
               {loading ? 'Creating account...' : 'Create account - free'}
             </button>
           </form>
 
-          <p className="text-xs text-gray-400 mt-6 text-center">
+          <p className="text-xs text-gray-600 mt-6 text-center">
             By signing up you agree to our terms of service.
           </p>
         </div>

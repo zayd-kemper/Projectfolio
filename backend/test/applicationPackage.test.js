@@ -90,6 +90,18 @@ const fixtureContext = () => ({
   portfolio_url: 'https://projectfolio.test/jane',
 });
 
+test('assemblePackage carries the project summary snippet (additive v1 field)', () => {
+  const pkg = assemblePackage({
+    context: fixtureContext(),
+    platform: getPlatform('generic'),
+    session: { id: 's1' },
+    tailoring: { source: 'template', cover_letter: 'x', project_summary: 'Rocket — hot-fired engine (CAD).' },
+    resume: { pdf_url: '/api/applications/s1/resume', filename: 'r.pdf', pages: 1, plain_text: 'X' },
+    jobAnalyzed: false,
+  });
+  assert.equal(pkg.snippets.project_summary, 'Rocket — hot-fired engine (CAD).');
+});
+
 test('assemblePackage produces the versioned v1 contract', () => {
   const pkg = assemblePackage({
     context: fixtureContext(),

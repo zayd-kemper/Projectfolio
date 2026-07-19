@@ -54,7 +54,7 @@ export function LeftRail({
                 )}
               >
                 <span className="truncate">{category.project_type}</span>
-                <span className="font-mono text-xs text-ink-faint">{formatCount(category.count)}</span>
+                <span className="font-mono text-xs text-ink-muted">{formatCount(category.count)}</span>
               </button>
             ))}
             {!categories.length ? <p className="text-xs text-ink-muted">Categories appear once makers attach projects.</p> : null}

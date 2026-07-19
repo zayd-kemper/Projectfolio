@@ -77,8 +77,15 @@ export default function NotificationBell() {
     const handleClick = (event) => {
       if (ref.current && !ref.current.contains(event.target)) setOpen(false);
     };
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
     document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   const fetchNotifications = async ({ ignoreSharedCooldown = false } = {}) => {
@@ -146,8 +153,11 @@ export default function NotificationBell() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((value) => !value)}
-        className="relative rounded-lg p-2 text-ink-muted transition-colors hover:bg-surface-muted"
+        className="touch-target relative flex items-center justify-center rounded-lg p-2 text-ink-muted transition-colors hover:bg-surface-muted"
         title="Notifications"
+        aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : 'Notifications'}
+        aria-haspopup="true"
+        aria-expanded={open}
       >
         <EngineeringIcon name="info" size="1.1rem" />
         {unreadCount > 0 && (
@@ -158,7 +168,7 @@ export default function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute -right-24 top-full z-50 mt-2 w-80 overflow-hidden rounded-xl border border-line-subtle bg-white shadow-xl">
+        <div className="absolute -right-24 top-full z-50 mt-2 w-80 overflow-hidden rounded-xl border border-line-subtle bg-surface shadow-pop">
           <div className="flex items-center justify-between border-b border-line-subtle px-4 py-3">
             <span className="text-sm font-semibold text-ink">Notifications</span>
             {unreadCount > 0 && (
@@ -170,7 +180,7 @@ export default function NotificationBell() {
 
           <div className="max-h-96 overflow-y-auto">
             {notifications.length === 0 ? (
-              <div className="py-8 text-center text-sm text-ink-faint">
+              <div className="py-8 text-center text-sm text-ink-muted">
                 <EngineeringIcon name="info" size="2rem" className="mx-auto mb-2" />
                 No notifications yet
               </div>
@@ -178,30 +188,35 @@ export default function NotificationBell() {
               notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  onClick={() => handleNotificationClick(notification)}
-                  className={`flex cursor-pointer items-start gap-3 border-b border-line-subtle px-4 py-3 transition-colors hover:bg-surface-muted ${!notification.is_read ? 'bg-accent-surface/50' : ''}`}
+                  className={`relative flex items-start gap-2 border-b border-line-subtle transition-colors hover:bg-surface-muted focus-within:bg-surface-muted ${!notification.is_read ? 'bg-accent-surface/50' : ''}`}
                 >
-                  <EngineeringIcon name={iconForNotification(notification.type)} size="1.25rem" className="mt-0.5" />
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-start justify-between gap-2">
-                      <p className={`text-sm leading-snug ${!notification.is_read ? 'font-medium text-ink' : 'text-ink-secondary'}`}>
+                  <button
+                    type="button"
+                    onClick={() => handleNotificationClick(notification)}
+                    className="flex min-w-0 flex-1 items-start gap-3 py-3 pl-4 text-left focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent"
+                  >
+                    <EngineeringIcon name={iconForNotification(notification.type)} size="1.25rem" className="mt-0.5 flex-shrink-0" />
+                    <span className="min-w-0 flex-1">
+                      <span className={`block text-sm leading-snug ${!notification.is_read ? 'font-medium text-ink' : 'text-ink-secondary'}`}>
                         {notification.title}
-                      </p>
-                      <button
-                        onClick={(event) => handleDelete(event, notification.id)}
-                        className="mt-0.5 flex-shrink-0 text-xs text-ink-faint hover:text-ink-muted"
-                      >
-                        x
-                      </button>
-                    </div>
-                    {notification.message && (
-                      <p className="mt-0.5 line-clamp-2 text-xs text-ink-muted">{notification.message}</p>
-                    )}
-                    <p className="mt-1 text-xs text-ink-faint">
-                      {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
-                    </p>
-                  </div>
-                  {!notification.is_read && <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-accent" />}
+                      </span>
+                      {notification.message && (
+                        <span className="mt-0.5 line-clamp-2 block text-xs text-ink-muted">{notification.message}</span>
+                      )}
+                      <span className="mt-1 block text-xs text-ink-muted">
+                        {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
+                      </span>
+                    </span>
+                    {!notification.is_read && <span className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-accent" />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(event) => handleDelete(event, notification.id)}
+                    aria-label={`Dismiss notification: ${notification.title}`}
+                    className="mr-2 mt-3 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md text-ink-muted hover:text-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
+                  >
+                    <EngineeringIcon name="close" size="0.7rem" />
+                  </button>
                 </div>
               ))
             )}

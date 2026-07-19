@@ -1,0 +1,214 @@
+- generic [ref=f2e29]:
+  - complementary [ref=f2e30]:
+    - generic [ref=f2e31]:
+      - generic [ref=f2e33]:
+        - generic [ref=f2e35]: ProjectFolio
+        - button "Notifications" [ref=f2e38] [cursor=pointer]
+      - navigation [ref=f2e40]:
+        - link "Projects" [ref=f2e41] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Media Library" [ref=f2e44] [cursor=pointer]:
+          - /url: /dashboard/media
+        - link "Analytics" [ref=f2e47] [cursor=pointer]:
+          - /url: /dashboard/analytics
+        - link "Opportunities" [ref=f2e50] [cursor=pointer]:
+          - /url: /dashboard/ai-tools
+        - link "Applications" [ref=f2e53] [cursor=pointer]:
+          - /url: /dashboard/applications
+        - link "Portfolio" [ref=f2e56] [cursor=pointer]:
+          - /url: /dashboard/portfolio
+        - link "Integrations" [ref=f2e59] [cursor=pointer]:
+          - /url: /dashboard/integrations
+        - link "Teams" [ref=f2e62] [cursor=pointer]:
+          - /url: /dashboard/teams
+        - link "Discover" [ref=f2e65] [cursor=pointer]:
+          - /url: /discover
+      - generic [ref=f2e68]:
+        - link "View My Portfolio" [ref=f2e69] [cursor=pointer]:
+          - /url: /testportfolio
+        - button "Dark mode" [ref=f2e72] [cursor=pointer]
+        - generic [ref=f2e75]:
+          - link "Ari Patel @testportfolio" [ref=f2e76] [cursor=pointer]:
+            - /url: /dashboard/settings
+            - generic [ref=f2e78]:
+              - generic [ref=f2e79]: Ari Patel
+              - generic [ref=f2e80]: "@testportfolio"
+          - button "Sign out" [ref=f2e81] [cursor=pointer]
+  - main [ref=f2e83]:
+    - generic [ref=f2e84]:
+      - generic [ref=f2e85]:
+        - heading "Settings" [level=1] [ref=f2e86]
+        - paragraph [ref=f2e87]: Manage your profile and account.
+      - tablist "Settings sections" [ref=f2e88]:
+        - tab "Profile" [selected] [ref=f2e89] [cursor=pointer]
+        - tab "Account" [ref=f2e92] [cursor=pointer]
+      - generic [ref=f2e95]:
+        - generic [ref=f2e96]: Portfolio design has moved to its own workspace.
+        - link "Open Portfolio" [ref=f2e99] [cursor=pointer]:
+          - /url: /dashboard/portfolio
+      - generic [ref=f2e100]:
+        - generic [ref=f2e101]:
+          - heading "Discover activity" [level=3] [ref=f2e102]
+          - paragraph [ref=f2e103]: Private stats from your posts and interactions.
+          - generic [ref=f2e104]:
+            - generic [ref=f2e105]:
+              - generic [ref=f2e106]: Posts
+              - generic [ref=f2e109]: "5"
+            - generic [ref=f2e110]:
+              - generic [ref=f2e111]: Makers followed
+              - generic [ref=f2e114]: "0"
+            - generic [ref=f2e115]:
+              - generic [ref=f2e116]: Comments
+              - generic [ref=f2e119]: "0"
+            - generic [ref=f2e120]:
+              - generic [ref=f2e121]: Saves
+              - generic [ref=f2e124]: "0"
+        - generic [ref=f2e125]:
+          - generic [ref=f2e126]:
+            - generic [ref=f2e127]: Profile photo
+            - generic [ref=f2e128]:
+              - generic [ref=f2e129] [cursor=pointer]:
+                - button "Choose File" [ref=f2e130]
+                - img "Avatar" [ref=f2e132]
+              - generic [ref=f2e133]:
+                - generic [ref=f2e134]: Upload a photo
+                - generic [ref=f2e135]: Click or drag an image. PNG or JPG up to 10MB.
+          - generic [ref=f2e136]:
+            - heading "Basic info" [level=3] [ref=f2e137]
+            - generic [ref=f2e138]:
+              - generic [ref=f2e139]:
+                - generic [ref=f2e140]: Full name
+                - textbox [ref=f2e141]: Ari Patel
+              - generic [ref=f2e142]:
+                - generic [ref=f2e143]: Username
+                - generic [ref=f2e144]:
+                  - generic [ref=f2e145]: /
+                  - textbox [ref=f2e146]: testportfolio
+            - generic [ref=f2e147]:
+              - generic [ref=f2e148]: Headline
+              - textbox "e.g. Mechanical Engineering at MIT, NASA Research Intern" [ref=f2e149]: Computer Engineering Student at Arizona State University - Embedded Systems, FPGA Design, and Edge AI
+            - generic [ref=f2e150]:
+              - generic [ref=f2e151]: Bio
+              - textbox "A brief bio about yourself and your interests..." [ref=f2e152]: "I am a computer engineering student at Arizona State University focused on the space where hardware, firmware, and practical software meet. My projects usually start with a signal, bus, or timing problem and end with something observable: a dashboard, trace, report, or working prototype. I am especially interested in FPGA systems, embedded firmware, robotics telemetry, secure device updates, and edge AI that can run close to the hardware."
+            - generic [ref=f2e153]:
+              - generic [ref=f2e154]: Location
+              - textbox "Cambridge, MA" [ref=f2e155]: Tempe, Arizona
+            - generic [ref=f2e156]:
+              - generic [ref=f2e157]:
+                - generic [ref=f2e158]: Contact email
+                - textbox "Public contact email" [ref=f2e159]: test.portfolio@example.com
+                - paragraph [ref=f2e160]: Shown on your public portfolio
+              - generic [ref=f2e161]:
+                - generic [ref=f2e162]: Phone number
+                - textbox "+1 (555) 000-0000" [ref=f2e163]
+                - paragraph [ref=f2e164]: Optional. Shown on portfolio.
+          - generic [ref=f2e165]:
+            - heading "Skills" [level=3] [ref=f2e166]
+            - paragraph [ref=f2e167]: These appear as tags on your portfolio (e.g. Python, SolidWorks, MATLAB)
+            - generic [ref=f2e168]:
+              - generic [ref=f2e169]:
+                - generic [ref=f2e170]:
+                  - text: Verilog
+                  - button [ref=f2e171] [cursor=pointer]
+                - generic [ref=f2e173]:
+                  - text: SystemVerilog
+                  - button [ref=f2e174] [cursor=pointer]
+                - generic [ref=f2e176]:
+                  - text: FPGA
+                  - button [ref=f2e177] [cursor=pointer]
+                - generic [ref=f2e179]:
+                  - text: RISC-V
+                  - button [ref=f2e180] [cursor=pointer]
+                - generic [ref=f2e182]:
+                  - text: C
+                  - button [ref=f2e183] [cursor=pointer]
+                - generic [ref=f2e185]:
+                  - text: C++
+                  - button [ref=f2e186] [cursor=pointer]
+                - generic [ref=f2e188]:
+                  - text: Python
+                  - button [ref=f2e189] [cursor=pointer]
+                - generic [ref=f2e191]:
+                  - text: Embedded Linux
+                  - button [ref=f2e192] [cursor=pointer]
+                - generic [ref=f2e194]:
+                  - text: FreeRTOS
+                  - button [ref=f2e195] [cursor=pointer]
+                - generic [ref=f2e197]:
+                  - text: ESP32
+                  - button [ref=f2e198] [cursor=pointer]
+                - generic [ref=f2e200]:
+                  - text: STM32
+                  - button [ref=f2e201] [cursor=pointer]
+                - generic [ref=f2e203]:
+                  - text: PCB Design
+                  - button [ref=f2e204] [cursor=pointer]
+                - generic [ref=f2e206]:
+                  - text: KiCad
+                  - button [ref=f2e207] [cursor=pointer]
+                - generic [ref=f2e209]:
+                  - text: ROS 2
+                  - button [ref=f2e210] [cursor=pointer]
+                - generic [ref=f2e212]:
+                  - text: OpenCV
+                  - button [ref=f2e213] [cursor=pointer]
+                - generic [ref=f2e215]:
+                  - text: MQTT
+                  - button [ref=f2e216] [cursor=pointer]
+                - generic [ref=f2e218]:
+                  - text: CAN Bus
+                  - button [ref=f2e219] [cursor=pointer]
+                - generic [ref=f2e221]:
+                  - text: Control Systems
+                  - button [ref=f2e222] [cursor=pointer]
+                - generic [ref=f2e224]:
+                  - text: Signal Processing
+                  - button [ref=f2e225] [cursor=pointer]
+                - generic [ref=f2e227]:
+                  - text: GitHub Actions
+                  - button [ref=f2e228] [cursor=pointer]
+                - textbox [ref=f2e230]
+              - paragraph [ref=f2e231]: Select from the list or type anything and press Enter. Use Backspace to remove the last tag.
+          - generic [ref=f2e232]:
+            - heading "Links" [level=3] [ref=f2e233]
+            - generic [ref=f2e234]:
+              - generic [ref=f2e235]: Personal website
+              - textbox "https://yourwebsite.com" [ref=f2e236]: https://example.com/testportfolio
+            - generic [ref=f2e237]:
+              - generic [ref=f2e238]: LinkedIn URL
+              - textbox "https://linkedin.com/in/yourname" [ref=f2e239]: https://www.linkedin.com/in/testportfolio-asu
+            - generic [ref=f2e240]:
+              - generic [ref=f2e241]: GitHub URL
+              - textbox "https://github.com/yourname" [ref=f2e242]: https://github.com/testportfolio-asu
+          - button "Save profile" [ref=f2e244] [cursor=pointer]
+        - generic [ref=f2e246]:
+          - generic [ref=f2e247]:
+            - generic [ref=f2e248]:
+              - heading "Employment" [level=3] [ref=f2e249]
+              - button "Add employment" [ref=f2e250] [cursor=pointer]
+            - list [ref=f2e262]:
+              - listitem [ref=f2e276]:
+                - generic [ref=f2e277]:
+                  - paragraph [ref=f2e278]: Manufacturing Engineering Intern
+                  - paragraph [ref=f2e279]: Acme Robotics
+                - generic [ref=f2e280]:
+                  - button "Edit Manufacturing Engineering Intern" [ref=f2e281] [cursor=pointer]: Edit
+                  - button "Delete Manufacturing Engineering Intern" [ref=f2e282] [cursor=pointer]: Delete
+          - generic [ref=f2e264]:
+            - generic [ref=f2e265]:
+              - heading "Education" [level=3] [ref=f2e266]
+              - button "Add education" [ref=f2e267] [cursor=pointer]
+            - list [ref=f2e268]:
+              - listitem [ref=f2e294]:
+                - generic [ref=f2e295]:
+                  - paragraph [ref=f2e296]: BSc Mechanical Engineering
+                  - paragraph [ref=f2e297]: State University
+                - generic [ref=f2e298]:
+                  - button "Edit BSc Mechanical Engineering" [ref=f2e299] [cursor=pointer]: Edit
+                  - button "Delete BSc Mechanical Engineering" [ref=f2e300] [cursor=pointer]: Delete
+          - generic [ref=f2e270]:
+            - generic [ref=f2e271]:
+              - heading "Certifications" [level=3] [ref=f2e272]
+              - button "Add certification" [ref=f2e273] [cursor=pointer]
+            - list [ref=f2e274]:
+              - listitem [ref=f2e275]: Nothing added yet.

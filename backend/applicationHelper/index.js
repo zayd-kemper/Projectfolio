@@ -56,6 +56,7 @@ const assemblePackage = ({ context, platform, session, tailoring, resume, jobAna
     snippets: {
       skills_summary: tailoring.skills_summary || '',
       professional_summary: tailoring.professional_summary || '',
+      project_summary: tailoring.project_summary || '',
       experience_bullets: tailoring.experience_bullets || [],
     },
     meta: {

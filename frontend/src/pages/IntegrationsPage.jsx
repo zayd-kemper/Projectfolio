@@ -4,19 +4,27 @@ import { useAuth } from '../hooks/useAuth';
 import DashboardLayout from '../components/shared/DashboardLayout';
 import EngineeringIcon from '../components/shared/EngineeringIcon';
 import api, { API_BASE_URL } from '../utils/api';
+import ApplicationHelperPage from './ApplicationHelperPage';
 import { resolveJobResponse } from '../utils/jobs';
 import toast from 'react-hot-toast';
 
 const TABS = [
   { id: 'share', label: 'Share & Export', icon: 'link' },
   { id: 'api', label: 'API & Embed', icon: 'settings-gear' },
+  { id: 'applications', label: 'Application Helper', icon: 'briefcase' },
 ];
+
+// Deep links (/dashboard/integrations?tab=applications) land on the right tab.
+const initialTab = () => {
+  const requested = new URLSearchParams(window.location.search).get('tab');
+  return TABS.some((tab) => tab.id === requested) ? requested : 'share';
+};
 
 export default function IntegrationsPage() {
   const { user } = useAuth();
   const [portfolioUrl, setPortfolioUrl] = useState('');
   const [apiSpec, setApiSpec] = useState(null);
-  const [activeTab, setActiveTab] = useState('share');
+  const [activeTab, setActiveTab] = useState(initialTab);
 
   useEffect(() => {
     if (user?.username) setPortfolioUrl(`${window.location.origin}/${user.username}`);
@@ -72,8 +80,8 @@ export default function IntegrationsPage() {
   return (
     <DashboardLayout>
       <div className="mb-8">
-        <h1 className="page-title">Integrations</h1>
-        <p className="page-subtitle">Share your portfolio, export your work, and connect with job platforms.</p>
+        <h1 className="page-title">Integrate & Apply</h1>
+        <p className="page-subtitle">Share your portfolio, export your work, and prepare tailored job applications.</p>
       </div>
 
       <div className="mb-8 flex w-fit gap-1 rounded-xl bg-surface-muted p-1">
@@ -81,7 +89,7 @@ export default function IntegrationsPage() {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-all ${activeTab === tab.id ? 'bg-white text-ink shadow-sm' : 'text-ink-muted hover:text-ink-secondary dark:text-ink-faint'}`}
+            className={`flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-all ${activeTab === tab.id ? 'bg-surface text-ink shadow-sm' : 'text-ink-muted hover:text-ink-secondary'}`}
           >
             <EngineeringIcon name={tab.icon} size="1em" />
             <span>{tab.label}</span>
@@ -98,7 +106,7 @@ export default function IntegrationsPage() {
               <input readOnly value={portfolioUrl} className="form-input flex-1 font-mono text-sm" />
               <button onClick={handleCopyLink} className="btn-primary whitespace-nowrap">Copy link</button>
             </div>
-            <div className="mt-4 grid grid-cols-2 gap-3 text-sm text-ink-muted">
+            <div className="mt-4 grid grid-cols-1 gap-3 text-sm text-ink-muted sm:grid-cols-2">
               {[
                 ['document', 'Applications', 'Paste in additional materials or personal statements'],
                 ['briefcase', 'LinkedIn', 'Add to Featured section or contact info'],
@@ -199,6 +207,8 @@ export default function IntegrationsPage() {
           </section>
         </div>
       )}
+
+      {activeTab === 'applications' && <ApplicationHelperPage noLayout />}
     </DashboardLayout>
   );
 }

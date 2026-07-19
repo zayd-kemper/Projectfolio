@@ -1,0 +1,68 @@
+- generic [ref=f27e145]:
+  - complementary [ref=f27e146]:
+    - generic [ref=f27e147]:
+      - generic [ref=f27e149]:
+        - generic [ref=f27e151]: ProjectFolio
+        - button "Notifications" [ref=f27e154] [cursor=pointer]
+      - navigation [ref=f27e156]:
+        - link "Projects" [ref=f27e157] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Media Library" [ref=f27e160] [cursor=pointer]:
+          - /url: /dashboard/media
+        - link "Analytics" [ref=f27e163] [cursor=pointer]:
+          - /url: /dashboard/analytics
+        - link "Opportunities" [ref=f27e166] [cursor=pointer]:
+          - /url: /dashboard/ai-tools
+        - link "Portfolio" [ref=f27e169] [cursor=pointer]:
+          - /url: /dashboard/portfolio
+        - link "Integrate & Apply" [ref=f27e172] [cursor=pointer]:
+          - /url: /dashboard/integrations
+        - link "Teams" [ref=f27e175] [cursor=pointer]:
+          - /url: /dashboard/teams
+        - link "Discover" [ref=f27e178] [cursor=pointer]:
+          - /url: /discover
+      - generic [ref=f27e181]:
+        - link "View My Portfolio" [ref=f27e182] [cursor=pointer]:
+          - /url: /import-tester
+        - button "Dark mode" [ref=f27e185] [cursor=pointer]
+        - generic [ref=f27e188]:
+          - link "I Import Tester @import-tester" [ref=f27e189] [cursor=pointer]:
+            - /url: /dashboard/settings
+            - generic [ref=f27e190]: I
+            - generic [ref=f27e191]:
+              - generic [ref=f27e192]: Import Tester
+              - generic [ref=f27e193]: "@import-tester"
+          - button "Sign out" [ref=f27e194] [cursor=pointer]
+  - main [ref=f27e74]:
+    - generic [ref=f27e75]:
+      - generic [ref=f27e76]:
+        - generic [ref=f27e77]:
+          - heading "My Projects" [level=1] [ref=f27e196]
+          - paragraph [ref=f27e79]: Document your work once; share it everywhere.
+        - generic [ref=f27e80]:
+          - button "Preview portfolio" [ref=f27e197] [cursor=pointer]
+          - link "View live" [ref=f27e198] [cursor=pointer]:
+            - /url: /import-tester
+          - button "+ New Project" [ref=f27e199] [cursor=pointer]
+      - generic [ref=f27e86]:
+        - heading "Put your first proof of work online" [level=3] [ref=f27e200]
+        - paragraph [ref=f27e89]: Your portfolio lives at /import-tester — it just has nothing on it yet. One published project is enough for a recruiter to take you seriously.
+        - list [ref=f27e90]:
+          - listitem [ref=f27e91]:
+            - generic [ref=f27e92]: "1"
+            - generic [ref=f27e93]:
+              - paragraph [ref=f27e94]: Create a project
+              - paragraph [ref=f27e95]: A title and a one-line summary is enough to start.
+          - listitem [ref=f27e96]:
+            - generic [ref=f27e97]: "2"
+            - generic [ref=f27e98]:
+              - paragraph [ref=f27e99]: Add your evidence
+              - paragraph [ref=f27e100]: Screenshots, code, results, decisions — blocks handle all of it.
+          - listitem [ref=f27e101]:
+            - generic [ref=f27e102]: "3"
+            - generic [ref=f27e103]:
+              - paragraph [ref=f27e104]: Publish it
+              - paragraph [ref=f27e105]: Your portfolio URL goes from empty to shareable.
+        - generic [ref=f27e106]:
+          - button "+ Create your first project" [ref=f27e201] [cursor=pointer]
+          - button "Import from GitHub instead" [ref=f27e202] [cursor=pointer]

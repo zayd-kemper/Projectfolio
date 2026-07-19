@@ -202,7 +202,11 @@ function ProjectRating({ project }) {
           <div className="truncate font-medium text-ink">{project.title}</div>
           {project.headline && <div className="mt-0.5 truncate text-xs text-ink-muted">{project.headline}</div>}
         </div>
-        <span className="text-sm font-semibold text-ink-muted">{open ? '-' : '+'}</span>
+        <span className="text-ink-muted">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true" className={`transition-transform duration-150 ${open ? 'rotate-180' : ''}`}>
+            <path d="M2.5 4.25L6 7.75l3.5-3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </span>
       </button>
 
       {open && (
@@ -793,7 +797,7 @@ export default function AIToolsPage() {
             </div>
           )}
 
-          <h1 className="page-title mb-1">{activeTool ? activeToolData?.title : 'AI Tools'}</h1>
+          <h1 className="page-title mb-1">{activeTool ? activeToolData?.title : 'Opportunities'}</h1>
           <p className="page-subtitle">
             {activeTool
               ? activeToolData?.desc

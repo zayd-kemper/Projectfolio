@@ -57,6 +57,25 @@ function toNumber(value, fallback = 0) {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
+// Recharts writes colors as SVG attributes, where CSS var() strings don't
+// resolve — so resolve the design tokens to concrete rgb() values here.
+function getChartColors() {
+  if (typeof document === 'undefined') {
+    return { accent: '#2563eb', muted: '#6b7280', grid: '#e5e7eb' };
+  }
+  const source = document.querySelector('.app-surface') || document.documentElement;
+  const styles = getComputedStyle(source);
+  const rgb = (name, fallback) => {
+    const triplet = styles.getPropertyValue(name).trim();
+    return triplet ? `rgb(${triplet})` : fallback;
+  };
+  return {
+    accent: rgb('--accent', '#2563eb'),
+    muted: rgb('--ink-muted', '#6b7280'),
+    grid: rgb('--line', '#e5e7eb'),
+  };
+}
+
 function TrendBadge({ pct }) {
   if (pct === null || pct === undefined) return null;
   const up = pct >= 0;
@@ -87,6 +106,14 @@ export default function AnalyticsPage() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [range, setRange] = useState('30d');
+  const [, setThemeTick] = useState(0);
+
+  // Re-resolve chart token colors when the theme class flips on <html>.
+  useEffect(() => {
+    const observer = new MutationObserver(() => setThemeTick((tick) => tick + 1));
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!user?.username) return;
@@ -113,6 +140,8 @@ export default function AnalyticsPage() {
   const visibleProjectViews = projectViews.filter((project) => toNumber(project.views) > 0);
   const zeroProjectCount = projectViews.filter((project) => toNumber(project.views) === 0).length;
   const totalProjectViews = projectViews.reduce((sum, project) => sum + toNumber(project.views), 0);
+
+  const chartColors = getChartColors();
 
   const CustomTooltip = ({ active, payload }) => {
     if (!active || !payload?.length) return null;
@@ -150,7 +179,7 @@ export default function AnalyticsPage() {
       </div>
 
       {loading ? (
-        <div className="animate-pulse space-y-4">
+        <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             {[1, 2, 3, 4].map((item) => <div key={item} className="skeleton-shimmer h-28 rounded-xl" />)}
           </div>
@@ -189,7 +218,7 @@ export default function AnalyticsPage() {
           </div>
 
           {range !== 'all' && (
-            <div className="-mt-2 text-xs text-ink-faint">
+            <div className="-mt-2 text-xs text-ink-muted">
               All-time total: <span className="font-medium text-ink-secondary">{toNumber(data.total_views).toLocaleString()} views</span>
             </div>
           )}
@@ -204,26 +233,28 @@ export default function AnalyticsPage() {
                 </div>
               )}
             </div>
-            {chartData.length > 0 ? (
+            {hasRangeViews && chartData.length > 0 ? (
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(107,114,128,0.25)" />
-                  <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#6b7280' }} stroke="rgba(107,114,128,0.35)" tickLine={false} interval="preserveStartEnd" />
-                  <YAxis tick={{ fontSize: 11, fill: '#6b7280' }} stroke="rgba(107,114,128,0.35)" tickLine={false} allowDecimals={false} />
-                  <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#2563eb', strokeWidth: 1, strokeDasharray: '4 4' }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
+                  <XAxis dataKey="label" tick={{ fontSize: 11, fill: chartColors.muted }} stroke={chartColors.grid} tickLine={false} interval="preserveStartEnd" />
+                  <YAxis tick={{ fontSize: 11, fill: chartColors.muted }} stroke={chartColors.grid} tickLine={false} allowDecimals={false} />
+                  <Tooltip content={<CustomTooltip />} cursor={{ stroke: chartColors.accent, strokeWidth: 1, strokeDasharray: '4 4' }} />
                   <Line
                     type="monotone"
                     dataKey="views"
-                    stroke="#2563eb"
+                    stroke={chartColors.accent}
                     strokeWidth={2}
-                    dot={chartData.length <= 14 ? { r: 3, fill: '#2563eb', strokeWidth: 0 } : false}
-                    activeDot={{ r: 5, fill: '#2563eb', strokeWidth: 0 }}
+                    dot={chartData.length <= 14 ? { r: 3, fill: chartColors.accent, strokeWidth: 0 } : false}
+                    activeDot={{ r: 5, fill: chartColors.accent, strokeWidth: 0 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
             ) : (
-              <div className="flex h-48 items-center justify-center text-sm text-ink-faint">
-                No views in this period yet.
+              <div className="flex h-48 flex-col items-center justify-center gap-2 text-center">
+                <EngineeringIcon name="search-scan" size="1.8rem" />
+                <p className="text-sm text-ink-muted">No views in this period yet.</p>
+                <p className="text-xs text-ink-muted">Try a wider time range, or share your portfolio link to start collecting views.</p>
               </div>
             )}
           </div>
@@ -249,7 +280,7 @@ export default function AnalyticsPage() {
                             {project.title}
                           </a>
                           <div className="flex flex-shrink-0 items-center gap-2">
-                            <span className="text-xs text-ink-faint">{pct}%</span>
+                            <span className="text-xs text-ink-muted">{pct}%</span>
                             <span className="text-sm font-semibold text-ink">{views.toLocaleString()}</span>
                           </div>
                         </div>
@@ -261,7 +292,7 @@ export default function AnalyticsPage() {
                   })}
                 </div>
                 {zeroProjectCount > 0 && (
-                  <p className="mt-3 text-xs text-ink-faint">
+                  <p className="mt-3 text-xs text-ink-muted">
                     {zeroProjectCount} project{zeroProjectCount !== 1 ? 's' : ''} with no views in this period
                   </p>
                 )}
@@ -296,13 +327,6 @@ export default function AnalyticsPage() {
             )}
           </div>
 
-          {!hasRangeViews && visibleProjectViews.length === 0 && (
-            <div className="card p-10 text-center">
-              <EngineeringIcon name="search-scan" size="2.5rem" className="mx-auto mb-3" />
-              <p className="text-ink-muted">No views recorded in this period.</p>
-              <p className="mt-1 text-xs text-ink-faint">Try selecting a wider time range.</p>
-            </div>
-          )}
         </div>
       )}
     </DashboardLayout>

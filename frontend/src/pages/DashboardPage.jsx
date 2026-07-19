@@ -4,13 +4,15 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import DashboardLayout from '../components/shared/DashboardLayout';
 import OnboardingModal from '../components/shared/OnboardingModal';
+import ConfirmDialog from '../components/shared/ConfirmDialog';
+import GithubImportModal from '../components/shared/GithubImportModal';
 import EngineeringIcon from '../components/shared/EngineeringIcon';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 
 const STATUS_COLORS = {
-  draft: 'bg-surface-muted text-ink-muted dark:text-ink-faint',
+  draft: 'bg-surface-muted text-ink-muted',
   published: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
 };
 
@@ -61,7 +63,7 @@ function ProjectThumbnail({ project, icon = 'research-scope' }) {
   return (
     <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl bg-accent-surface">
       {project.cover_image_url ? (
-        <img src={project.cover_image_url} alt="" className="h-full w-full object-cover" />
+        <img loading="lazy" decoding="async" src={project.cover_image_url} alt="" className="h-full w-full object-cover" />
       ) : (
         <EngineeringIcon name={icon} size="1.75rem" />
       )}
@@ -94,7 +96,7 @@ function CollaboratorAvatars({ collaborators = [] }) {
             style={{ marginLeft: '-4px' }}
           >
             {collaborator.avatar_url ? (
-              <img src={collaborator.avatar_url} alt="" className="h-full w-full object-cover" />
+              <img loading="lazy" decoding="async" src={collaborator.avatar_url} alt="" className="h-full w-full object-cover" />
             ) : (
               collaborator.full_name?.charAt(0)
             )}
@@ -201,7 +203,7 @@ function SmartHighlights({ projects, username, onDismiss }) {
           <span className="text-sm font-semibold text-ink-secondary">Portfolio checks</span>
           <span className="text-xs text-ink-muted">Based on your current projects</span>
         </div>
-        <button onClick={onDismiss} className="text-xs text-ink-muted transition-colors hover:text-ink-secondary dark:hover:text-ink-faint">
+        <button onClick={onDismiss} className="text-xs text-ink-muted transition-colors hover:text-ink-secondary">
           Dismiss
         </button>
       </div>
@@ -235,7 +237,7 @@ function SmartHighlights({ projects, username, onDismiss }) {
                               <li key={gap.label} className="flex items-center gap-2">
                                 <EngineeringIcon name={gap.icon} size="0.8rem" />
                                 <span className={`text-xs ${style.sub}`}>{gap.label}</span>
-                                <span className="ml-auto rounded-full bg-white/60 px-1.5 py-0.5 text-[10px] font-medium text-ink-muted dark:bg-black/20 dark:text-ink-faint">
+                                <span className="ml-auto rounded-full bg-white/60 px-1.5 py-0.5 text-[10px] font-medium text-ink-muted dark:bg-black/20">
                                   {gap.impact}
                                 </span>
                               </li>
@@ -319,23 +321,23 @@ function SkimMockup({ user, projects }) {
     .slice(0, 4);
 
   const Zone = ({ label, children, dim }) => (
-    <div className={`relative rounded-xl ${dim ? 'bg-surface-muted p-3 opacity-60' : 'border-2 border-accent-border bg-accent-surface/60 p-3'}`}>
+    <div className={`relative rounded-xl ${dim ? 'bg-gray-100 p-3 opacity-60' : 'border-2 border-blue-100 bg-blue-50/60 p-3'}`}>
       {!dim && (
-        <span className="absolute right-2 top-2 rounded bg-white px-2 py-0.5 font-mono text-[10px] font-semibold text-accent-text">
+        <span className="absolute right-2 top-2 rounded bg-white px-2 py-0.5 font-mono text-[10px] font-semibold text-blue-700">
           {label}
         </span>
       )}
       {dim ? (
-        <div className="text-center text-[11px] text-ink-muted">Less visible during a quick scan</div>
+        <div className="text-center text-[11px] text-gray-500">Less visible during a quick scan</div>
       ) : children}
     </div>
   );
 
   return (
-    <div className="h-full overflow-y-auto bg-white text-ink">
-      <div className="flex items-center justify-between border-b border-line-subtle px-6 py-3">
-        <span className="text-sm font-semibold text-ink-muted">ProjectFolio</span>
-        <div className="flex gap-4 text-xs text-ink-muted">
+    <div className="h-full overflow-y-auto bg-white text-gray-900" style={{ colorScheme: 'light' }}>
+      <div className="flex items-center justify-between border-b border-gray-100 px-6 py-3">
+        <span className="text-sm font-semibold text-gray-500">ProjectFolio</span>
+        <div className="flex gap-4 text-xs text-gray-500">
           {user?.resume_url && <span>Resume</span>}
           {user?.linkedin_url && <span>LinkedIn</span>}
           {user?.github_url && <span>GitHub</span>}
@@ -345,15 +347,15 @@ function SkimMockup({ user, projects }) {
       <div className="mx-auto max-w-3xl px-6 py-6">
         <Zone label="First impression">
           <div className="flex items-start gap-4">
-            <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl bg-accent-surface text-lg font-semibold text-accent-text">
-              {user?.avatar_url ? <img src={user.avatar_url} alt="" className="h-full w-full object-cover" /> : user?.full_name?.charAt(0)}
+            <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl bg-blue-50 text-lg font-semibold text-blue-700">
+              {user?.avatar_url ? <img loading="lazy" decoding="async" src={user.avatar_url} alt="" className="h-full w-full object-cover" /> : user?.full_name?.charAt(0)}
             </div>
             <div>
               <div className="text-xl font-semibold">{user?.full_name || 'Your Name'}</div>
-              <div className="mt-1 text-sm text-ink-muted">{user?.headline || 'Your headline appears here'}</div>
+              <div className="mt-1 text-sm text-gray-500">{user?.headline || 'Your headline appears here'}</div>
               {Array.isArray(user?.skills) && user.skills.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-1.5">
-                  {user.skills.slice(0, 5).map((skill) => <span key={skill} className="tech-tag">{skill}</span>)}
+                  {user.skills.slice(0, 5).map((skill) => <span key={skill} className="rounded-md bg-gray-100 px-2 py-0.5 font-mono text-[11px] font-medium text-gray-700">{skill}</span>)}
                 </div>
               )}
             </div>
@@ -365,9 +367,9 @@ function SkimMockup({ user, projects }) {
           {topProjects[0] && (
             <Zone label="Best project">
               <div className="flex gap-3 pr-20">
-                <div className="flex h-20 w-24 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-accent-surface">
+                <div className="flex h-20 w-24 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-blue-50">
                   {topProjects[0].cover_image_url ? (
-                    <img src={topProjects[0].cover_image_url} alt="" className="h-full w-full object-cover" />
+                    <img loading="lazy" decoding="async" src={topProjects[0].cover_image_url} alt="" className="h-full w-full object-cover" />
                   ) : (
                     <EngineeringIcon name="research-scope" size="1.5rem" />
                   )}
@@ -377,10 +379,10 @@ function SkimMockup({ user, projects }) {
                     <div className="truncate text-sm font-semibold">{topProjects[0].title}</div>
                     {topProjects[0].is_featured && <EngineeringIcon name="award-badge" size="0.9rem" />}
                   </div>
-                  {topProjects[0].tagline && <div className="mt-1 truncate text-xs text-ink-muted">{topProjects[0].tagline}</div>}
+                  {topProjects[0].tagline && <div className="mt-1 truncate text-xs text-gray-500">{topProjects[0].tagline}</div>}
                   {Array.isArray(topProjects[0].technologies) && topProjects[0].technologies.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-1.5">
-                      {topProjects[0].technologies.slice(0, 5).map((tech) => <span key={tech} className="tech-tag">{tech}</span>)}
+                      {topProjects[0].technologies.slice(0, 5).map((tech) => <span key={tech} className="rounded-md bg-gray-100 px-2 py-0.5 font-mono text-[11px] font-medium text-gray-700">{tech}</span>)}
                     </div>
                   )}
                 </div>
@@ -393,10 +395,10 @@ function SkimMockup({ user, projects }) {
               <Zone dim>
                 <div className="grid grid-cols-3 gap-2">
                   {topProjects.slice(1).map((project) => (
-                    <div key={project.id} className="overflow-hidden rounded-lg bg-surface-muted">
-                      <div className="flex h-12 items-center justify-center bg-surface-muted">
+                    <div key={project.id} className="overflow-hidden rounded-lg bg-gray-100">
+                      <div className="flex h-12 items-center justify-center bg-gray-100">
                         {project.cover_image_url ? (
-                          <img src={project.cover_image_url} alt="" className="h-full w-full object-cover" />
+                          <img loading="lazy" decoding="async" src={project.cover_image_url} alt="" className="h-full w-full object-cover" />
                         ) : (
                           <EngineeringIcon name="research-scope" size="1rem" />
                         )}
@@ -410,7 +412,7 @@ function SkimMockup({ user, projects }) {
           )}
 
           {topProjects.length === 0 && (
-            <div className="rounded-xl border-2 border-dashed border-line p-8 text-center text-sm text-ink-muted">
+            <div className="rounded-xl border-2 border-dashed border-gray-200 p-8 text-center text-sm text-gray-500">
               No published projects yet. Publish one to see it here.
             </div>
           )}
@@ -435,8 +437,8 @@ function PortfolioPreviewModal({ portfolioUrl, user, projects, onClose }) {
     <div className="fixed inset-0 z-50 flex flex-col bg-gray-950/95 backdrop-blur-sm">
       <div className="flex flex-shrink-0 items-center gap-4 border-b border-gray-800 px-5 py-3">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-ink-faint">Portfolio Preview</span>
-          <span className="max-w-[200px] truncate font-mono text-xs text-ink-muted">{portfolioUrl}</span>
+          <span className="text-sm font-medium text-gray-400">Portfolio Preview</span>
+          <span className="max-w-[200px] truncate font-mono text-xs text-gray-400">{portfolioUrl}</span>
         </div>
 
         <div className="mx-auto flex items-center gap-1 rounded-xl bg-gray-900 p-1">
@@ -446,7 +448,7 @@ function PortfolioPreviewModal({ portfolioUrl, user, projects, onClose }) {
               <button
                 key={item.id}
                 onClick={() => setMode(item.id)}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${active ? 'bg-gray-700 text-white shadow-sm' : 'text-ink-muted hover:text-ink-faint'}`}
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${active ? 'bg-gray-700 text-white shadow-sm' : 'text-gray-400 hover:text-gray-200'}`}
               >
                 <EngineeringIcon name={item.icon} size="1em" />
                 <span>{item.label}</span>
@@ -455,15 +457,15 @@ function PortfolioPreviewModal({ portfolioUrl, user, projects, onClose }) {
           })}
         </div>
 
-        <button onClick={onClose} className="ml-auto flex h-8 w-8 items-center justify-center rounded-lg text-xl leading-none text-ink-muted transition-colors hover:bg-gray-800 hover:text-gray-200">
-          x
+        <button onClick={onClose} aria-label="Close preview" className="ml-auto flex h-10 w-10 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-800 hover:text-gray-200">
+          <EngineeringIcon name="close" size="1rem" />
         </button>
       </div>
 
       <div className="flex flex-shrink-0 items-center gap-3 border-b border-gray-800 bg-gray-900/50 px-5 py-2">
-        <span className="text-xs text-ink-faint">{current.desc}</span>
-        <span className="text-ink-secondary">/</span>
-        <span className="text-xs italic text-ink-muted">{current.hint}</span>
+        <span className="text-xs text-gray-400">{current.desc}</span>
+        <span className="text-gray-600">/</span>
+        <span className="text-xs italic text-gray-400">{current.hint}</span>
         <a href={portfolioUrl} target="_blank" rel="noreferrer" className="ml-auto flex-shrink-0 text-xs text-accent-text transition-colors hover:underline">
           Open full page
         </a>
@@ -494,8 +496,8 @@ function PortfolioPreviewModal({ portfolioUrl, user, projects, onClose }) {
       </div>
 
       <div className="flex-shrink-0 border-t border-gray-800 bg-gray-950 px-5 py-2.5">
-        <p className="text-xs text-ink-muted">
-          <strong className="text-ink-faint">Tip:</strong>{' '}
+        <p className="text-xs text-gray-400">
+          <strong className="text-gray-300">Tip:</strong>{' '}
           {mode === 'recruiter' && 'Featured projects appear first. Make sure your best work has a strong cover image.'}
           {mode === 'mobile' && 'Check that project titles, tags, and buttons stay readable on small screens.'}
           {mode === 'skim' && 'The highlighted zones should immediately communicate who you are and what you built.'}
@@ -510,7 +512,9 @@ export default function DashboardPage() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showGithubImport, setShowGithubImport] = useState(false);
   const [showHighlights, setShowHighlights] = useState(true);
   const [showPreview, setShowPreview] = useState(false);
   const navigate = useNavigate();
@@ -548,7 +552,6 @@ export default function DashboardPage() {
   };
 
   const handleDelete = async (project) => {
-    if (!confirm(`Delete "${project.title}"? This cannot be undone.`)) return;
     setDeleting(project.id);
     try {
       await api.delete(`/projects/${project.id}`);
@@ -586,13 +589,23 @@ export default function DashboardPage() {
   return (
     <DashboardLayout>
       {showOnboarding && <OnboardingModal onComplete={() => setShowOnboarding(false)} />}
+      <GithubImportModal
+        open={showGithubImport}
+        onClose={() => setShowGithubImport(false)}
+        onImported={(projectId) => {
+          setShowGithubImport(false);
+          navigate(`/dashboard/projects/${projectId}/edit`);
+        }}
+      />
       {showPreview && <PortfolioPreviewModal portfolioUrl={portfolioUrl} user={user} projects={projectList} onClose={() => setShowPreview(false)} />}
 
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="page-title">My Projects</h1>
           <p className="page-subtitle">
-            {projectList.length} project{projectList.length !== 1 ? 's' : ''} - {projectList.filter((project) => project.status === 'published').length} published
+            {projectList.length === 0
+              ? 'Document your work once; share it everywhere.'
+              : `${projectList.length} project${projectList.length !== 1 ? 's' : ''} - ${projectList.filter((project) => project.status === 'published').length} published`}
           </p>
         </div>
         <div className="flex w-full flex-wrap items-center gap-3 sm:w-auto sm:justify-end">
@@ -603,32 +616,41 @@ export default function DashboardPage() {
           <a href={portfolioPath} target="_blank" rel="noreferrer" className="btn-secondary hidden sm:inline-flex">
             View live
           </a>
+          <button onClick={() => setShowGithubImport(true)} className="btn-secondary flex flex-1 items-center justify-center gap-1.5 sm:flex-none">
+            <span>Import from GitHub</span>
+          </button>
           <button onClick={() => navigate('/dashboard/projects/new')} className="btn-primary flex-1 justify-center sm:flex-none">
             + New Project
           </button>
         </div>
       </div>
 
-      <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard label="Total projects" value={projectList.length} icon="project-module" />
-        <StatCard label="Published" value={projectList.filter((project) => project.status === 'published').length} icon="signal-success" />
-        <StatCard label="Drafts" value={projectList.filter((project) => project.status === 'draft').length} icon="document-edit" />
-        <StatCard label="Featured" value={projectList.filter((project) => project.is_featured).length} icon="award-badge" />
-      </div>
-
-      <section className="mb-8 flex flex-wrap items-center gap-4 rounded-xl border border-accent-border bg-accent-surface p-4">
-        <EngineeringIcon name="link" size="1.5rem" />
-        <div className="min-w-0 flex-1">
-          <div className="text-sm font-medium text-accent-text">Your portfolio URL</div>
-          <div className="truncate font-mono text-sm text-accent-text">{portfolioUrl}</div>
+      {/* Stats only once there is something to count — four zeros teach nothing. */}
+      {projectList.length > 0 && (
+        <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <StatCard label="Total projects" value={projectList.length} icon="project-module" />
+          <StatCard label="Published" value={projectList.filter((project) => project.status === 'published').length} icon="signal-success" />
+          <StatCard label="Drafts" value={projectList.filter((project) => project.status === 'draft').length} icon="document-edit" />
+          <StatCard label="Featured" value={projectList.filter((project) => project.is_featured).length} icon="award-badge" />
         </div>
-        <button onClick={() => { navigator.clipboard.writeText(portfolioUrl); toast.success('Copied to clipboard.'); }} className="btn-secondary px-4 text-xs">
-          Copy link
-        </button>
-        <Link to="/dashboard/integrations" className="btn-primary px-4 text-xs">
-          Platform integrations
-        </Link>
-      </section>
+      )}
+
+      {/* The URL is worth sharing once something is live behind it. */}
+      {projectList.some((project) => project.status === 'published') && (
+        <section className="mb-8 flex flex-wrap items-center gap-4 rounded-xl border border-accent-border bg-accent-surface p-4">
+          <EngineeringIcon name="link" size="1.5rem" />
+          <div className="min-w-0 flex-1">
+            <div className="text-sm font-medium text-accent-text">Your portfolio URL</div>
+            <div className="truncate font-mono text-sm text-accent-text">{portfolioUrl}</div>
+          </div>
+          <button onClick={() => { navigator.clipboard.writeText(portfolioUrl); toast.success('Copied to clipboard.'); }} className="btn-primary px-4 text-xs">
+            Copy link
+          </button>
+          <Link to="/dashboard/integrations" className="btn-secondary px-4 text-xs">
+            Platform integrations
+          </Link>
+        </section>
+      )}
 
       {showHighlights && !loading && projectList.length > 0 && (
         <SmartHighlights projects={projectList} username={user?.username} onDismiss={handleDismissHighlights} />
@@ -639,20 +661,45 @@ export default function DashboardPage() {
       {loading ? (
         <div className="space-y-4">
           {[1, 2, 3].map((item) => (
-            <div key={item} className="card animate-pulse p-5">
-              <div className="mb-2 h-5 w-1/3 rounded bg-surface-muted" />
-              <div className="h-4 w-1/2 rounded bg-surface-muted" />
+            <div key={item} className="card p-5">
+              <div className="skeleton-shimmer mb-2 h-5 w-1/3 rounded" />
+              <div className="skeleton-shimmer h-4 w-1/2 rounded" />
             </div>
           ))}
         </div>
       ) : projectList.length === 0 ? (
-        <div className="card p-16 text-center">
-          <EngineeringIcon name="open-folder" size="3rem" className="mx-auto mb-4" />
-          <h3 className="mb-2 text-xl font-semibold text-ink">No projects yet</h3>
-          <p className="mb-6 text-sm text-ink-muted">Create your first project to start building your portfolio.</p>
-          <button onClick={() => navigate('/dashboard/projects/new')} className="btn-primary mx-auto">
-            + Create first project
-          </button>
+        <div className="card mx-auto max-w-2xl p-8 sm:p-10">
+          <EngineeringIcon name="blocks" size="2.5rem" className="mb-4" />
+          <h3 className="mb-2 text-xl font-semibold text-ink">Put your first proof of work online</h3>
+          <p className="mb-6 max-w-prose text-sm leading-6 text-ink-muted">
+            Your portfolio lives at <span className="font-mono text-ink-secondary">{portfolioPath}</span> — it just has
+            nothing on it yet. One published project is enough for a recruiter to take you seriously.
+          </p>
+          <ol className="mb-8 space-y-3">
+            {[
+              ['Create a project', 'A title and a one-line summary is enough to start.'],
+              ['Add your evidence', 'Screenshots, code, results, decisions — blocks handle all of it.'],
+              ['Publish it', 'Your portfolio URL goes from empty to shareable.'],
+            ].map(([step, detail], index) => (
+              <li key={step} className="flex items-start gap-3">
+                <span className="mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full bg-accent-surface font-mono text-xs font-semibold text-accent-text">
+                  {index + 1}
+                </span>
+                <div>
+                  <p className="text-sm font-medium text-ink">{step}</p>
+                  <p className="text-xs text-ink-muted">{detail}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+          <div className="flex flex-wrap items-center gap-3">
+            <button onClick={() => navigate('/dashboard/projects/new')} className="btn-primary">
+              + Create your first project
+            </button>
+            <button type="button" onClick={() => setShowGithubImport(true)} className="btn-ghost text-sm">
+              Import from GitHub instead
+            </button>
+          </div>
         </div>
       ) : (
         <div className="space-y-3">
@@ -711,7 +758,7 @@ export default function DashboardPage() {
                     <button onClick={() => handleTogglePublish(project)} className={`rounded-lg px-4 py-2 text-xs font-medium transition-colors ${publishTone}`}>
                       {project.status === 'published' ? 'Unpublish' : 'Publish'}
                     </button>
-                    <button onClick={() => handleDelete(project)} disabled={deleting === project.id} className="btn-ghost px-3 text-xs text-red-500 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-900/20">
+                    <button onClick={() => setConfirmDelete(project)} disabled={deleting === project.id} aria-label={`Delete ${project.title}`} className="btn-ghost px-3 text-xs text-red-500 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-900/20">
                       {deleting === project.id ? '...' : <EngineeringIcon name="delete-bin" size="1em" />}
                     </button>
                   </div>
@@ -747,6 +794,15 @@ export default function DashboardPage() {
           )}
         </div>
       )}
+      <ConfirmDialog
+        open={Boolean(confirmDelete)}
+        onOpenChange={(open) => { if (!open) setConfirmDelete(null); }}
+        title={`Delete "${confirmDelete?.title}"?`}
+        description="The project and its blocks are removed from your portfolio. This cannot be undone."
+        confirmLabel="Delete project"
+        destructive
+        onConfirm={() => handleDelete(confirmDelete)}
+      />
     </DashboardLayout>
   );
 }

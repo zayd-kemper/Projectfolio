@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import api from '../../utils/api';
 import toast from 'react-hot-toast';
 import EngineeringIcon from '../shared/EngineeringIcon';
+import ConfirmDialog from '../shared/ConfirmDialog';
 
 export default function CollaboratorPanel({ projectId, isOwner }) {
   const [collaborators, setCollaborators] = useState([]);
@@ -9,6 +10,7 @@ export default function CollaboratorPanel({ projectId, isOwner }) {
   const [inviting, setInviting] = useState(false);
   const [inviteLink, setInviteLink] = useState('');
   const [generatingLink, setGeneratingLink] = useState(false);
+  const [confirmRemove, setConfirmRemove] = useState(null);
 
   useEffect(() => {
     if (projectId) fetchCollaborators();
@@ -55,7 +57,6 @@ export default function CollaboratorPanel({ projectId, isOwner }) {
   };
 
   const handleRemove = async (userId) => {
-    if (!confirm('Remove this collaborator?')) return;
     try {
       await api.delete(`/collaborators/project/${projectId}/collaborator/${userId}`);
       setCollaborators((current) => current.filter((item) => item.user_id !== userId));
@@ -72,14 +73,14 @@ export default function CollaboratorPanel({ projectId, isOwner }) {
           Collaborators ({collaborators.length})
         </h4>
         {collaborators.length === 0 ? (
-          <p className="text-sm text-ink-faint">No collaborators yet.</p>
+          <p className="text-sm text-ink-muted">No collaborators yet.</p>
         ) : (
           <div className="space-y-2">
             {collaborators.map((collaborator) => (
               <div key={collaborator.id} className="flex items-center gap-3">
                 <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-accent-surface text-sm font-semibold text-accent-text">
                   {collaborator.avatar_url
-                    ? <img src={collaborator.avatar_url} alt="" className="h-full w-full object-cover" />
+                    ? <img loading="lazy" decoding="async" src={collaborator.avatar_url} alt="" className="h-full w-full object-cover" />
                     : collaborator.full_name?.charAt(0)}
                 </div>
                 <div className="min-w-0 flex-1">
@@ -87,7 +88,7 @@ export default function CollaboratorPanel({ projectId, isOwner }) {
                   <div className="text-xs text-ink-muted">@{collaborator.username}</div>
                 </div>
                 {isOwner && (
-                  <button onClick={() => handleRemove(collaborator.user_id)} className="rounded px-2 py-1 text-xs text-red-400 hover:text-red-600">
+                  <button onClick={() => setConfirmRemove(collaborator.user_id)} className="rounded px-2 py-1 text-xs text-red-400 hover:text-red-600">
                     Remove
                   </button>
                 )}
@@ -96,6 +97,16 @@ export default function CollaboratorPanel({ projectId, isOwner }) {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        open={Boolean(confirmRemove)}
+        onOpenChange={(open) => { if (!open) setConfirmRemove(null); }}
+        title="Remove this collaborator?"
+        description="They lose edit access to this project. Their own work stays in their portfolio."
+        confirmLabel="Remove"
+        destructive
+        onConfirm={() => handleRemove(confirmRemove)}
+      />
 
       {isOwner && (
         <>
@@ -132,7 +143,7 @@ export default function CollaboratorPanel({ projectId, isOwner }) {
                 )}
               </button>
             )}
-            <p className="mt-1 text-xs text-ink-faint">Link expires in 7 days.</p>
+            <p className="mt-1 text-xs text-ink-muted">Link expires in 7 days.</p>
           </div>
         </>
       )}

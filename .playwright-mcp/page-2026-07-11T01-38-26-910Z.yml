@@ -1,0 +1,48 @@
+- generic [ref=e2]:
+  - status [ref=e55]: Welcome back.
+  - generic [ref=e57]:
+    - complementary [ref=e58]:
+      - generic [ref=e59]:
+        - generic [ref=e61]:
+          - generic [ref=e63]: ProjectFolio
+          - button "Notifications" [ref=e66] [cursor=pointer]
+        - navigation [ref=e68]:
+          - link "Projects" [ref=e69] [cursor=pointer]:
+            - /url: /dashboard
+          - link "Media Library" [ref=e72] [cursor=pointer]:
+            - /url: /dashboard/media
+          - link "Analytics" [ref=e75] [cursor=pointer]:
+            - /url: /dashboard/analytics
+          - link "Opportunities" [ref=e78] [cursor=pointer]:
+            - /url: /dashboard/ai-tools
+          - link "Applications" [ref=e81] [cursor=pointer]:
+            - /url: /dashboard/applications
+          - link "Portfolio" [ref=e84] [cursor=pointer]:
+            - /url: /dashboard/portfolio
+          - link "Integrations" [ref=e87] [cursor=pointer]:
+            - /url: /dashboard/integrations
+          - link "Teams" [ref=e90] [cursor=pointer]:
+            - /url: /dashboard/teams
+          - link "Discover" [ref=e93] [cursor=pointer]:
+            - /url: /discover
+        - generic [ref=e96]:
+          - link "View My Portfolio" [ref=e97] [cursor=pointer]:
+            - /url: /testportfolio
+          - button "Dark mode" [ref=e100] [cursor=pointer]
+          - generic [ref=e103]:
+            - link "Ari Patel @testportfolio" [ref=e104] [cursor=pointer]:
+              - /url: /dashboard/settings
+              - generic [ref=e106]:
+                - generic [ref=e107]: Ari Patel
+                - generic [ref=e108]: "@testportfolio"
+            - button "Sign out" [ref=e109] [cursor=pointer]
+    - main [ref=e111]:
+      - generic [ref=e113]:
+        - generic [ref=e114]:
+          - heading "My Projects" [level=1] [ref=e115]
+          - paragraph [ref=e116]: Document your work once; share it everywhere.
+        - generic [ref=e117]:
+          - button "Preview portfolio" [ref=e118] [cursor=pointer]
+          - link "View live" [ref=e121] [cursor=pointer]:
+            - /url: /testportfolio
+          - button "+ New Project" [ref=e122] [cursor=pointer]

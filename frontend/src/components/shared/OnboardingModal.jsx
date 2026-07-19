@@ -5,6 +5,7 @@ import { useAuth } from '../../hooks/useAuth';
 import api from '../../utils/api';
 import toast from 'react-hot-toast';
 import EngineeringIcon from './EngineeringIcon';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 
 const MODES = [
   {
@@ -124,8 +125,13 @@ export default function OnboardingModal({ onComplete }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-surface rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-fade-up">
+    <Dialog open onOpenChange={(open) => { if (!open) handleSkip(); }}>
+      <DialogContent
+        aria-modal="true"
+        showCloseButton={false}
+        className="app-surface block w-full max-w-2xl gap-0 overflow-y-auto bg-surface p-0 text-ink shadow-pop sm:max-w-2xl max-h-[90vh]"
+      >
+        <DialogTitle className="sr-only">Set up your portfolio</DialogTitle>
         <div className="px-8 pt-8 pb-0">
           <div className="flex items-center justify-between mb-1">
             <span className="text-xs font-medium text-ink-muted">
@@ -304,7 +310,7 @@ export default function OnboardingModal({ onComplete }) {
             </div>
           </div>
         )}
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

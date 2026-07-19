@@ -280,7 +280,7 @@ export default function DiscoverComposer({ open, user, initialPost, onClose, onC
                           aria-label={`Select ${item.filename || 'media item'}`}
                         >
                           {item.file_type?.startsWith('image/') ? (
-                            <img src={item.thumbnail_url || item.url} alt="" className="h-full w-full object-cover" />
+                            <img loading="lazy" decoding="async" src={item.thumbnail_url || item.url} alt="" className="h-full w-full object-cover" />
                           ) : (
                             <span className="flex h-full w-full items-center justify-center bg-surface">
                               <EngineeringIcon name={item.file_type?.startsWith('video/') ? 'video-frame' : 'attachment'} size="1.6rem" />

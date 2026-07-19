@@ -104,6 +104,44 @@ test('aiModels registers an application-helper integration profile', () => {
   assert.ok(Array.isArray(profile.preferredModelIds) && profile.preferredModelIds.length > 0);
 });
 
+test('generateCoverLetter carries project_summary from the model, defaulting to the built one when omitted', async () => {
+  aiModels.chooseModelForIntegration = () => ({ id: 'stub:model' });
+  aiModels.callAiModel = async ({ messages }) => {
+    assert.match(messages[0].content, /project_summary/);
+    return {
+      content: JSON.stringify({
+        cover_letter: 'Dear team, hello. Sincerely, Jane Doe',
+        skills_summary: 's', professional_summary: 'p',
+        emphasis: [], keywords: [], experience_bullets: [],
+      }),
+    };
+  };
+
+  const result = await generateCoverLetter({
+    context: fixtureContext(),
+    jobText: null,
+    session: { job_title: 'Design Engineer', company: 'Orbit Dynamics' },
+    platform: getPlatform('generic'),
+  });
+
+  assert.equal(result.source, 'ai');
+  assert.match(result.project_summary, /Liquid Rocket Engine/);
+});
+
+test('tailoring includes a project summary built from project content', () => {
+  const session = { job_title: 'Design Engineer', company: 'Orbit Dynamics' };
+  const context = fixtureContext();
+  context.projects[0].tagline = 'Regeneratively cooled student engine';
+  context.projects[0].description = 'Designed and hot-fired a LOX/kerosene engine with printed injectors.';
+
+  const result = buildCoverLetterFallback(context, session, getPlatform('generic'));
+
+  assert.ok(result.project_summary, 'expected a project_summary');
+  assert.match(result.project_summary, /Liquid Rocket Engine/);
+  assert.match(result.project_summary, /hot-fired|Regeneratively/i);
+  assert.doesNotMatch(result.project_summary, /undefined/);
+});
+
 test('buildCoverLetterFallback writes a template letter within the platform word limit', () => {
   const session = { job_title: 'Design Engineer', company: 'Orbit Dynamics' };
   const result = buildCoverLetterFallback(fixtureContext(), session, getPlatform('linkedin'));

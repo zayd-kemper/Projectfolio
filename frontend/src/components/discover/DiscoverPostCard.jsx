@@ -5,6 +5,7 @@ import { formatDistanceToNow } from 'date-fns';
 import api from '../../utils/api';
 import EngineeringIcon from '../shared/EngineeringIcon';
 import { Avatar, ProjectMiniCard } from './DiscoverPrimitives';
+import ConfirmDialog from '../shared/ConfirmDialog';
 import { buildTree, contextFor, cx, formatCount, typeFor } from './discoverConfig';
 
 const seenImpressions = new Set();
@@ -51,7 +52,7 @@ function MediaGrid({ media = [] }) {
           )}
         >
           {item.file_type?.startsWith('image/') ? (
-            <img src={item.thumbnail_url || item.url} alt={item.filename || ''} className="h-full w-full object-cover" />
+            <img loading="lazy" decoding="async" src={item.thumbnail_url || item.url} alt={item.filename || ''} className="h-full w-full object-cover" />
           ) : (
             <span className="flex h-full w-full items-center justify-center">
               <EngineeringIcon name={item.file_type?.startsWith('video/') ? 'video-frame' : 'attachment'} size="2rem" />
@@ -79,7 +80,7 @@ function Comment({ comment, depth, post, user, onReply, onVote, onAccept }) {
           <Link to={`/${comment.author_username}`} className="text-xs font-semibold text-ink hover:text-accent-text">
             {comment.author_name}
           </Link>
-          <span className="text-[11px] text-ink-faint">
+          <span className="text-[11px] text-ink-muted">
             {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
           </span>
           {comment.is_answer ? (
@@ -322,6 +323,7 @@ export default function DiscoverPostCard({ post, user, onDelete, onEdit, onHidde
   const [analytics, setAnalytics] = useState(null);
   const [busy, setBusy] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const accent = post.accent_color || '#2563eb';
   const type = typeFor(post.post_type);
   const context = contextFor(post.context);
@@ -412,7 +414,6 @@ export default function DiscoverPostCard({ post, user, onDelete, onEdit, onHidde
   };
 
   const remove = async () => {
-    if (!window.confirm('Delete this post?')) return;
     try {
       await api.delete(`/discover/posts/${post.id}`);
       onDelete?.(post.id);
@@ -458,7 +459,7 @@ export default function DiscoverPostCard({ post, user, onDelete, onEdit, onHidde
             <Link to={`/${post.author_username}`} className="break-words text-sm font-semibold text-ink hover:text-accent-text">
               {post.author_name}
             </Link>
-            {post.author_headline ? <span className="hidden truncate text-xs text-ink-muted sm:block">{post.author_headline}</span> : null}
+            {post.author_headline ? <span className="hidden min-w-0 flex-1 truncate text-xs text-ink-muted sm:block">{post.author_headline}</span> : null}
           </div>
           <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] font-semibold text-ink-muted">
             <span>{formatDistanceToNow(new Date(post.published_at || post.created_at), { addSuffix: true })}</span>
@@ -467,10 +468,12 @@ export default function DiscoverPostCard({ post, user, onDelete, onEdit, onHidde
               <EngineeringIcon name={type.icon} size="0.8rem" />
               {type.label}
             </span>
-            <span className="inline-flex items-center gap-1">
-              <EngineeringIcon name={context.icon} size="0.8rem" />
-              {context.label}
-            </span>
+            {context.label !== type.label ? (
+              <span className="inline-flex items-center gap-1">
+                <EngineeringIcon name={context.icon} size="0.8rem" />
+                {context.label}
+              </span>
+            ) : null}
             {post.visibility === 'followers' ? <span>Followers only</span> : null}
           </div>
         </div>
@@ -480,12 +483,11 @@ export default function DiscoverPostCard({ post, user, onDelete, onEdit, onHidde
               type="button"
               onClick={follow}
               className={cx(
-                'rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors',
+                'rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
                 following
                   ? 'border-line text-ink-muted hover:border-ink-faint'
-                  : 'border-transparent text-white'
+                  : 'border-transparent bg-accent text-white hover:bg-accent-hover'
               )}
-              style={following ? undefined : { backgroundColor: accent }}
             >
               {following ? 'Following' : 'Follow'}
             </button>
@@ -506,7 +508,7 @@ export default function DiscoverPostCard({ post, user, onDelete, onEdit, onHidde
                 <>
                   <button type="button" onClick={() => { setMenuOpen(false); onEdit?.(post); }} className="block w-full px-3 py-2 text-left font-semibold text-ink-secondary hover:bg-surface-muted">Edit</button>
                   <button type="button" onClick={loadAnalytics} className="block w-full px-3 py-2 text-left font-semibold text-ink-secondary hover:bg-surface-muted">Analytics</button>
-                  <button type="button" onClick={remove} className="block w-full px-3 py-2 text-left font-semibold text-danger hover:bg-danger/10">Delete</button>
+                  <button type="button" onClick={() => { setMenuOpen(false); setConfirmDeleteOpen(true); }} className="block w-full px-3 py-2 text-left font-semibold text-danger hover:bg-danger/10">Delete</button>
                 </>
               ) : (
                 <>
@@ -594,6 +596,15 @@ export default function DiscoverPostCard({ post, user, onDelete, onEdit, onHidde
       </footer>
 
       <Discussion post={post} user={user} open={commentsOpen} onCountChange={setCommentDelta} />
+      <ConfirmDialog
+        open={confirmDeleteOpen}
+        onOpenChange={setConfirmDeleteOpen}
+        title="Delete this post?"
+        description="The post and its comments are removed from Discover. Linked projects are not affected."
+        confirmLabel="Delete post"
+        destructive
+        onConfirm={remove}
+      />
     </article>
   );
 }

@@ -106,7 +106,7 @@ export default function EndorsementPage() {
 
         <div className="card space-y-5 p-8">
           {errorMsg && (
-            <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600 dark:bg-red-950/30 dark:text-red-400">
+            <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
               {errorMsg}
             </div>
           )}
@@ -117,7 +117,7 @@ export default function EndorsementPage() {
           </div>
 
           <div>
-            <label className="form-label">Your role / company <span className="font-normal text-ink-faint">(optional)</span></label>
+            <label className="form-label">Your role / company <span className="font-normal text-ink-muted">(optional)</span></label>
             <input name="from_role" value={form.from_role} onChange={handleChange} placeholder="e.g. Senior Controls Engineer, robotics lab mentor" className="form-input" />
           </div>
 
@@ -132,7 +132,7 @@ export default function EndorsementPage() {
               placeholder={`Share your experience working with ${recipient.full_name}. What made them stand out?`}
               className="form-input resize-none"
             />
-            <p className={`mt-1 text-right text-xs ${charCount > 900 ? 'text-amber-500' : 'text-ink-faint'}`}>{charCount} / 1000</p>
+            <p className={`mt-1 text-right text-xs ${charCount > 900 ? 'text-amber-500' : 'text-ink-muted'}`}>{charCount} / 1000</p>
           </div>
 
           <button
@@ -143,12 +143,12 @@ export default function EndorsementPage() {
             {status === 'submitting' ? 'Submitting...' : 'Submit endorsement'}
           </button>
 
-          <p className="text-center text-xs text-ink-faint">
+          <p className="text-center text-xs text-ink-muted">
             Your endorsement will be reviewed by {recipient.full_name} before appearing on their portfolio.
           </p>
         </div>
 
-        <p className="mt-6 text-center text-xs text-ink-faint">
+        <p className="mt-6 text-center text-xs text-ink-muted">
           Powered by <Link to="/" className="text-ink-muted hover:underline">ProjectFolio</Link>
         </p>
       </div>

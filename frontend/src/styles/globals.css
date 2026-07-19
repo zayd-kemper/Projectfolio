@@ -1,3 +1,7 @@
+
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -53,7 +57,7 @@
 @layer base {
   body {
     font-family: 'DM Sans', system-ui, sans-serif;
-    @apply bg-surface-page text-ink antialiased;
+    @apply antialiased bg-background text-foreground;
   }
 
   h1, h2, h3 {
@@ -66,6 +70,7 @@
 
   html {
     scroll-behavior: smooth;
+    @apply font-sans;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -73,24 +78,116 @@
       scroll-behavior: auto;
     }
   }
+  /* shadcn semantic vars bridged onto the project tokens so the ui kit and
+     the btn/card vocabulary share ONE source of truth. The rgb(var(--…))
+     references resolve at the consuming element, so anything carrying
+     .app-surface flips to dark automatically — including portaled dialog
+     content, which must add .app-surface itself (portals mount on <body>,
+     outside the app shell). shadcn's "--accent" (subtle hover fill) is NOT
+     defined here: the project accent (action blue) owns that name; ui
+     components wanting a quiet hover fill use surface-muted instead. */
+  :root {
+    --background: rgb(var(--surface));
+    --foreground: rgb(var(--ink));
+    --card: rgb(var(--surface));
+    --card-foreground: rgb(var(--ink));
+    --popover: rgb(var(--surface));
+    --popover-foreground: rgb(var(--ink));
+    --primary: rgb(var(--accent));
+    --primary-foreground: #ffffff;
+    --secondary: rgb(var(--surface-muted));
+    --secondary-foreground: rgb(var(--ink-secondary));
+    --muted: rgb(var(--surface-muted));
+    --muted-foreground: rgb(var(--ink-muted));
+    --accent-foreground: rgb(var(--ink));
+    --destructive: rgb(var(--danger));
+    --destructive-foreground: #ffffff;
+    --border: rgb(var(--line));
+    --input: rgb(var(--line));
+    --ring: rgb(var(--accent));
+    --chart-1: oklch(0.32 0 none);
+    --chart-2: oklch(0.41 0 none);
+    --chart-3: oklch(0.54 0 none);
+    --chart-4: oklch(0.71 0 none);
+    --chart-5: oklch(0.89 0 none);
+    --radius: 0.5rem;
+    --sidebar: rgb(var(--surface-rail));
+    --sidebar-foreground: rgb(var(--ink));
+    --sidebar-primary: rgb(var(--accent));
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: rgb(var(--surface-muted));
+    --sidebar-accent-foreground: rgb(var(--ink));
+    --sidebar-border: rgb(var(--line));
+    --sidebar-ring: rgb(var(--accent));
+    --chart-background: oklch(1 0 0);
+    --chart-foreground: oklch(0.145 0.004 285);
+    --chart-foreground-muted: oklch(0.55 0.014 260);
+    --chart-line-primary: var(--chart-1);
+    --chart-line-secondary: var(--chart-2);
+    --chart-crosshair: oklch(0.4 0.1828 274.34);
+    --chart-grid: oklch(0.9 0 0);
+    --chart-brush-border: var(--chart-grid);
+    --chart-tooltip-background: oklch(0.21 0.006 285 / 0.8);
+    --chart-tooltip-foreground: oklch(0.985 0 0);
+    --chart-tooltip-muted: oklch(0.65 0.01 260);
+    --chart-marker-background: oklch(0.97 0.005 260);
+    --chart-marker-border: oklch(0.85 0.01 260);
+    --chart-marker-foreground: oklch(0.3 0.01 260);
+    --chart-label: oklch(0.45 0.01 260);
+    --chart-scale-01: oklch(0.98 0.003 106);
+    --chart-scale-02: oklch(0.92 0.008 106);
+    --chart-scale-03: oklch(0.82 0.015 106);
+    --chart-scale-04: oklch(0.68 0.02 106);
+    --chart-scale-05: oklch(0.55 0.025 106);
+    --chart-scale-pattern-color: oklch(0.96 0.005 106);
+  }
+  /* Dark overrides only for chart palette vars; the bridged semantic vars
+     above flip automatically wherever .app-surface applies. */
+  .dark {
+    --chart-1: oklch(1 0 none);
+    --chart-2: oklch(0.73 0 none);
+    --chart-3: oklch(0.51 0 none);
+    --chart-4: oklch(0.39 0 none);
+    --chart-5: oklch(0.32 0 none);
+    --chart-background: oklch(0.145 0 0);
+    --chart-foreground: oklch(0.45 0 0);
+    --chart-foreground-muted: oklch(0.65 0.01 260);
+    --chart-crosshair: oklch(0.45 0 0);
+    --chart-grid: oklch(0.25 0 0);
+    --chart-brush-border: var(--chart-grid);
+    --chart-marker-background: oklch(0.25 0.01 260);
+    --chart-marker-border: oklch(0.4 0.01 260);
+    --chart-marker-foreground: oklch(0.9 0 0);
+    --chart-label: oklch(0.75 0.01 260);
+    --chart-scale-01: oklch(0.28 0.03 270);
+    --chart-scale-02: oklch(0.38 0.04 270);
+    --chart-scale-03: oklch(0.48 0.05 270);
+    --chart-scale-04: oklch(0.58 0.06 270);
+    --chart-scale-05: oklch(0.68 0.07 270);
+    --chart-scale-pattern-color: oklch(0.145 0 0);
+  }
+  * {
+    @apply border-border outline-ring;
+  }
 }
 
 @layer components {
-  /* Button styles */
+  /* Button styles. Every button in the vocabulary carries a keyboard focus
+     ring: 2px accent outline, offset so it reads against any surface. */
   .btn-primary {
-    @apply inline-flex items-center gap-2 px-5 py-2.5 bg-accent text-white rounded-lg font-medium text-sm hover:bg-accent-hover active:scale-95 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center gap-2 px-5 py-2.5 bg-accent text-white rounded-lg font-medium text-sm hover:bg-accent-hover active:scale-95 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center gap-2 px-5 py-2.5 bg-surface text-ink-secondary rounded-lg font-medium text-sm border border-line hover:bg-surface-muted active:scale-95 transition-all duration-150;
+    @apply inline-flex items-center gap-2 px-5 py-2.5 bg-surface text-ink-secondary rounded-lg font-medium text-sm border border-line hover:bg-surface-muted active:scale-95 transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent;
   }
 
   .btn-ghost {
-    @apply inline-flex items-center gap-2 px-4 py-2 text-ink-muted rounded-lg font-medium text-sm hover:bg-surface-muted hover:text-ink active:scale-95 transition-all duration-150;
+    @apply inline-flex items-center gap-2 px-4 py-2 text-ink-muted rounded-lg font-medium text-sm hover:bg-surface-muted hover:text-ink active:scale-95 transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent;
   }
 
   .btn-danger {
-    @apply inline-flex items-center gap-2 px-5 py-2.5 bg-danger text-white rounded-lg font-medium text-sm hover:bg-danger-hover active:scale-95 transition-all duration-150;
+    @apply inline-flex items-center gap-2 px-5 py-2.5 bg-danger text-white rounded-lg font-medium text-sm hover:bg-danger-hover active:scale-95 transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-danger;
   }
 
   /* Card styles */
@@ -109,9 +206,21 @@
     @apply transition-colors duration-150 hover:bg-surface-muted;
   }
 
+  /* Icon-only controls stay compact for pointer input but grow to a
+     44px hit area on coarse (touch) pointers. */
+  .touch-target {
+    @apply relative;
+  }
+  @media (pointer: coarse) {
+    .touch-target {
+      min-width: 44px;
+      min-height: 44px;
+    }
+  }
+
   /* Form styles */
   .form-input {
-    @apply w-full px-4 py-2.5 bg-surface border border-line rounded-lg text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:ring-2 focus:ring-accent/60 focus:border-transparent transition-all;
+    @apply w-full px-4 py-2.5 bg-surface border border-line rounded-lg text-sm text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-accent/60 focus:border-transparent transition-all;
   }
 
   .form-label {
@@ -119,7 +228,7 @@
   }
 
   .form-textarea {
-    @apply w-full px-4 py-2.5 bg-surface border border-line rounded-lg text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:ring-2 focus:ring-accent/60 focus:border-transparent transition-all resize-none;
+    @apply w-full px-4 py-2.5 bg-surface border border-line rounded-lg text-sm text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-accent/60 focus:border-transparent transition-all resize-none;
   }
 
   /* Badge */
@@ -134,7 +243,7 @@
 
   /* Sidebar nav item */
   .nav-item {
-    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-ink-muted hover:bg-surface-muted hover:text-ink transition-all cursor-pointer;
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-ink-muted hover:bg-surface-muted hover:text-ink transition-all cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent;
   }
 
   .nav-item.active {
@@ -300,6 +409,17 @@ button, a, input, select, textarea {
   transition-property: color, background-color, border-color, opacity, box-shadow, transform;
   transition-duration: 150ms;
   transition-timing-function: var(--ease-out-quart);
+}
+
+/* Theme switching must repaint atomically. useDarkMode adds this class for the
+   exact frames of the light/dark flip so elements with hover transitions
+   (buttons, inputs, nav items, cards) change together with untransitioned
+   surfaces instead of lagging ~150-200ms behind them. */
+.theme-switching,
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+  transition: none !important;
 }
 
 button:active:not(:disabled) {

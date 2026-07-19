@@ -104,7 +104,7 @@ function SlashMenu({ position, query, onSelect, onClose }) {
                   </span>
                   <div>
                     <div className="text-sm font-medium text-ink">{item.label}</div>
-                    <div className="text-xs text-ink-faint">{item.desc}</div>
+                    <div className="text-xs text-ink-muted">{item.desc}</div>
                   </div>
                 </button>
               );
@@ -322,7 +322,7 @@ function ImageBlock({ block, onUpdate, projectId }) {
     return (
       <div>
         <div className="relative group">
-          <img src={block.content.url} alt={block.content.alt || ''} className="w-full rounded-xl max-h-[500px] object-cover" />
+          <img loading="lazy" decoding="async" src={block.content.url} alt={block.content.alt || ''} className="w-full rounded-xl max-h-[500px] object-cover" />
           <button onClick={() => onUpdate(block.id, { ...block.content, url: '' })}
             className="absolute top-2 right-2 bg-black/60 text-white text-xs px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
             Replace
@@ -350,8 +350,8 @@ function ImageBlock({ block, onUpdate, projectId }) {
         <>
           <EngineeringIcon name="media-frame" size="2rem" className="mx-auto mb-2" />
           <p className="text-sm text-ink-muted mb-1">Drag & drop or click to upload</p>
-          <p className="text-xs text-ink-faint">PNG, JPG, WebP, GIF up to 10MB</p>
-          <div className="mt-3 text-xs text-ink-faint">Or paste a URL below.</div>
+          <p className="text-xs text-ink-muted">PNG, JPG, WebP, GIF up to 10MB</p>
+          <div className="mt-3 text-xs text-ink-muted">Or paste a URL below.</div>
           <input onClick={e => e.stopPropagation()} placeholder="https://..." value={block.content?.url || ''}
             onChange={e => onUpdate(block.id, { ...block.content, url: e.target.value })}
             className="mt-2 w-full max-w-sm mx-auto px-3 py-1.5 text-xs border border-line bg-transparent rounded-lg outline-none focus:border-accent transition-colors" />
@@ -395,10 +395,10 @@ function GalleryBlock({ block, onUpdate, projectId }) {
         <div className={`grid gap-2 mb-3 ${gridCols}`}>
           {images.map((img, i) => (
             <div key={i} className="group relative rounded-xl overflow-hidden bg-surface-muted">
-              <img src={img.url} alt="" className="w-full h-40 object-cover" />
+              <img loading="lazy" decoding="async" src={img.url} alt="" className="w-full h-40 object-cover" />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors" />
               <button onClick={() => removeImage(i)}
-                className="absolute top-1.5 right-1.5 w-6 h-6 bg-black/60 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center font-bold">x</button>
+                className="absolute top-1.5 right-1.5 w-6 h-6 bg-black/60 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center font-bold"><EngineeringIcon name="close" size="0.7em" /></button>
               <input value={img.caption || ''} onChange={e => updateCaption(i, e.target.value)}
                 placeholder="Caption..."
                 className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs px-2 py-1.5 placeholder-white/50 border-none outline-none opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -415,7 +415,7 @@ function GalleryBlock({ block, onUpdate, projectId }) {
         ) : (
           <div className="text-center">
             <EngineeringIcon name="gallery-grid" size="2rem" className="mx-auto mb-2" />
-            <p className="text-sm text-ink-faint">{images.length > 0 ? 'Drop more images to add to gallery' : 'Drop images here or click to upload (select multiple)'}</p>
+            <p className="text-sm text-ink-muted">{images.length > 0 ? 'Drop more images to add to gallery' : 'Drop images here or click to upload (select multiple)'}</p>
           </div>
         )}
       </div>
@@ -473,7 +473,7 @@ function CodeBlock({ block, onUpdate }) {
           {LANGUAGES.map(l => <option key={l} value={l}>{l}</option>)}
         </select>
         <button onClick={() => { navigator.clipboard.writeText(code); toast.success('Copied!'); }}
-          className="ml-auto text-xs text-ink-muted hover:text-ink-faint transition-colors font-mono px-2 py-0.5 rounded hover:bg-gray-800">
+          className="ml-auto text-xs text-ink-muted hover:text-ink transition-colors font-mono px-2 py-0.5 rounded hover:bg-gray-800">
           copy
         </button>
       </div>
@@ -528,7 +528,7 @@ function CalloutBlock({ block, onUpdate }) {
       <div className="flex flex-wrap gap-1.5 mb-3">
         {Object.entries(CALLOUT_STYLES).map(([key, s]) => (
           <button key={key} onClick={() => onUpdate(block.id, { ...block.content, color: key })}
-            className={`text-xs px-2.5 py-0.5 rounded-full font-medium transition-all ${color === key ? s.badge + ' ring-1 ring-current/30' : 'bg-white/60 text-ink-muted hover:bg-white border border-transparent hover:border-line'}`}>
+            className={`text-xs px-2.5 py-0.5 rounded-full font-medium transition-all ${color === key ? s.badge + ' ring-1 ring-current/30' : 'bg-surface/60 text-ink-muted hover:bg-surface border border-transparent hover:border-line'}`}>
             <span className="inline-flex items-center gap-1.5">
               <EngineeringIcon name={s.icon} size="0.9rem" />
               {s.label}
@@ -540,7 +540,7 @@ function CalloutBlock({ block, onUpdate }) {
         <div className="relative flex-shrink-0">
           <button
             onClick={() => setShowPicker(s => !s)}
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-transparent hover:border-line hover:bg-white/70 transition-colors"
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-transparent hover:border-line hover:bg-surface/70 transition-colors"
             aria-label="Choose callout icon"
             type="button"
           >
@@ -612,7 +612,7 @@ function FileBlock({ block, onUpdate, projectId }) {
           <EngineeringIcon name={getFileIcon(block.content.type)} size="1.75rem" className="flex-shrink-0" />
           <div className="flex-1 min-w-0">
             <div className="text-sm font-medium text-ink truncate">{block.content.filename}</div>
-            <div className="text-xs text-ink-faint">
+            <div className="text-xs text-ink-muted">
               {sizeMB ? sizeMB + ' MB' : 'Attachment'}{!previewable ? ' - download required' : ''}
             </div>
           </div>
@@ -625,7 +625,7 @@ function FileBlock({ block, onUpdate, projectId }) {
             >
               {previewOpen ? 'Hide preview' : 'Preview'}
             </button>
-            <button type="button" onClick={() => { setPreviewOpen(false); onUpdate(block.id, {}); }} className="text-xs text-ink-faint hover:text-red-500 transition-colors">Replace</button>
+            <button type="button" onClick={() => { setPreviewOpen(false); onUpdate(block.id, {}); }} className="text-xs text-ink-muted hover:text-red-500 transition-colors">Replace</button>
             {safeUrl && <a href={safeUrl} target="_blank" rel="noreferrer" className="btn-secondary text-xs !px-3 !py-1.5">Download</a>}
           </div>
         </div>
@@ -660,11 +660,11 @@ function EmbedBlock({ block, onUpdate }) {
         <input value={block.content?.url || ''} onChange={e => onUpdate(block.id, { ...block.content, url: e.target.value })}
           placeholder="Paste embed URL (Figma, Sketchfab, Google Slides, CodePen...)" className="form-input flex-1 text-sm" />
         <div className="flex items-center gap-1.5 flex-shrink-0">
-          <span className="text-xs text-ink-faint">Height:</span>
+          <span className="text-xs text-ink-muted">Height:</span>
           <input type="number" value={height} min={200} max={900} step={50}
             onChange={e => { const h = +e.target.value; setHeight(h); onUpdate(block.id, { ...block.content, height: h }); }}
             className="w-20 px-2 py-1.5 text-xs border border-line rounded-lg outline-none focus:border-accent" />
-          <span className="text-xs text-ink-faint">px</span>
+          <span className="text-xs text-ink-muted">px</span>
         </div>
       </div>
       {block.content?.url && (
@@ -700,7 +700,7 @@ function MetricsBlock({ block, onUpdate }) {
           return (
             <div key={i} className={`relative group/metric ${c.bg} border ${c.border} rounded-xl p-4`}>
               <button onClick={() => removeItem(i)}
-                className="absolute top-2 right-2 w-5 h-5 rounded-full bg-white/80 text-ink-faint hover:text-red-500 text-xs opacity-0 group-hover/metric:opacity-100 transition-opacity flex items-center justify-center font-bold">x</button>
+                className="absolute top-2 right-2 w-5 h-5 rounded-full bg-surface/80 text-ink-muted hover:text-red-500 text-xs opacity-0 group-hover/metric:opacity-100 transition-opacity flex items-center justify-center font-bold"><EngineeringIcon name="close" size="0.7em" /></button>
               <div className="flex items-baseline gap-1 mb-1">
                 <input value={item.value} onChange={e => update(i, 'value', e.target.value)}
                   placeholder="42" className={`bg-transparent border-none outline-none text-3xl font-bold ${c.text} w-full placeholder-current/20`} />
@@ -714,8 +714,8 @@ function MetricsBlock({ block, onUpdate }) {
         })}
       </div>
       {items.length < 6 && (
-        <button onClick={addItem} className="text-xs text-ink-faint hover:text-ink-secondary flex items-center gap-1.5 transition-colors">
-          <span className="w-5 h-5 rounded-full border border-line flex items-center justify-center text-ink-faint">+</span>
+        <button onClick={addItem} className="text-xs text-ink-muted hover:text-ink-secondary flex items-center gap-1.5 transition-colors">
+          <span className="w-5 h-5 rounded-full border border-line flex items-center justify-center text-ink-muted">+</span>
           Add metric
         </button>
       )}
@@ -746,7 +746,7 @@ function TableBlock({ block, onUpdate }) {
                   className="w-full bg-transparent border-none outline-none text-sm px-3 py-2.5 font-semibold text-ink-secondary text-left" />
                 {headers.length > 1 && (
                   <button onClick={() => removeCol(i)}
-                    className="absolute -top-2 right-0 w-4 h-4 bg-red-500 text-white rounded-full text-[10px] opacity-0 group-hover/col:opacity-100 transition-opacity flex items-center justify-center z-10">x</button>
+                    className="absolute -top-2 right-0 w-4 h-4 bg-red-500 text-white rounded-full text-[10px] opacity-0 group-hover/col:opacity-100 transition-opacity flex items-center justify-center z-10"><EngineeringIcon name="close" size="0.7em" /></button>
                 )}
               </th>
             ))}
@@ -767,14 +767,14 @@ function TableBlock({ block, onUpdate }) {
               <td className="border border-line p-0 w-10">
                 {rows.length > 1 && (
                   <button onClick={() => removeRow(ri)}
-                    className="w-full py-2 text-ink-faint hover:text-red-500 transition-colors text-xs opacity-0 group-hover/row:opacity-100">x</button>
+                    className="w-full py-2 text-ink-muted hover:text-red-500 transition-colors text-xs opacity-0 group-hover/row:opacity-100"><EngineeringIcon name="close" size="0.7em" /></button>
                 )}
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-      <button onClick={addRow} className="mt-2 text-xs text-ink-faint hover:text-ink-secondary flex items-center gap-1.5 transition-colors">
+      <button onClick={addRow} className="mt-2 text-xs text-ink-muted hover:text-ink-secondary flex items-center gap-1.5 transition-colors">
         <span className="w-5 h-5 rounded-full border border-line flex items-center justify-center">+</span>
         Add row
       </button>
@@ -804,7 +804,7 @@ function TimelineBlock({ block, onUpdate }) {
               <input value={item.title} onChange={e => update(i, 'title', e.target.value)}
                 placeholder="Milestone title" className="flex-1 text-sm font-semibold text-ink bg-transparent border-none outline-none placeholder:text-ink-faint" />
               {items.length > 1 && (
-                <button onClick={() => removeItem(i)} className="text-ink-faint hover:text-red-500 text-xs opacity-0 group-hover/tl:opacity-100 transition-opacity flex-shrink-0">x</button>
+                <button onClick={() => removeItem(i)} className="text-ink-muted hover:text-red-500 text-xs opacity-0 group-hover/tl:opacity-100 transition-opacity flex-shrink-0"><EngineeringIcon name="close" size="0.7em" /></button>
               )}
             </div>
             <textarea value={item.description} onChange={e => update(i, 'description', e.target.value)}
@@ -813,7 +813,7 @@ function TimelineBlock({ block, onUpdate }) {
           </div>
         </div>
       ))}
-      <button onClick={addItem} className="text-xs text-ink-faint hover:text-ink-secondary flex items-center gap-1.5 transition-colors ml-6">
+      <button onClick={addItem} className="text-xs text-ink-muted hover:text-ink-secondary flex items-center gap-1.5 transition-colors ml-6">
         <span className="w-5 h-5 rounded-full border border-line flex items-center justify-center">+</span>
         Add milestone
       </button>
@@ -857,7 +857,7 @@ function AddBlockButton({ index, onAdd }) {
     <div ref={ref} className="relative flex items-center gap-2 my-1 group/addbtn">
       <div className="flex-1 h-px bg-transparent group-hover/addbtn:bg-surface-muted transition-colors" />
       <button onClick={() => setOpen(o => !o)}
-        className="opacity-0 group-hover/addbtn:opacity-100 focus:opacity-100 transition-all px-3 py-0.5 bg-white border border-line rounded-full text-xs text-ink-faint hover:text-accent-text hover:border-blue-300 shadow-sm flex items-center gap-1 focus:outline-none">
+        className="opacity-0 group-hover/addbtn:opacity-100 focus:opacity-100 transition-all px-3 py-0.5 bg-surface border border-line rounded-full text-xs text-ink-muted hover:text-accent-text hover:border-blue-300 shadow-sm flex items-center gap-1 focus:outline-none">
         <span className="text-sm leading-none font-light">+</span> Add block
       </button>
       <div className="flex-1 h-px bg-transparent" />
@@ -879,7 +879,7 @@ function AddBlockButton({ index, onAdd }) {
                     </span>
                     <div>
                       <div className="font-medium leading-tight">{bt.label}</div>
-                      <div className="text-[11px] text-ink-faint">{bt.desc}</div>
+                      <div className="text-[11px] text-ink-muted">{bt.desc}</div>
                     </div>
                   </button>
                 ))}
@@ -941,12 +941,12 @@ export default function BlockEditor({ blocks, onBlocksChange, projectId }) {
         return (
           <div className="flex items-center gap-3 py-2">
             <div className="flex-1 h-px bg-surface-muted" />
-            <span className="text-ink-faint text-xs">section</span>
+            <span className="text-ink-muted text-xs">section</span>
             <div className="flex-1 h-px bg-surface-muted" />
           </div>
         );
       default:
-        return <div className="text-sm text-ink-faint italic p-2">Unknown block: {block.type}</div>;
+        return <div className="text-sm text-ink-muted italic p-2">Unknown block: {block.type}</div>;
     }
   };
 
@@ -956,7 +956,7 @@ export default function BlockEditor({ blocks, onBlocksChange, projectId }) {
       <div className="text-center py-16 border-2 border-dashed border-line rounded-xl hover:border-ink-faint transition-colors">
         <EngineeringIcon name="document-edit" size="2.5rem" className="mx-auto mb-3" />
         <p className="text-ink-muted text-sm mb-1 font-medium">Start building your project page</p>
-        <p className="text-ink-faint text-xs mb-6">
+        <p className="text-ink-muted text-xs mb-6">
           Type <kbd className="bg-surface-muted border border-line rounded px-1.5 py-0.5 font-mono text-[11px]">/</kbd> in a text block for commands, or pick a block below
         </p>
         <div className="flex flex-wrap justify-center gap-2 max-w-lg mx-auto">
@@ -1008,7 +1008,7 @@ export default function BlockEditor({ blocks, onBlocksChange, projectId }) {
                       <button
                         onClick={() => deleteBlock(block.id)}
                         title="Delete block"
-                        className="absolute -right-8 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center bg-surface border border-line rounded-lg text-ink-faint dark:text-ink-muted hover:text-red-500 hover:border-red-200 dark:hover:border-red-800 shadow-sm opacity-0 group-hover/block:opacity-100 transition-opacity text-sm font-bold"
+                        className="absolute -right-8 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center bg-surface border border-line rounded-lg text-ink-muted hover:text-red-500 hover:border-red-200 dark:hover:border-red-800 shadow-sm opacity-0 group-hover/block:opacity-100 transition-opacity text-sm font-bold"
                       >
                         x
                       </button>

@@ -58,6 +58,15 @@ test('buildResumeHTML renders a single-column printable document with all sectio
   assert.doesNotMatch(html, /<script/i);
 });
 
+test('project descriptions from project content are included in the rendered resume', () => {
+  const context = fixtureContext();
+  context.projects[0].description = 'Designed and hot-fired a LOX/kerosene engine with printed injectors and regen cooling channels.';
+  const html = buildResumeHTML({ context, platform: getPlatform('generic'), tailoring: null });
+  assert.match(html, /hot-fired a LOX\/kerosene engine/);
+  const text = buildPlainTextResume({ context, platform: getPlatform('generic'), tailoring: null });
+  assert.match(text, /hot-fired a LOX\/kerosene engine/);
+});
+
 test('buildPlainTextResume produces a paste-ready text version with all sections', () => {
   const text = buildPlainTextResume({ context: fixtureContext(), platform: getPlatform('generic'), tailoring: null });
   assert.match(text, /JANE DOE/i);

@@ -17,7 +17,7 @@ export function Avatar({ url, name, accent = '#2563eb', size = 'md' }) {
       )}
       style={{ backgroundColor: `${accent}18`, color: accent }}
     >
-      {url ? <img src={url} alt="" className="h-full w-full object-cover" /> : (name || '?').charAt(0)}
+      {url ? <img loading="lazy" decoding="async" src={url} alt="" className="h-full w-full object-cover" /> : (name || '?').charAt(0)}
     </span>
   );
 }

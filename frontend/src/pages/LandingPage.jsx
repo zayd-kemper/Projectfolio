@@ -56,30 +56,32 @@ function ProofPreview() {
           </nav>
         </aside>
 
-        <div className="p-5 lg:p-7">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-6">
-            <div>
+        <div className="min-w-0 p-5 lg:p-7">
+          <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0">
               <p className="text-sm font-medium text-blue-700">Evidence board</p>
               <h2 className="mt-1 text-2xl font-semibold text-gray-950">Maya Iyer</h2>
               <p className="mt-1 text-sm text-gray-500">Robotics research, CFD, embedded controls</p>
             </div>
-            <div className="inline-flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm font-medium text-green-700">
+            <div className="inline-flex flex-none items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm font-medium text-green-700">
               <EngineeringIcon name="signal-success" size="1rem" />
               Published
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-[1.2fr_.8fr]">
+          {/* Single column: this mockup lives in a ~440px hero column, so
+              viewport-based multi-column grids would crush its content. */}
+          <div className="grid gap-4">
             <article className="rounded-xl border border-gray-200 bg-white p-4">
-              <div className="aspect-[16/9] rounded-lg border border-blue-100 bg-blue-50 p-4">
+              <div className="aspect-[2/1] rounded-lg border border-blue-100 bg-blue-50 p-4">
                 <div className="flex h-full flex-col justify-between">
                   <div className="flex items-center justify-between">
                     <EngineeringIcon name="launch-vector" size="2.25rem" />
                     <span className="rounded-md bg-white px-2 py-1 text-xs font-medium text-blue-700">Robotics</span>
                   </div>
-                  <div className="grid grid-cols-3 gap-2 text-xs font-medium text-blue-950">
+                  <div className="flex flex-wrap gap-2 text-xs font-medium text-blue-950">
                     {['Flight logs', 'Bench tests', 'Safety notes'].map((label) => (
-                      <span key={label} className="rounded-md bg-white/80 px-2 py-1 text-center">
+                      <span key={label} className="rounded-md bg-white/80 px-2 py-1">
                         {label}
                       </span>
                     ))}
@@ -101,9 +103,9 @@ function ProofPreview() {
                 <p className="mt-2 text-sm leading-6 text-gray-600">
                   Add a stronger proof section and move process notes above the gallery.
                 </p>
-                <div className="mt-3 grid grid-cols-3 gap-2 text-[11px] font-medium text-gray-600">
+                <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-medium text-gray-600">
                   {['Plan', 'Preview', 'Apply'].map((label, index) => (
-                    <span key={label} className={`rounded-md px-2 py-1 text-center ${index < 2 ? 'bg-blue-100 text-blue-700' : 'bg-white'}`}>
+                    <span key={label} className={`rounded-md px-2 py-1 ${index < 2 ? 'bg-blue-100 text-blue-700' : 'bg-white'}`}>
                       {label}
                     </span>
                   ))}
@@ -111,12 +113,25 @@ function ProofPreview() {
               </section>
 
               <section className="rounded-xl border border-gray-200 bg-white p-4">
-                <p className="text-sm font-semibold text-gray-950">Portfolio analytics</p>
-                <div className="mt-4 flex items-end gap-2 h-24">
-                  {[36, 58, 44, 72, 88, 64, 92].map((height, index) => (
-                    <div key={index} className="flex-1 rounded-t bg-blue-600" style={{ height: `${height}%`, opacity: 0.45 + index * 0.06 }} />
-                  ))}
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm font-semibold text-gray-950">Recruiter skim</p>
+                  <span className="text-xs font-medium text-gray-600">first 30 seconds</span>
                 </div>
+                <dl className="mt-3 space-y-2.5">
+                  {[
+                    ['What was built', 'Autonomous quadcopter control stack'],
+                    ['Their role', 'Controls lead — flight stack, telemetry'],
+                    ['The proof', 'Flight logs, bench tests, field trials'],
+                  ].map(([question, answer]) => (
+                    <div key={question} className="flex items-start gap-2">
+                      <EngineeringIcon name="signal-success" size="0.95rem" className="mt-0.5" />
+                      <div className="min-w-0">
+                        <dt className="text-[11px] font-medium text-gray-600">{question}</dt>
+                        <dd className="truncate text-xs font-medium text-gray-950">{answer}</dd>
+                      </div>
+                    </div>
+                  ))}
+                </dl>
               </section>
             </div>
           </div>
@@ -158,18 +173,19 @@ export default function LandingPage() {
                 <EngineeringIcon name="education" size="1rem" />
                 Built for engineering and science students
               </span>
-              <h1 className="mt-8 text-5xl lg:text-7xl font-semibold leading-tight tracking-normal text-gray-950">
-                ProjectFolio
+              <h1 className="mt-8 text-5xl font-semibold leading-[1.05] tracking-normal text-gray-950 lg:text-6xl xl:text-7xl">
+                Show them what you actually built.
               </h1>
               <p className="mt-5 max-w-xl text-xl leading-8 text-gray-600">
-                Build evidence-rich portfolios for technical work: writeups, media, files, collaborators, outcomes, analytics, and reviewable AI edits.
+                ProjectFolio turns technical projects into evidence — writeups, media, decisions, outcomes — on one
+                portfolio URL a recruiter can skim in thirty seconds.
               </p>
               <div className="mt-8 flex flex-col sm:flex-row items-start gap-3">
                 <Link to="/register" className="btn-primary text-base px-8 py-4">
                   Build my portfolio
                 </Link>
                 <a href="#features" className="btn-secondary text-base px-8 py-4">
-                  See features
+                  See how it works
                 </a>
               </div>
             </div>
@@ -249,7 +265,7 @@ export default function LandingPage() {
                   <EngineeringIcon name={feature.icon} size="1.75rem" />
                   <div>
                     <h3 className="text-lg font-semibold text-gray-950">{feature.title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-gray-600">{feature.desc}</p>
+                    <p className="mt-2 max-w-prose text-sm leading-6 text-gray-600">{feature.desc}</p>
                   </div>
                 </article>
               ))}

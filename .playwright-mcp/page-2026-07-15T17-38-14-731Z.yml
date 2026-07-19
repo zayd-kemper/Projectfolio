@@ -1,0 +1,115 @@
+- generic [ref=f1e29]:
+  - complementary [ref=f1e30]:
+    - generic [ref=f1e202]:
+      - generic [ref=f1e204]:
+        - generic [ref=f1e206]: ProjectFolio
+        - button "Notifications" [ref=f1e209] [cursor=pointer]
+      - navigation [ref=f1e211]:
+        - link "Projects" [ref=f1e212] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Media Library" [ref=f1e215] [cursor=pointer]:
+          - /url: /dashboard/media
+        - link "Analytics" [ref=f1e218] [cursor=pointer]:
+          - /url: /dashboard/analytics
+        - link "Opportunities" [ref=f1e221] [cursor=pointer]:
+          - /url: /dashboard/ai-tools
+        - link "Portfolio" [ref=f1e224] [cursor=pointer]:
+          - /url: /dashboard/portfolio
+        - link "Integrate & Apply" [ref=f1e227] [cursor=pointer]:
+          - /url: /dashboard/integrations
+        - link "Teams" [ref=f1e230] [cursor=pointer]:
+          - /url: /dashboard/teams
+        - link "Discover" [ref=f1e233] [cursor=pointer]:
+          - /url: /discover
+      - generic [ref=f1e236]:
+        - link "View My Portfolio" [ref=f1e237] [cursor=pointer]:
+          - /url: /import-tester
+        - button "Dark mode" [ref=f1e240] [cursor=pointer]
+        - generic [ref=f1e243]:
+          - link "I Import Tester @import-tester" [ref=f1e244] [cursor=pointer]:
+            - /url: /dashboard/settings
+            - generic [ref=f1e245]: I
+            - generic [ref=f1e246]:
+              - generic [ref=f1e247]: Import Tester
+              - generic [ref=f1e248]: "@import-tester"
+          - button "Sign out" [ref=f1e249] [cursor=pointer]
+  - main [ref=f1e80]:
+    - generic [ref=f1e81]:
+      - generic [ref=f1e94]:
+        - generic [ref=f1e95]:
+          - heading "My Projects" [level=1] [ref=f1e96]
+          - paragraph [ref=f1e97]: 1 project - 0 published
+        - generic [ref=f1e98]:
+          - button "Preview portfolio" [ref=f1e99] [cursor=pointer]
+          - link "View live" [ref=f1e102] [cursor=pointer]:
+            - /url: /import-tester
+          - button "Import from GitHub" [ref=f1e103] [cursor=pointer]
+          - button "+ New Project" [ref=f1e105] [cursor=pointer]
+      - generic [ref=f1e106]:
+        - generic [ref=f1e107]:
+          - generic [ref=f1e109]: "1"
+          - generic [ref=f1e110]: Total projects
+        - generic [ref=f1e111]:
+          - generic [ref=f1e113]: "0"
+          - generic [ref=f1e114]: Published
+        - generic [ref=f1e115]:
+          - generic [ref=f1e117]: "1"
+          - generic [ref=f1e118]: Drafts
+        - generic [ref=f1e119]:
+          - generic [ref=f1e121]: "0"
+          - generic [ref=f1e122]: Featured
+      - generic [ref=f1e123]:
+        - generic [ref=f1e124]:
+          - generic [ref=f1e125]:
+            - generic [ref=f1e127]: Portfolio checks
+            - generic [ref=f1e128]: Based on your current projects
+          - button "Dismiss" [ref=f1e129] [cursor=pointer]
+        - generic [ref=f1e130]:
+          - article [ref=f1e131]:
+            - generic [ref=f1e132]:
+              - generic [ref=f1e136]:
+                - generic [ref=f1e137]: Strongest project
+                - paragraph [ref=f1e138]: "\"slugify\" scores highest overall: 80% complete, 0 views."
+                - button "1 suggested fix" [ref=f1e140] [cursor=pointer]
+                - generic [ref=f1e142]:
+                  - generic [ref=f1e143]: Completeness
+                  - generic [ref=f1e144]: 80%
+              - button "Publish it" [ref=f1e147] [cursor=pointer]
+          - article [ref=f1e148]:
+            - generic [ref=f1e149]:
+              - generic [ref=f1e153]:
+                - generic [ref=f1e154]: Strong draft
+                - paragraph [ref=f1e155]: "\"slugify\" is 80% complete and still a draft."
+                - button "1 suggested fix" [ref=f1e157] [cursor=pointer]
+                - generic [ref=f1e159]:
+                  - generic [ref=f1e160]: Completeness
+                  - generic [ref=f1e161]: 80%
+              - button "Review draft" [ref=f1e164] [cursor=pointer]
+          - article [ref=f1e165]:
+            - generic [ref=f1e166]:
+              - generic [ref=f1e170]:
+                - generic [ref=f1e171]: Nothing published yet
+                - paragraph [ref=f1e172]: Your public portfolio has no visible projects.
+              - button "Publish a project" [ref=f1e173] [cursor=pointer]
+      - heading "My projects" [level=3] [ref=f1e174]
+      - article [ref=f1e176]:
+        - generic [ref=f1e177]:
+          - generic [ref=f1e179]:
+            - generic [ref=f1e180]:
+              - heading "slugify" [level=3] [ref=f1e181]
+              - generic [ref=f1e182]: draft
+            - paragraph [ref=f1e183]: Slugify a string
+            - generic [ref=f1e184]:
+              - generic [ref=f1e185]: JavaScript
+              - generic [ref=f1e186]: slugify
+              - generic [ref=f1e187]: slug
+              - generic [ref=f1e188]: url-safe
+              - generic [ref=f1e189]: transliteration
+              - generic [ref=f1e190]: +3 more
+            - generic [ref=f1e191]:
+              - generic [ref=f1e192]: Updated Jul 15, 2026
+              - generic [ref=f1e193]: 80%
+          - generic [ref=f1e197]:
+            - button "Edit" [ref=f1e198] [cursor=pointer]
+            - button "Publish" [ref=f1e199] [cursor=pointer]
+            - button "Delete slugify" [ref=f1e200] [cursor=pointer]

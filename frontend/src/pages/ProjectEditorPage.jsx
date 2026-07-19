@@ -9,6 +9,7 @@ import { useDropzone } from 'react-dropzone';
 import CollaboratorPanel from '../components/editor/CollaboratorPanel';
 import TagInput, { TECHNOLOGY_SUGGESTIONS } from '../components/shared/TagInput';
 import EngineeringIcon from '../components/shared/EngineeringIcon';
+import ConfirmDialog from '../components/shared/ConfirmDialog';
 import { EditorSkeleton, MediaGridSkeleton } from '../components/shared/Skeleton';
 import { uploadMedia } from '../utils/uploadMedia';
 
@@ -17,12 +18,18 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{12}$/i
 
 const cleanText = (value) => String(value || '').trim();
 const cleanUrl = (value) => cleanText(value) || undefined;
-const cleanDate = (value) => cleanText(value) || undefined;
+// API DATE fields may arrive as full ISO timestamps; the backend only accepts
+// YYYY-MM-DD back, so keep just the date part.
+const cleanDate = (value) => {
+  const text = cleanText(value);
+  if (!text) return undefined;
+  return /^\d{4}-\d{2}-\d{2}/.test(text) ? text.slice(0, 10) : text;
+};
 const cleanStringArray = (value) => Array.isArray(value)
   ? value.map(item => cleanText(item)).filter(Boolean)
   : [];
 
-const buildProjectPayload = (project, status) => {
+export const buildProjectPayload = (project, status) => {
   const payload = {
     title: cleanText(project.title),
     tagline: cleanText(project.tagline),
@@ -80,10 +87,10 @@ function MediaSidebar({ projectId, onClose }) {
     : media.filter(m => !m.file_type?.startsWith('image/') && !m.file_type?.startsWith('video/'));
 
   return (
-    <div className="fixed left-0 top-[120px] h-[calc(100vh-120px)] w-72 bg-surface border-r border-line shadow-xl z-20 flex flex-col" style={{ marginLeft: '120px' }}>     
+    <div className="fixed inset-y-0 left-0 z-40 flex w-full max-w-sm flex-col border-r border-line bg-surface shadow-pop lg:left-auto lg:right-0 lg:w-80 lg:border-l lg:border-r-0">
     <div className="flex items-center justify-between px-4 py-3 border-b border-line-subtle">
         <span className="font-semibold text-ink text-sm">Media Library</span>
-        <button onClick={onClose} aria-label="Close media library" className="text-ink-faint hover:text-ink-secondary text-sm font-medium leading-none">x</button>
+        <button onClick={onClose} aria-label="Close media library" className="text-ink-muted hover:text-ink-secondary text-sm font-medium leading-none"><EngineeringIcon name="close" size="0.7em" /></button>
       </div>
 
       <div className="flex gap-1 p-3 border-b border-line-subtle">
@@ -96,7 +103,7 @@ function MediaSidebar({ projectId, onClose }) {
           const active = filter === f;
           const tone = active
             ? 'bg-accent text-white'
-            : 'bg-surface-muted text-slate-600 dark:text-slate-300 hover:bg-surface-muted';
+            : 'bg-surface-muted text-ink-secondary hover:bg-surface-muted';
 
           return (
             <button
@@ -115,33 +122,34 @@ function MediaSidebar({ projectId, onClose }) {
         {loading ? (
           <MediaGridSkeleton count={6} compact />
         ) : filtered.length === 0 ? (
-          <div className="text-center py-8 text-slate-500 dark:text-slate-400 text-sm">
+          <div className="text-center py-8 text-ink-muted text-sm">
             <EngineeringIcon name="open-folder" size="2.25rem" className="mx-auto mb-2" />
             No {filter !== 'all' ? filter + 's' : 'files'} yet
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-2">
             {filtered.map(item => (
-              <div key={item.id} className="group relative rounded-xl overflow-hidden border border-line-subtle bg-surface-muted cursor-pointer"
+              <button type="button" key={item.id} aria-label={`Copy URL for ${item.filename}`}
+                className="group relative block w-full rounded-xl overflow-hidden border border-line-subtle bg-surface-muted text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                 onClick={() => { navigator.clipboard.writeText(item.url); }}>
                 <div className="aspect-square flex items-center justify-center overflow-hidden">
                   {item.file_type?.startsWith('image/')
-                    ? <img src={item.url} alt={item.filename} className="w-full h-full object-cover" />
+                    ? <img loading="lazy" decoding="async" src={item.url} alt={item.filename} className="w-full h-full object-cover" />
                     : <EngineeringIcon name={mediaIconNameForFileType(item.file_type)} size="2rem" />}
                 </div>
                 <div className="p-1.5">
                   <div className="text-xs text-ink-muted truncate">{item.filename}</div>
                 </div>
-                <div className="absolute inset-0 bg-accent/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <div className="absolute inset-0 bg-accent/80 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity flex items-center justify-center">
                   <span className="text-white text-xs font-medium">Copy URL</span>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         )}
       </div>
 
-      <div className="p-3 border-t border-line-subtle text-xs text-ink-faint text-center">
+      <div className="p-3 border-t border-line-subtle text-xs text-ink-muted text-center">
         Click any file to copy its URL
       </div>
     </div>
@@ -181,14 +189,36 @@ export default function ProjectEditorPage() {
   const [showMediaSidebar, setShowMediaSidebar] = useState(false);
   const statusBadgeTone = project.status === 'published'
     ? 'bg-green-100 text-green-700'
-    : 'bg-surface-muted text-slate-600';
+    : 'bg-surface-muted text-ink-secondary';
   const mediaToggleTone = showMediaSidebar
     ? 'bg-accent-surface text-accent-text'
-    : 'text-slate-600 dark:text-slate-300 hover:bg-surface-muted hover:text-ink-secondary';
+    : 'text-ink-secondary hover:bg-surface-muted hover:text-ink-secondary';
   // Undo / redo snapshots are kept at the block level, up to 50 deep.
   const undoStack = useRef([]);
   const redoStack = useRef([]);
   const isUndoing = useRef(false);
+  // Unsaved-changes guard. Blocks autosave, but project fields only persist
+  // on explicit save — and new projects persist nothing until then.
+  const savedSnapshotRef = useRef(null);
+  const [confirmLeave, setConfirmLeave] = useState(false);
+  const projectSnapshot = (value) => JSON.stringify(buildProjectPayload(value, value.status));
+  const hasUnsavedChanges = () => {
+    if (saveStatus === 'saving' || saveStatus === 'error') return true;
+    if (isNew) return Boolean(project.title.trim()) || blocks.length > 0;
+    if (savedSnapshotRef.current == null) return false;
+    return projectSnapshot(project) !== savedSnapshotRef.current;
+  };
+
+  // Warn on tab close / refresh / external navigation while dirty.
+  useEffect(() => {
+    const handler = (event) => {
+      if (!hasUnsavedChanges()) return;
+      event.preventDefault();
+      event.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  });
 
   useEffect(() => {
     if (!isNew) fetchProject();
@@ -197,7 +227,9 @@ export default function ProjectEditorPage() {
   const fetchProject = async () => {
     try {
       const res = await api.get(`/projects/${id}`);
-      setProject({ ...res.data.project, technologies: res.data.project.technologies || [] });
+      const fetched = { ...res.data.project, technologies: res.data.project.technologies || [] };
+      setProject(fetched);
+      savedSnapshotRef.current = projectSnapshot(fetched);
       contentVersionRef.current = Number(res.data.project.content_version || 1);
       setBlocks(res.data.blocks || []);
     } catch {
@@ -305,11 +337,14 @@ export default function ProjectEditorPage() {
         const res = await api.post('/projects', payload);
         projectId = res.data.project.id;
         setProject(res.data.project);
+        savedSnapshotRef.current = projectSnapshot(res.data.project);
         contentVersionRef.current = Number(res.data.project.content_version || 1);
         toast.success('Project created!');
       } else {
         await api.put(`/projects/${projectId}`, payload);
+        const savedProject = publishAfter ? { ...project, status: 'published' } : project;
         if (publishAfter) setProject(p => ({ ...p, status: 'published' }));
+        savedSnapshotRef.current = projectSnapshot(savedProject);
         toast.success('Saved!');
       }
 
@@ -318,7 +353,11 @@ export default function ProjectEditorPage() {
 
       if (isNew) navigate(`/dashboard/projects/${projectId}/edit`, { replace: true });
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Save failed.');
+      const detail = err.response?.data?.details?.[0];
+      const message = detail?.message
+        ? `${detail.field ? `${detail.field}: ` : ''}${detail.message}`
+        : (err.response?.data?.error || 'Save failed.');
+      toast.error(message);
     } finally {
       setSaving(false);
     }
@@ -327,7 +366,9 @@ export default function ProjectEditorPage() {
   const handleTechChange = (newTechs) => {
     setProject(p => ({ ...p, technologies: newTechs }));
     if (!isNew && project.id) {
-      api.put(`/projects/${project.id}`, { technologies: newTechs }).catch(() => {});
+      api.put(`/projects/${project.id}`, { technologies: newTechs })
+        .then(() => { savedSnapshotRef.current = projectSnapshot({ ...project, technologies: newTechs }); })
+        .catch(() => {});
     }
   };
 
@@ -349,10 +390,21 @@ export default function ProjectEditorPage() {
   if (loading) return <EditorSkeleton />;
 
   return (
-    <div className="min-h-screen bg-surface-page">
+    <div className="app-surface min-h-screen bg-surface-page">
       {/* Top bar */}
       <div className="sticky top-0 z-20 bg-surface border-b border-line-subtle px-6 py-3 flex items-center gap-4">
-        <Link to="/dashboard" className="text-ink-muted hover:text-ink text-sm">Back to dashboard</Link>
+        <Link
+          to="/dashboard"
+          onClick={(event) => {
+            if (hasUnsavedChanges()) {
+              event.preventDefault();
+              setConfirmLeave(true);
+            }
+          }}
+          className="text-ink-muted hover:text-ink text-sm"
+        >
+          Back to dashboard
+        </Link>
         <div className="flex-1 min-w-0">
           <input
             value={project.title}
@@ -414,7 +466,7 @@ export default function ProjectEditorPage() {
           ['settings', 'Settings', 'settings-gear'],
         ].map(([tab, label, icon]) => (
           <button key={tab} onClick={() => setActiveTab(tab)}
-            className={`py-3 text-sm font-medium border-b-2 transition-colors inline-flex items-center gap-1.5 ${activeTab === tab ? 'border-accent text-accent-text' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-ink-secondary'}`}>
+            className={`py-3 text-sm font-medium border-b-2 transition-colors inline-flex items-center gap-1.5 ${activeTab === tab ? 'border-accent text-accent-text' : 'border-transparent text-ink-muted hover:text-ink-secondary'}`}>
             <EngineeringIcon name={icon} size="1em" />
             <span>{label}</span>
           </button>
@@ -454,7 +506,7 @@ export default function ProjectEditorPage() {
               <label className="form-label">Cover Image</label>
               {project.cover_image_url ? (
                 <div className="relative">
-                  <img src={project.cover_image_url} alt="Cover" className="w-full h-48 object-cover rounded-xl" />
+                  <img loading="lazy" decoding="async" src={project.cover_image_url} alt="Cover" className="w-full h-48 object-cover rounded-xl" />
                   <button onClick={() => setProject(p => ({ ...p, cover_image_url: '' }))}
                     className="absolute top-2 right-2 bg-black/50 text-white text-xs px-3 py-1 rounded-lg">Remove</button>
                 </div>
@@ -489,7 +541,7 @@ export default function ProjectEditorPage() {
             </div>
 
             {/* Dates */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="form-label">Start date</label>
                 <input type="date" value={project.start_date} onChange={e => setProject(p => ({ ...p, start_date: e.target.value }))} className="form-input" />
@@ -554,6 +606,21 @@ export default function ProjectEditorPage() {
   {showMediaSidebar && (
     <MediaSidebar projectId={project.id} onClose={() => setShowMediaSidebar(false)} />
     )}
+      <ConfirmDialog
+        open={confirmLeave}
+        onOpenChange={setConfirmLeave}
+        title="Leave without saving?"
+        description={
+          saveStatus === 'error'
+            ? 'The last autosave failed, and unsaved edits will be lost if you leave now.'
+            : isNew
+              ? 'This project has not been created yet — everything here will be lost if you leave now.'
+              : 'Your latest edits have not been saved and will be lost if you leave now.'
+        }
+        confirmLabel="Leave anyway"
+        destructive
+        onConfirm={() => navigate('/dashboard')}
+      />
     </div>
   );
 }

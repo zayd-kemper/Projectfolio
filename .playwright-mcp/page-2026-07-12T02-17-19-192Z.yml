@@ -1,0 +1,128 @@
+- generic [ref=f10e407]:
+  - complementary [ref=f10e408]:
+    - generic [ref=f10e645]:
+      - generic [ref=f10e647]:
+        - generic [ref=f10e649]: ProjectFolio
+        - button "Notifications" [ref=f10e652] [cursor=pointer]
+      - navigation [ref=f10e654]:
+        - link "Projects" [ref=f10e655] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Media Library" [ref=f10e658] [cursor=pointer]:
+          - /url: /dashboard/media
+        - link "Analytics" [ref=f10e661] [cursor=pointer]:
+          - /url: /dashboard/analytics
+        - link "Opportunities" [ref=f10e664] [cursor=pointer]:
+          - /url: /dashboard/ai-tools
+        - link "Portfolio" [ref=f10e667] [cursor=pointer]:
+          - /url: /dashboard/portfolio
+        - link "Integrate & Apply" [ref=f10e670] [cursor=pointer]:
+          - /url: /dashboard/integrations
+        - link "Teams" [ref=f10e673] [cursor=pointer]:
+          - /url: /dashboard/teams
+        - link "Discover" [ref=f10e676] [cursor=pointer]:
+          - /url: /discover
+      - generic [ref=f10e679]:
+        - link "View My Portfolio" [ref=f10e680] [cursor=pointer]:
+          - /url: /testportfolio
+        - button "Dark mode" [ref=f10e683] [cursor=pointer]
+        - generic [ref=f10e686]:
+          - link "Ari Patel @testportfolio" [ref=f10e687] [cursor=pointer]:
+            - /url: /dashboard/settings
+            - generic [ref=f10e689]:
+              - generic [ref=f10e690]: Ari Patel
+              - generic [ref=f10e691]: "@testportfolio"
+          - button "Sign out" [ref=f10e692] [cursor=pointer]
+  - main [ref=f10e458]:
+    - generic [ref=f10e459]:
+      - generic [ref=f10e460]:
+        - heading "Integrate & Apply" [level=1] [ref=f10e461]
+        - paragraph [ref=f10e462]: Share your portfolio, export your work, and prepare tailored job applications.
+      - generic [ref=f10e463]:
+        - button "Share & Export" [ref=f10e464] [cursor=pointer]
+        - button "API & Embed" [ref=f10e467] [cursor=pointer]
+        - button "Application Helper" [ref=f10e470] [cursor=pointer]
+      - generic [ref=f10e570]:
+        - paragraph [ref=f10e572]: Pick where you're applying and get a tailored resume, cover letter, and paste-ready snippets built from your portfolio.
+        - generic [ref=f10e573]:
+          - heading "1. Choose a platform" [level=2] [ref=f10e574]
+          - generic [ref=f10e575]:
+            - button [ref=f10e576] [cursor=pointer]:
+              - paragraph [ref=f10e577]: Generic
+              - paragraph [ref=f10e578]: Works with any job board, email application, or company careers page.
+              - paragraph [ref=f10e579]: Portfolio link · Resume ≤2p · Letter ≤400 words
+            - button [pressed] [ref=f10e580] [cursor=pointer]:
+              - paragraph [ref=f10e581]: LinkedIn
+              - paragraph [ref=f10e582]: Easy Apply postings and recruiter messages on LinkedIn.
+              - paragraph [ref=f10e583]: Portfolio link · Resume ≤2p · Letter ≤200 words
+            - button [ref=f10e584] [cursor=pointer]:
+              - paragraph [ref=f10e585]: Indeed
+              - paragraph [ref=f10e586]: Applications submitted through Indeed profiles or quick apply.
+              - paragraph [ref=f10e587]: Resume ≤2p · Letter ≤300 words
+            - button [ref=f10e588] [cursor=pointer]:
+              - paragraph [ref=f10e589]: Greenhouse
+              - paragraph [ref=f10e590]: Company career pages powered by Greenhouse ATS.
+              - paragraph [ref=f10e591]: Portfolio link · Resume ≤2p · Letter ≤400 words
+            - button [ref=f10e592] [cursor=pointer]:
+              - paragraph [ref=f10e593]: Lever
+              - paragraph [ref=f10e594]: Company career pages powered by Lever ATS.
+              - paragraph [ref=f10e595]: Portfolio link · Resume ≤2p · Letter ≤350 words
+            - button [ref=f10e596] [cursor=pointer]:
+              - paragraph [ref=f10e597]: Workday
+              - paragraph [ref=f10e598]: Enterprise career portals running on Workday.
+              - paragraph [ref=f10e599]: Portfolio link · Resume ≤2p · Letter ≤400 words
+        - generic [ref=f10e600]:
+          - heading "2. Job details" [level=2] [ref=f10e601]
+          - generic [ref=f10e602]:
+            - generic [ref=f10e603]:
+              - generic [ref=f10e604]:
+                - generic [ref=f10e605]: Job title
+                - textbox "Job title" [ref=f10e606]:
+                  - /placeholder: e.g. Design Engineer
+                  - text: Mechanical Design Engineer
+              - generic [ref=f10e607]:
+                - generic [ref=f10e608]: Company
+                - textbox "Company" [ref=f10e609]:
+                  - /placeholder: e.g. Orbit Dynamics
+                  - text: Orbit Dynamics
+            - generic [ref=f10e610]:
+              - generic [ref=f10e611]: Job posting URL (optional)
+              - textbox "Job posting URL (optional)" [ref=f10e612]:
+                - /placeholder: https://…
+                - text: https://www.linkedin.com/jobs/view/seeking-help-near-umn-for-a-first-grader-at-wyndy-4439578421?trk=public_jobs_topcard-title
+              - paragraph [ref=f10e613]: If provided, the posting is analyzed so the letter and resume emphasize what the role asks for.
+            - generic [ref=f10e614]:
+              - generic [ref=f10e615]: Notes for the writer (optional)
+              - textbox "Notes for the writer (optional)" [ref=f10e616]:
+                - /placeholder: e.g. referred by Sam; emphasize the rocket project
+            - button "Generate application package" [ref=f10e617] [cursor=pointer]
+        - generic [ref=f10e618]:
+          - heading "Prepared applications" [level=2] [ref=f10e619]
+          - generic [ref=f10e620]:
+            - generic [ref=f10e621]:
+              - generic [ref=f10e622]:
+                - paragraph [ref=f10e623]: Mechanical Design Engineer
+                - paragraph [ref=f10e624]:
+                  - text: Orbit Dynamics
+                  - generic [ref=f10e625]: · greenhouse
+              - generic [ref=f10e626]: ready
+            - generic [ref=f10e627]:
+              - generic [ref=f10e628]:
+                - paragraph [ref=f10e629]: Robotics Engineering Intern
+                - paragraph [ref=f10e630]:
+                  - text: Vector Automation
+                  - generic [ref=f10e631]: · linkedin
+              - generic [ref=f10e632]: ready
+            - generic [ref=f10e633]:
+              - generic [ref=f10e634]:
+                - paragraph [ref=f10e635]: Mechanical Design Engineer
+                - paragraph [ref=f10e636]:
+                  - text: Orbit Dynamics
+                  - generic [ref=f10e637]: · greenhouse
+              - generic [ref=f10e638]: ready
+            - generic [ref=f10e639]:
+              - generic [ref=f10e640]:
+                - paragraph [ref=f10e641]: Mechanical Design Engineer
+                - paragraph [ref=f10e642]:
+                  - text: Orbit Dynamics
+                  - generic [ref=f10e643]: · greenhouse
+              - generic [ref=f10e644]: failed

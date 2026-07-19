@@ -148,7 +148,7 @@ export default function ProfileSettingsPage({ noLayout = false }) {
                   {avatarUploading ? (
                     <div className="h-5 w-5 animate-spin rounded-full border-2 border-accent border-t-transparent" />
                   ) : avatarUrl ? (
-                    <img src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
+                    <img loading="lazy" decoding="async" src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
                   ) : (
                     <span className="text-2xl text-accent-text/50">{form.full_name?.charAt(0) || '?'}</span>
                   )}
@@ -164,7 +164,7 @@ export default function ProfileSettingsPage({ noLayout = false }) {
           {/* Basic info */}
           <section className="space-y-4 p-6">
             <h3 className="font-semibold text-ink">Basic info</h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="form-label">Full name</label>
                 <input name="full_name" value={form.full_name} onChange={handleChange} className="form-input" />
@@ -189,7 +189,7 @@ export default function ProfileSettingsPage({ noLayout = false }) {
               <label className="form-label">Location</label>
               <input name="location" value={form.location} onChange={handleChange} placeholder="Cambridge, MA" className="form-input" />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="form-label">Contact email</label>
                 <input name="contact_email" value={form.contact_email} onChange={handleChange}

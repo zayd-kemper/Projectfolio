@@ -126,7 +126,7 @@ function BlockRenderer({ block }) {
     case 'image':
       return (
         <figure className="my-6">
-          <img src={block.content?.url} alt={block.content?.alt || ''} className="w-full rounded-xl max-h-[500px] object-cover" />
+          <img loading="lazy" decoding="async" src={block.content?.url} alt={block.content?.alt || ''} className="w-full rounded-xl max-h-[500px] object-cover" />
           {block.content?.caption && <figcaption className="text-sm text-gray-400 mt-2 text-center italic">{block.content.caption}</figcaption>}
         </figure>
       );
@@ -186,7 +186,7 @@ function BlockRenderer({ block }) {
         <div className={`grid gap-2 my-6 ${gridCols}`}>
           {images.map((img, i) => (
             <figure key={i} className="relative rounded-xl overflow-hidden bg-gray-100">
-              <img src={img.url} alt={img.caption || ''} className="w-full h-48 object-cover" />
+              <img loading="lazy" decoding="async" src={img.url} alt={img.caption || ''} className="w-full h-48 object-cover" />
               {img.caption && <figcaption className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs px-2 py-1.5">{img.caption}</figcaption>}
             </figure>
           ))}

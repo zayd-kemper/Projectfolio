@@ -5,8 +5,10 @@ import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YA
 import toast from 'react-hot-toast';
 import { useAuth } from '../hooks/useAuth';
 import DashboardLayout from '../components/shared/DashboardLayout';
+import ConfirmDialog from '../components/shared/ConfirmDialog';
 import EngineeringIcon from '../components/shared/EngineeringIcon';
 import LayoutPreview from '../components/portfolio/LayoutPreview';
+import { EmptyState } from '../components/shared/ui';
 import { LAYOUTS } from '../utils/layouts';
 import api from '../utils/api';
 
@@ -49,7 +51,7 @@ const TABS = [
 
 function IconTile({ name, className = '' }) {
   return (
-    <span className={`inline-flex h-9 w-9 items-center justify-center rounded-lg border border-line bg-white   ${className}`}>
+    <span className={`inline-flex h-9 w-9 items-center justify-center rounded-lg border border-line bg-surface   ${className}`}>
       <EngineeringIcon name={name} size="1.15rem" />
     </span>
   );
@@ -69,17 +71,6 @@ function Toggle({ checked, onClick, label }) {
   );
 }
 
-function EmptyState({ icon, title, body, action }) {
-  return (
-    <div className="rounded-xl border border-dashed border-line bg-white p-8 text-center  ">
-      <IconTile name={icon} className="mx-auto mb-3" />
-      <h3 className="text-sm font-semibold text-ink">{title}</h3>
-      <p className="mx-auto mt-1 max-w-md text-sm text-ink-muted">{body}</p>
-      {action && <div className="mt-4">{action}</div>}
-    </div>
-  );
-}
-
 function SectionHeading({ icon, title, body }) {
   return (
     <div className="mb-5 flex items-start gap-3">
@@ -93,7 +84,7 @@ function SectionHeading({ icon, title, body }) {
 }
 
 function SkeletonBlock({ className = '' }) {
-  return <div className={`animate-pulse rounded-xl bg-surface-muted ${className}`} />;
+  return <div className={`skeleton-shimmer rounded-xl ${className}`} />;
 }
 
 function StatCard({ icon, label, value }) {
@@ -361,7 +352,7 @@ function TeamSettingsPanel({ team, teamId, onUpdate }) {
                   : 'border-line hover:border-ink-faint hover:bg-surface-muted'
               }`}
             >
-              <div className="h-24 w-36 flex-shrink-0 overflow-hidden rounded-lg border border-line bg-white  ">
+              <div className="h-24 w-36 flex-shrink-0 overflow-hidden rounded-lg border border-line bg-surface  ">
                 <LayoutPreview layoutId={layout.id} accentColor={settings.accent_color} />
               </div>
               <div className="min-w-0 flex-1">
@@ -425,13 +416,13 @@ function TeamSettingsPanel({ team, teamId, onUpdate }) {
                           className={`flex items-center gap-3 rounded-xl border p-3 transition-colors ${
                             dragSnapshot.isDragging
                               ? 'border-accent bg-accent-surface shadow-pop'
-                              : 'border-line bg-white  '
+                              : 'border-line bg-surface  '
                           }`}
                         >
                           <button
                             type="button"
                             {...dragProvided.dragHandleProps}
-                            className="flex cursor-grab flex-col gap-0.5 px-1 text-ink-faint active:cursor-grabbing"
+                            className="flex cursor-grab flex-col gap-0.5 px-1 text-ink-muted active:cursor-grabbing"
                             aria-label={`Reorder ${section.label}`}
                           >
                             <span className="h-0.5 w-4 rounded bg-current" />
@@ -448,7 +439,7 @@ function TeamSettingsPanel({ team, teamId, onUpdate }) {
                             </div>
                             <p className="text-xs text-ink-muted">{section.desc}</p>
                           </div>
-                          <span className="font-mono text-xs text-ink-faint">{index + 1}</span>
+                          <span className="font-mono text-xs text-ink-muted">{index + 1}</span>
                           {!section.required && (
                             <button
                               type="button"
@@ -730,7 +721,7 @@ function TeamProjectList({ projects, isAdmin, onRemoveProject }) {
         <div key={project.id} className="card flex items-center gap-4 p-4">
           <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl bg-accent-surface">
             {project.cover_image_url ? (
-              <img src={project.cover_image_url} alt="" className="h-full w-full object-cover" />
+              <img loading="lazy" decoding="async" src={project.cover_image_url} alt="" className="h-full w-full object-cover" />
             ) : (
               <EngineeringIcon name="research-scope" size="1.4rem" />
             )}
@@ -747,14 +738,14 @@ function TeamProjectList({ projects, isAdmin, onRemoveProject }) {
                     title={collaborator.name}
                   >
                     {collaborator.avatar ? (
-                      <img src={collaborator.avatar} alt="" className="h-full w-full object-cover" />
+                      <img loading="lazy" decoding="async" src={collaborator.avatar} alt="" className="h-full w-full object-cover" />
                     ) : (
                       collaborator.name?.charAt(0)
                     )}
                   </div>
                 ))}
                 {project.collaborators.length > 3 && (
-                  <span className="text-xs text-ink-faint">+{project.collaborators.length - 3}</span>
+                  <span className="text-xs text-ink-muted">+{project.collaborators.length - 3}</span>
                 )}
               </div>
             )}
@@ -788,6 +779,8 @@ export default function TeamDetailPage() {
   const [inviteLink, setInviteLink] = useState('');
   const [myProjects, setMyProjects] = useState([]);
   const [showAddProject, setShowAddProject] = useState(false);
+  // { kind: 'member' | 'project' | 'team', id }
+  const [pendingRemoval, setPendingRemoval] = useState(null);
 
   const fetchTeam = async () => {
     setLoading(true);
@@ -851,7 +844,6 @@ export default function TeamDetailPage() {
   };
 
   const handleRemoveMember = async (userId) => {
-    if (!confirm('Remove this member?')) return;
     try {
       await api.delete(`/teams/${id}/members/${userId}`);
       setData(current => ({ ...current, members: current.members.filter(member => member.id !== userId) }));
@@ -873,7 +865,6 @@ export default function TeamDetailPage() {
   };
 
   const handleRemoveProject = async (projectId) => {
-    if (!confirm('Remove this project from the team?')) return;
     try {
       await api.delete(`/teams/${id}/projects/${projectId}`);
       toast.success('Project removed.');
@@ -897,7 +888,6 @@ export default function TeamDetailPage() {
   };
 
   const handleDeleteTeam = async () => {
-    if (!confirm('Delete this team? This cannot be undone.')) return;
     try {
       await api.delete(`/teams/${id}`);
       toast.success('Team deleted.');
@@ -968,7 +958,7 @@ export default function TeamDetailPage() {
           {isOwner && (
             <button
               type="button"
-              onClick={handleDeleteTeam}
+              onClick={() => setPendingRemoval({ kind: 'team' })}
               className="btn-ghost text-sm text-red-500 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950"
             >
               Delete
@@ -1052,7 +1042,7 @@ export default function TeamDetailPage() {
             </div>
           )}
 
-          <TeamProjectList projects={projects} isAdmin={isAdmin} onRemoveProject={handleRemoveProject} />
+          <TeamProjectList projects={projects} isAdmin={isAdmin} onRemoveProject={(projectId) => setPendingRemoval({ kind: 'project', id: projectId })} />
         </div>
       )}
 
@@ -1062,7 +1052,7 @@ export default function TeamDetailPage() {
             <div key={member.id} className="card flex items-center gap-4 p-4">
               <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-accent-surface font-semibold text-accent-text">
                 {member.avatar_url ? (
-                  <img src={member.avatar_url} alt="" className="h-full w-full object-cover" />
+                  <img loading="lazy" decoding="async" src={member.avatar_url} alt="" className="h-full w-full object-cover" />
                 ) : (
                   member.full_name?.charAt(0)
                 )}
@@ -1070,14 +1060,14 @@ export default function TeamDetailPage() {
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm font-medium text-ink">{member.full_name}</div>
                 <div className="text-xs text-ink-muted">@{member.username}</div>
-                {member.headline && <div className="truncate text-xs text-ink-faint">{member.headline}</div>}
+                {member.headline && <div className="truncate text-xs text-ink-muted">{member.headline}</div>}
               </div>
               <div className="flex items-center gap-2">
                 {isOwner && member.id !== user?.id ? (
                   <select
                     value={member.role}
                     onChange={event => handleRoleChange(member.id, event.target.value)}
-                    className="rounded-lg border border-line bg-white px-2 py-1 text-xs text-ink-secondary   "
+                    className="rounded-lg border border-line bg-surface px-2 py-1 text-xs text-ink-secondary   "
                   >
                     <option value="member">Member</option>
                     <option value="admin">Admin</option>
@@ -1088,7 +1078,7 @@ export default function TeamDetailPage() {
                 {((isOwner && member.id !== user?.id) || member.id === user?.id) && (
                   <button
                     type="button"
-                    onClick={() => handleRemoveMember(member.id)}
+                    onClick={() => setPendingRemoval({ kind: 'member', id: member.id })}
                     className="rounded-lg px-2 py-1 text-xs text-red-500 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950"
                   >
                     {member.id === user?.id ? 'Leave' : 'Remove'}
@@ -1156,6 +1146,33 @@ export default function TeamDetailPage() {
       {activeTab === 'settings' && !isAdmin && (
         <p className="text-sm text-ink-muted">Only admins and owners can access team settings.</p>
       )}
+      <ConfirmDialog
+        open={Boolean(pendingRemoval)}
+        onOpenChange={(open) => { if (!open) setPendingRemoval(null); }}
+        title={
+          pendingRemoval?.kind === 'team'
+            ? `Delete "${team?.name}"?`
+            : pendingRemoval?.kind === 'member'
+              ? 'Remove this member?'
+              : 'Remove this project from the team?'
+        }
+        description={
+          pendingRemoval?.kind === 'team'
+            ? 'The team profile, member list, and public page are removed. This cannot be undone.'
+            : pendingRemoval?.kind === 'member'
+              ? 'They lose access to this team. Their own projects stay in their portfolio.'
+              : 'The project stays in its owner’s portfolio; it just leaves the team page.'
+        }
+        confirmLabel={
+          pendingRemoval?.kind === 'team' ? 'Delete team' : pendingRemoval?.kind === 'member' ? 'Remove member' : 'Remove project'
+        }
+        destructive
+        onConfirm={() => {
+          if (pendingRemoval?.kind === 'team') return handleDeleteTeam();
+          if (pendingRemoval?.kind === 'member') return handleRemoveMember(pendingRemoval.id);
+          return handleRemoveProject(pendingRemoval.id);
+        }}
+      />
     </DashboardLayout>
   );
 }

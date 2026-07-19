@@ -9,6 +9,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { DashboardShellSkeleton, RouteSkeleton } from './components/shared/Skeleton';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { TooltipProvider } from "@/components/ui/tooltip";
 import ErrorBoundary from './components/shared/ErrorBoundary';
 
 const queryClient = new QueryClient({
@@ -30,7 +31,6 @@ const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 const IntegrationsPage = lazy(() => import('./pages/IntegrationsPage'));
 const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage'));
 const MediaLibraryPage = lazy(() => import('./pages/MediaLibraryPage'));
-const ApplicationHelperPage = lazy(() => import('./pages/ApplicationHelperPage'));
 const OAuthSuccessPage = lazy(() => import('./pages/OAuthSuccessPage'));
 const JoinPage = lazy(() => import('./pages/JoinPage'));
 const EndorsementPage = lazy(() => import('./pages/EndorsementPage'));
@@ -40,6 +40,7 @@ const PublicTeamPage = lazy(() => import('./pages/PublicTeamPage'));
 const DiscoverPage = lazy(() => import('./pages/DiscoverPage'));
 const AIToolsPage = lazy(() => import('./pages/AIToolsPage'));
 const AdvisorPage = lazy(() => import('./pages/AdvisorPage'));
+const PortfolioStudioPage = lazy(() => import('./pages/PortfolioStudioPage'));
 
 // Protected route wrapper
 function ProtectedRoute({ children }) {
@@ -82,9 +83,11 @@ function App() {
       <Toaster
         position="top-right"
         toastOptions={{
-          duration: 1000,
+          duration: 4000,
           style: { borderRadius: '12px', fontSize: '14px', fontFamily: 'DM Sans, sans-serif' },
           success: { iconTheme: { primary: '#2563eb', secondary: '#fff' } },
+          // Errors stay long enough to read and act on.
+          error: { duration: 6000 },
         }}
       />
       <Suspense fallback={<RouteFallback />}>
@@ -100,13 +103,15 @@ function App() {
             <Route path="/dashboard/projects/new" element={<ProtectedRoute><PageTransition><ProjectEditorPage /></PageTransition></ProtectedRoute>} />
             <Route path="/dashboard/projects/:id/edit" element={<ProtectedRoute><PageTransition><ProjectEditorPage /></PageTransition></ProtectedRoute>} />
             <Route path="/dashboard/profile" element={<ProtectedRoute><Navigate to="/dashboard/settings?tab=profile" replace /></ProtectedRoute>} />
-            <Route path="/dashboard/portfolio-settings" element={<ProtectedRoute><Navigate to="/dashboard/settings?tab=portfolio" replace /></ProtectedRoute>} />
+            <Route path="/dashboard/portfolio-settings" element={<ProtectedRoute><Navigate to="/dashboard/portfolio?mode=controls" replace /></ProtectedRoute>} />
             <Route path="/dashboard/account" element={<ProtectedRoute><Navigate to="/dashboard/settings?tab=account" replace /></ProtectedRoute>} />
             <Route path="/dashboard/settings" element={<ProtectedRoute><PageTransition><SettingsPage /></PageTransition></ProtectedRoute>} />
             <Route path="/dashboard/ai-tools" element={<ProtectedRoute><PageTransition><AIToolsPage /></PageTransition></ProtectedRoute>} />
             <Route path="/dashboard/advisor" element={<ProtectedRoute><PageTransition><AdvisorPage /></PageTransition></ProtectedRoute>} />
+            <Route path="/dashboard/portfolio" element={<ProtectedRoute><PageTransition><PortfolioStudioPage /></PageTransition></ProtectedRoute>} />
+            <Route path="/dashboard/agent" element={<ProtectedRoute><Navigate to="/dashboard/portfolio?mode=chat" replace /></ProtectedRoute>} />
             <Route path="/dashboard/integrations" element={<ProtectedRoute><PageTransition><IntegrationsPage /></PageTransition></ProtectedRoute>} />
-            <Route path="/dashboard/applications" element={<ProtectedRoute><PageTransition><ApplicationHelperPage /></PageTransition></ProtectedRoute>} />
+            <Route path="/dashboard/applications" element={<ProtectedRoute><Navigate to="/dashboard/integrations?tab=applications" replace /></ProtectedRoute>} />
             <Route path="/dashboard/analytics" element={<ProtectedRoute><PageTransition><AnalyticsPage /></PageTransition></ProtectedRoute>} />
             <Route path="/dashboard/media" element={<ProtectedRoute><PageTransition><MediaLibraryPage /></PageTransition></ProtectedRoute>} />
             <Route path="/dashboard/teams" element={<ProtectedRoute><PageTransition><TeamsPage /></PageTransition></ProtectedRoute>} />
@@ -124,12 +129,21 @@ function App() {
   );
 }
 
+// Apply the persisted theme before first paint so refreshes and deep links
+// (e.g. /discover, the editor) render dark without waiting for a layout
+// that mounts useDarkMode.
+if (localStorage.getItem('darkMode') === 'true') {
+  document.documentElement.classList.add('dark');
+}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <App />
+          <TooltipProvider>  {/* <-- ADDED HERE */}
+            <App />
+          </TooltipProvider> {/* <-- ADDED HERE */}
         </AuthProvider>
       </QueryClientProvider>
     </BrowserRouter>

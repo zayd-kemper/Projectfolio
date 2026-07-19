@@ -8,6 +8,23 @@ const clampWords = (text, maxWords) => {
   return `${words.slice(0, maxWords).join(' ')}…`;
 };
 
+// Descriptive overview of the applicant's projects, stitched from real project
+// content (tagline, description, technologies). Feeds the "Project Summary"
+// section of the package and the deterministic tailoring fallback.
+const buildProjectSummary = (context, maxProjects = 3) => {
+  const projects = (context.projects || []).slice(0, maxProjects);
+  if (projects.length === 0) return '';
+  const sentences = projects.map((project) => {
+    const detail = String(project.description || project.tagline || '').trim().replace(/\s+/g, ' ');
+    const clipped = detail.length > 220 ? `${detail.slice(0, 220).trim()}…` : detail;
+    const tech = (project.technologies || []).slice(0, 5).join(', ');
+    const parts = [`${project.title}${clipped ? ` — ${clipped.replace(/\.$/, '')}` : ''}`];
+    if (tech) parts.push(`(${tech})`);
+    return `${parts.join(' ')}.`;
+  });
+  return sentences.join(' ');
+};
+
 // Deterministic letter stitched from the applicant's strongest signals. Mirrors the
 // role buildOpportunityFinderFallbackParsed plays for the opportunity finder: the
 // engine never hard-fails just because the AI path did.
@@ -59,6 +76,7 @@ const buildCoverLetterFallback = (context, session, platform) => {
       ? `${skills.join(', ')}${topProjects.length ? ` — demonstrated across ${topProjects.join(', ')}` : ''}`
       : 'See portfolio for demonstrated skills.',
     professional_summary: profile.headline || '',
+    project_summary: buildProjectSummary(context),
     emphasis: topProjects,
     keywords: skills,
     experience_bullets: currentJob && currentJob.highlights ? currentJob.highlights.slice(0, 5) : [],
@@ -100,6 +118,7 @@ const generateCoverLetter = async ({ context, jobText, session, platform }) => {
     const systemPrompt =
       'You are an application-writing assistant. Reply with ONLY a JSON object with keys: ' +
       'cover_letter (string), skills_summary (string), professional_summary (string), ' +
+      'project_summary (2-4 sentences describing the applicant\'s most relevant projects, grounded in the provided project data), ' +
       'emphasis (array of project/skill names to lead with), keywords (array of strings), ' +
       'experience_bullets (array of resume-ready bullet strings). ' +
       `The cover_letter must be at most ${maxWords} words, truthful to the provided applicant data, ` +
@@ -139,6 +158,9 @@ const generateCoverLetter = async ({ context, jobText, session, platform }) => {
       cover_letter: clampWords(letter, maxWords),
       skills_summary: typeof parsed.skills_summary === 'string' ? parsed.skills_summary : '',
       professional_summary: typeof parsed.professional_summary === 'string' ? parsed.professional_summary : '',
+      project_summary: typeof parsed.project_summary === 'string' && parsed.project_summary.trim()
+        ? parsed.project_summary
+        : buildProjectSummary(context),
       emphasis: Array.isArray(parsed.emphasis) ? parsed.emphasis.slice(0, 10).map(String) : [],
       keywords: Array.isArray(parsed.keywords) ? parsed.keywords.slice(0, 20).map(String) : [],
       experience_bullets: Array.isArray(parsed.experience_bullets) ? parsed.experience_bullets.slice(0, 8).map(String) : [],

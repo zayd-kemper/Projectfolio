@@ -1,0 +1,7 @@
+*.md
+*.txt
+*.pdf
+*.docx
+.vscode/
+node_modules/
+dist/

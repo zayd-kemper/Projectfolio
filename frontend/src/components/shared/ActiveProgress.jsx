@@ -70,7 +70,7 @@ export default function ActiveProgress({
           </div>
         </div>
       </div>
-      {note && !compact && <p className="text-xs text-ink-faint mt-3">{note}</p>}
+      {note && !compact && <p className="text-xs text-ink-muted mt-3">{note}</p>}
     </div>
   );
 }

@@ -166,7 +166,7 @@ export default function AccountSettingsPage({ noLayout = false }) {
             </button>
           </div>
           {highlightsEnabled && (
-            <p className="text-xs text-ink-faint mt-3">
+            <p className="text-xs text-ink-muted mt-3">
               Highlights re-appear 7 days after dismissal, or immediately when you re-enable them.
             </p>
           )}
@@ -179,7 +179,7 @@ export default function AccountSettingsPage({ noLayout = false }) {
             <h3 className="text-sm font-semibold text-ink">Sign out</h3>
             <p className="text-xs text-ink-muted">Sign out of your account on this device.</p>
           </div>
-          <button onClick={logout} className="btn-danger">Sign out</button>
+          <button onClick={logout} className="btn-secondary">Sign out</button>
         </div>
       </div>
     </>
