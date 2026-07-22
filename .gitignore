@@ -28,3 +28,10 @@ npm-debug.log*
 # Temporary
 *.tmp
 *.temp
+
+# Session/tool artifacts (ponytail audit 2026-07-21)
+graphify-out/
+.playwright-mcp/
+scratchpad/
+desktop.ini
+/*.png
