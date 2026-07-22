@@ -17,7 +17,7 @@ Repo-wide over-engineering audit. Scope: redundancy and dead weight only — cor
 7. `delete:` **`framer-motion` — 1 leftover import** (`main.jsx:8`) while 34 files use its successor `motion/react` (same API, drop-in). Change the one import, delete the dep and the `manualChunks` line. [frontend/src/main.jsx:8, frontend/vite.config.js:28]
 8. `delete:` **`@tanstack/react-query` — a `QueryClientProvider` wrapping an app with zero `useQuery`/`useMutation` calls anywhere.** All data fetching goes through `utils/api.js`. Delete provider + dep. [frontend/src/main.jsx:11]
 9. `delete:` **`sonner` + `next-themes` — toast system with zero consumers.** `react-hot-toast` is the real one (22 files); `sonner`/`next-themes` are only referenced by unused `components/ui/sonner.jsx` (deleted in #3). [frontend/package.json]
-10. `delete:` **`shadcn` in `dependencies` — it's a CLI, zero imports.** Run it with `npx shadcn` when needed. [frontend/package.json:61]
+10. ~~`delete:` **`shadcn` in `dependencies` — it's a CLI, zero imports.**~~ **FALSE POSITIVE (found during phase 3):** `globals.css` imports `@import "shadcn/tailwind.css"` — CSS imports are invisible to JS greps. Dep kept. [frontend/src/styles/globals.css:2]
 11. `delete:` **`tailwindcss-animate` — not registered in `tailwind.config.js`;** `globals.css` imports `tw-animate-css` instead. One of the pair is dead — keep `tw-animate-css`, drop `tailwindcss-animate`. [frontend/package.json]
 12. `delete:` **backend `openid-client` — zero requires and zero dynamic imports.** LinkedIn OIDC uses `passport-openidconnect`; Google uses `passport-google-oauth20`. [backend/package.json:42]
 13. `delete:` **legacy schema scripts, 647 lines:** `config/migrate.js` (310, the `db:migrate:legacy` path superseded by `runMigrations.js`), `config/migrate_discover.js` (54), `config/migrate_posts.js` (66), `config/ensureAgentSchema.js` (121), `config/ensurePortfolioCustomizerSchema.js` (96). The scalability test *asserts server.js does not use the ensure files* — they're required by nothing. Drop the `db:migrate:legacy` npm script too. [backend/config/]
@@ -84,3 +84,15 @@ Run the full gate after every phase: `cd frontend && npx eslint . && npm test &&
 ---
 
 net: **-21,700 lines, -28 deps possible** (plus ~26 MB untracked from git; -30 deps with the optional Phase 5 swaps).
+
+---
+
+## Execution log (2026-07-21)
+
+- **Phase 1** — `a72189b`. As planned, two deviations: the `~/` dir wasn't empty (held a 5.9 MB accidental superpowers-repo clone under `~/.claude/`; verified the live install is the official plugin cache, then deleted), and `.claude/worktrees/` was **kept** — it holds 4 registered worktrees with live branches, not stale debris. Remove per-branch with `git worktree remove <path>` when done with them.
+- **Phase 2** — `1052093`. 159 files deleted. Gate: vitest 46/46, build clean, backend motion-architecture test green. The 51 eslint errors are pre-existing style violations in untouched files.
+- **Phase 3** — `f40cee8`. 25 deps removed (not 26 — see amended finding 10; `shadcn` stays for its CSS sheet). `main.jsx` now imports `motion/react`; the vite `framer-motion` chunk rule stays because `motion@12` resolves through an internal `framer-motion@12`. `react-vendor` chunk 274→245 kB.
+- **Phase 4** — `39533a3`. Legacy config scripts + stray hook deleted (669 lines), `db:migrate:legacy` script and CLAUDE.md reference removed, `openid-client` + `express-validator` uninstalled. The express-validator layer was pure redundancy — schemaValidation ran first on every route with stricter rules. Behavior note: emails are now lowercased only; `normalizeEmail()`'s gmail dot-stripping never applied to OAuth signups, so this *unifies* previously inconsistent normalization. Backend suite 196/196.
+- **Phase 5** — resolved as **keep both**, per the ladder. `axios`: `uploadMedia` needs `onUploadProgress` (fetch cannot report upload progress) and 45 files rely on the axios error/response shape — a swap is a 45-file refactor to save one already-lazy-loaded ~13 kB gzip chunk. `date-fns`: usage is `format()` pattern strings and `formatDistanceToNow` — exactly the format-string gymnastics the plan said not to hand-roll; it tree-shakes into its own small chunk. Findings 26–27 closed as "dependency earns its keep."
+
+Final net: **-21,600 lines, -27 deps, ~26 MB untracked from git.**
