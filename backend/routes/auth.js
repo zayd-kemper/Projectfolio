@@ -1,7 +1,6 @@
 // backend/routes/auth.js
 const express = require('express');
 const bcrypt = require('bcryptjs');
-const { body, validationResult } = require('express-validator');
 const { query } = require('../config/database');
 const { requireAuth } = require('../middleware/auth');
 const { validateSchema, s } = require('../middleware/schemaValidation');
@@ -56,16 +55,7 @@ const makeUsername = (name) => {
 
 // ── REGISTER ──────────────────────────────────────────────────────────────────
 // POST /api/auth/register
-router.post('/register', validateSchema({ body: registerSchema }), [
-  body('email').isEmail().normalizeEmail().withMessage('Valid email required'),
-  body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
-  body('full_name').trim().isLength({ min: 2 }).withMessage('Full name required'),
-], async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
+router.post('/register', validateSchema({ body: registerSchema }), async (req, res) => {
   const { email, password, full_name, username: requestedUsername } = req.body;
 
   try {
@@ -121,15 +111,7 @@ router.post('/register', validateSchema({ body: registerSchema }), [
 
 // ── LOGIN ──────────────────────────────────────────────────────────────────────
 // POST /api/auth/login
-router.post('/login', validateSchema({ body: loginSchema }), [
-  body('email').isEmail().normalizeEmail(),
-  body('password').notEmpty(),
-], async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ error: 'Invalid email or password format.' });
-  }
-
+router.post('/login', validateSchema({ body: loginSchema }), async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -247,10 +229,7 @@ router.put('/profile', requireAuth, userQuota('auth.profile.write', { windowMs: 
 });
 
 // ── CHANGE PASSWORD ───────────────────────────────────────────────────────────
-router.put('/change-password', requireAuth, validateSchema({ body: changePasswordSchema }), userQuota('auth.password.write', { windowMs: 60 * 60 * 1000, max: 20 }), [
-  body('current_password').notEmpty(),
-  body('new_password').isLength({ min: 8 }),
-], async (req, res) => {
+router.put('/change-password', requireAuth, validateSchema({ body: changePasswordSchema }), userQuota('auth.password.write', { windowMs: 60 * 60 * 1000, max: 20 }), async (req, res) => {
   const { current_password, new_password } = req.body;
   try {
     const result = await query('SELECT password_hash FROM users WHERE id = $1', [req.user.id]);
@@ -268,10 +247,9 @@ router.put('/change-password', requireAuth, validateSchema({ body: changePasswor
   }
 });
 
-router.put('/change-email', requireAuth, validateSchema({ body: changeEmailSchema }), userQuota('auth.email.write', { windowMs: 60 * 60 * 1000, max: 20 }), [
-  body('new_email').isEmail().normalizeEmail(),
-  body('password').notEmpty(),
-], async (req, res) => {
+// ponytail: express-validator layer removed — schemaValidation covers it; emails are
+// lowercased only (normalizeEmail's gmail dot-stripping never applied to OAuth signups).
+router.put('/change-email', requireAuth, validateSchema({ body: changeEmailSchema }), userQuota('auth.email.write', { windowMs: 60 * 60 * 1000, max: 20 }), async (req, res) => {
   const { new_email, password } = req.body;
   try {
     const result = await query('SELECT password_hash FROM users WHERE id = $1', [req.user.id]);

@@ -13,7 +13,6 @@ ProjectFolio is a portfolio platform for engineering/science students: a block e
 - `npm start` — start API without nodemon
 - `npm run worker` — start the BullMQ background job worker (separate process from the API)
 - `npm run db:migrate` — apply pending SQL migrations from `migrations/` (idempotent, advisory-locked)
-- `npm run db:migrate:legacy` — legacy migration path (`config/migrate.js`), only for older schemas
 - `npm run db:retry-warnings` — re-run migration statements that failed earlier due to ownership issues (requires `MIGRATION_DATABASE_URL` for an owner-level Postgres URL)
 - `npm run db:seed` / `npm run db:seed:test-portfolio` — seed data
 - `npm test` — runs the full Node test suite (`node --test`) against a fixed list of files in `test/`
