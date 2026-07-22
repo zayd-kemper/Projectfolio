@@ -25,8 +25,8 @@ export default defineConfig({
           if (id.includes('@codemirror/lang-css') || id.includes('@lezer/css')) return 'editor-codemirror-css';
           if (id.includes('@codemirror') || id.includes('@uiw/react-codemirror') || id.includes('@uiw/codemirror-extensions-basic-setup')) return 'editor-codemirror';
           if (id.includes('recharts') || id.includes('d3-') || id.includes('decimal.js') || id.includes('victory-vendor')) return 'charts';
-          if (id.includes('framer-motion')) return 'motion';
-          if (id.includes('@hello-pangea') || id.includes('react-beautiful-dnd')) return 'drag-drop';
+          if (id.includes('framer-motion')) return 'motion'; // motion@12 resolves through node_modules/framer-motion internally
+          if (id.includes('@hello-pangea')) return 'drag-drop';
           if (id.includes('react-dropzone') || id.includes('file-selector')) return 'upload';
           if (
             id.includes('react') ||

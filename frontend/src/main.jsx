@@ -5,19 +5,11 @@ import ReactDOM from 'react-dom/client';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import './styles/globals.css';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { DashboardShellSkeleton, RouteSkeleton } from './components/shared/Skeleton';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TooltipProvider } from "@/components/ui/tooltip";
 import ErrorBoundary from './components/shared/ErrorBoundary';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: { staleTime: 30_000, gcTime: 5 * 60_000, retry: 1, refetchOnWindowFocus: false },
-    mutations: { retry: 0 },
-  },
-});
 
 // Route chunks
 const LandingPage = lazy(() => import('./pages/LandingPage'));
@@ -139,13 +131,11 @@ if (localStorage.getItem('darkMode') === 'true') {
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <TooltipProvider>  {/* <-- ADDED HERE */}
-            <App />
-          </TooltipProvider> {/* <-- ADDED HERE */}
-        </AuthProvider>
-      </QueryClientProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <App />
+        </TooltipProvider>
+      </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>
 );
