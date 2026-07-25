@@ -1,42 +1,49 @@
-const jwt = require('jsonwebtoken');
-const { getTokenVersion } = require('../utils/authTokenVersion');
+// Authenticates requests with Supabase Auth access tokens.
+//
+// Supabase owns sessions, refresh, and revocation, so there is no tokenVersion
+// freshness check any more — a revoked session simply stops producing valid
+// access tokens. Profile fields beyond id/email are read from public.users
+// rather than trusted from the token's user_metadata.
 
-const userFromToken = (decoded) => ({
-  id: decoded.userId,
-  email: decoded.email,
-  username: decoded.username,
-  full_name: decoded.full_name,
-  avatar_url: decoded.avatar_url || null,
-  token_version: Number(decoded.tokenVersion || 0),
-});
+const { verifySupabaseToken } = require('../utils/supabaseJwt');
+const { loadAuthProfile } = require('../utils/authProfile');
 
-const decodeRequest = (req) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith('Bearer ')) return null;
-  return jwt.verify(authHeader.slice('Bearer '.length), process.env.JWT_SECRET);
+const bearerFrom = (req) => {
+  const header = req.headers.authorization;
+  if (!header?.startsWith('Bearer ')) return null;
+  return header.slice('Bearer '.length).trim() || null;
 };
 
-const assertFreshToken = async (decoded) => {
-  const currentVersion = await getTokenVersion(decoded.userId);
-  if (currentVersion === null || Number(decoded.tokenVersion || 0) !== currentVersion) {
-    const error = new Error('Stale access token.');
-    error.code = 'STALE_TOKEN';
+const resolveUser = async (req) => {
+  const token = bearerFrom(req);
+  if (!token) return null;
+  const payload = await verifySupabaseToken(token);
+  const profile = await loadAuthProfile(payload.sub);
+  if (!profile) {
+    const error = new Error('No profile for this identity.');
+    error.code = 'PROFILE_MISSING';
     throw error;
   }
+  return {
+    id: profile.id,
+    email: profile.email || payload.email || null,
+    username: profile.username,
+    full_name: profile.full_name,
+    avatar_url: profile.avatar_url || null,
+  };
 };
 
 const requireAuth = async (req, res, next) => {
   try {
-    const decoded = decodeRequest(req);
-    if (!decoded?.userId) return res.status(401).json({ error: 'No valid access token provided.' });
-    await assertFreshToken(decoded);
-    req.user = userFromToken(decoded);
+    const user = await resolveUser(req);
+    if (!user) return res.status(401).json({ error: 'No valid access token provided.', code: 'AUTH_REQUIRED' });
+    req.user = user;
     return next();
   } catch (error) {
-    const message = error.name === 'TokenExpiredError'
+    const message = error.code === 'ERR_JWT_EXPIRED'
       ? 'Access token expired.'
-      : error.code === 'STALE_TOKEN'
-        ? 'Session expired. Please sign in again.'
+      : error.code === 'PROFILE_MISSING'
+        ? 'Your account is still being set up. Please try again in a moment.'
         : 'Invalid access token.';
     return res.status(401).json({ error: message, code: 'AUTH_REQUIRED' });
   }
@@ -44,12 +51,9 @@ const requireAuth = async (req, res, next) => {
 
 const optionalAuth = async (req, res, next) => {
   try {
-    const decoded = decodeRequest(req);
-    if (decoded?.userId) {
-      await assertFreshToken(decoded);
-      req.user = userFromToken(decoded);
-    }
-  } catch {}
+    const user = await resolveUser(req);
+    if (user) req.user = user;
+  } catch { /* anonymous access is fine here */ }
   next();
 };
 
