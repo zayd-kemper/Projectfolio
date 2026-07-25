@@ -1,5 +1,5 @@
 const express = require('express');
-const jwt = require('jsonwebtoken');
+const { createVerifierLoginLink } = require('../utils/supabaseAdmin');
 const { pool, query } = require('../config/database');
 const { requireAuth } = require('../middleware/auth');
 const { userQuota, userCostBudget } = require('../middleware/userQuotas');
@@ -1203,6 +1203,17 @@ const loadLiveVerificationTarget = async (client, userId) => {
   };
 };
 
+// The verifier signs in through a real single-use Supabase magic link instead of a
+// self-minted token: the SPA only accepts sessions Supabase issued. Null here means
+// verification runs against public routes only, exactly as it did when JWT_SECRET
+// was unset.
+const verifierAuth = async (user) => {
+  if (!user?.email) return null;
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+  const loginUrl = await createVerifierLoginLink(user.email, `${frontendUrl}/auth/callback`);
+  return loginUrl ? { loginUrl, user } : null;
+};
+
 const runLiveVerificationForUser = async (userId, artifactId = null) => {
   const client = await pool.connect();
   try {
@@ -1223,10 +1234,7 @@ const runLiveVerificationForUser = async (userId, artifactId = null) => {
       projectSlug: liveTarget.projectSlug,
       publishedProjectCount: liveTarget.publishedProjectCount,
       frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
-      auth: liveTarget.user && process.env.JWT_SECRET ? {
-        token: jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '10m' }),
-        user: liveTarget.user,
-      } : null,
+      auth: await verifierAuth(liveTarget.user),
     }, getBrowserArtifactOptions(artifactId));
   } finally {
     client.release();
@@ -1243,10 +1251,7 @@ const runPreviewVerificationForUser = async (userId, previewState, artifactId = 
       publishedProjectCount: liveTarget.publishedProjectCount,
       frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
       previewState,
-      auth: liveTarget.user && process.env.JWT_SECRET ? {
-        token: jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '10m' }),
-        user: liveTarget.user,
-      } : null,
+      auth: await verifierAuth(liveTarget.user),
     }, getBrowserArtifactOptions(artifactId));
   } finally {
     client.release();

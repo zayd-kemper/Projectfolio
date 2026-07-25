@@ -65,12 +65,18 @@ test('priority routes use strict schema validation middleware', () => {
   }
 });
 
-test('oauth providers use session-backed state and verified email checks', () => {
-  const passportConfig = read('config/passport.js');
-  assert.match(passportConfig, /state:\s*true/);
-  assert.match(passportConfig, /email_verified/);
-  assert.match(passportConfig, /Google email is not verified/);
-  assert.match(passportConfig, /LinkedIn email is not verified/);
+test('the app ships no first-party OAuth handshake or token issuer', () => {
+  // OAuth state/CSRF and provider email verification are Supabase Auth's job now.
+  // What this asserts is that no second, weaker path was left behind.
+  for (const gone of ['config/passport.js', 'routes/oauth.js', 'utils/tokens.js', 'utils/authTokenVersion.js']) {
+    assert.equal(fs.existsSync(path.join(root, gone)), false, `${gone} must be gone`);
+  }
+  const server = read('server.js');
+  assert.doesNotMatch(server, /require\(['"]\.\/config\/passport['"]\)/, 'server.js must not load passport');
+  assert.doesNotMatch(server, /passport\.(initialize|session)\(\)/, 'server.js must not mount passport');
+  const middleware = read('middleware/auth.js');
+  assert.match(middleware, /verifySupabaseToken/, 'requireAuth must verify Supabase tokens');
+  assert.doesNotMatch(middleware, /jsonwebtoken/, 'requireAuth must not verify first-party JWTs');
 });
 
 test('embeddable HTML escapes profile fields', () => {

@@ -6,12 +6,9 @@ const helmet = require('helmet');
 const compression = require('compression');
 const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
-const session = require('express-session');
-const { RedisStore: SessionRedisStore } = require('connect-redis');
 const { RedisStore: RateLimitRedisStore } = require('rate-limit-redis');
 const pinoHttp = require('pino-http');
-const passport = require('./config/passport');
-const jwt = require('jsonwebtoken');
+const { subjectFromToken } = require('./utils/supabaseJwt');
 const { query, closePool } = require('./config/database');
 const { getRedis, connectRedis, closeRedis, redisEnabled } = require('./config/redis');
 const { register, httpDuration } = require('./config/metrics');
@@ -74,13 +71,15 @@ const normalizeIpForRateLimit = (ip = 'unknown') => {
 const pollingLimiter = rateLimit({
   windowMs: 60 * 1000,
   limit: 120,
-  keyGenerator: (req) => {
-    const authHeader = req.headers.authorization || '';
-    if (authHeader.startsWith('Bearer ')) {
-      try {
-        const decoded = jwt.verify(authHeader.slice(7), process.env.JWT_SECRET);
-        if (decoded?.userId) return `user:${decoded.userId}`;
-      } catch {}
+  // express-rate-limit v7 awaits a promise-returning keyGenerator. Verifying the
+  // token (rather than decoding it) matters: an unverified `sub` would let anyone
+  // drain someone else's bucket. JWKS is cached in-process, so this is not a
+  // network round trip per request.
+  keyGenerator: async (req) => {
+    const header = req.headers.authorization || '';
+    if (header.startsWith('Bearer ')) {
+      const sub = await subjectFromToken(header.slice(7).trim());
+      if (sub) return `user:${sub}`;
     }
     return `ip:${normalizeIpForRateLimit(req.ip)}`;
   },
@@ -108,22 +107,6 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'Idempotency-Key'],
 }));
 
-app.use(session({
-  store: redis ? new SessionRedisStore({ client: redis, prefix: 'session:' }) : undefined,
-  secret: process.env.SESSION_SECRET || process.env.JWT_SECRET,
-  name: 'pf_session',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 15 * 60 * 1000,
-  },
-}));
-app.use(passport.initialize());
-app.use(passport.session());
-
 app.use(express.json({ limit: process.env.JSON_BODY_LIMIT || '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: process.env.FORM_BODY_LIMIT || '1mb' }));
 app.use((req, res, next) => {
@@ -148,7 +131,9 @@ app.get('/health/ready', async (req, res) => {
       name: 'health-ready',
       text: `SELECT
         (SELECT COUNT(*)::int FROM schema_migrations) AS migration_count,
-        (SELECT COUNT(*)::int FROM schema_migration_warnings) AS warning_count`,
+        (SELECT COUNT(*)::int FROM schema_migration_warnings) AS warning_count,
+        (SELECT COUNT(*)::int FROM pg_trigger
+          WHERE tgname IN ('on_auth_user_created', 'on_auth_user_email_sync')) AS auth_trigger_count`,
     });
     if (redisEnabled) await redis.ping();
     const warningCount = schema.rows[0].warning_count;
@@ -156,10 +141,20 @@ app.get('/health/ready', async (req, res) => {
     if (warningCount > 0 && warningsFatal) {
       return res.status(503).json({ status: 'not_ready', database: 'degraded', migration_warnings: warningCount });
     }
+    // Without these, signups land in auth.users with no profile and every
+    // subsequent authed request 401s with PROFILE_MISSING.
+    if (schema.rows[0].auth_trigger_count < 2) {
+      return res.status(503).json({
+        status: 'not_ready',
+        database: 'degraded',
+        error: 'Supabase Auth profile triggers are missing; run npm run db:migrate.',
+      });
+    }
     res.json({
       status: warningCount ? 'ready_with_warnings' : 'ready',
       database: 'ok', redis: redisEnabled ? 'ok' : 'disabled',
       migrations: schema.rows[0].migration_count, migration_warnings: warningCount,
+      auth_triggers: schema.rows[0].auth_trigger_count,
     });
   } catch (error) {
     res.status(503).json({ status: 'not_ready', error: error.message });
@@ -174,7 +169,6 @@ app.get('/metrics', async (req, res) => {
 });
 
 app.use('/api/auth', authLimiter, require('./routes/auth'));
-app.use('/api/auth', require('./routes/oauth'));
 app.use('/api/jobs', require('./routes/jobs'));
 app.use('/api/projects', require('./routes/projects'));
 app.use('/api/portfolio', require('./routes/portfolio'));
@@ -204,10 +198,15 @@ app.use((err, req, res, next) => {
 
 const startServer = async () => {
   if (process.env.NODE_ENV === 'production') {
-    if (!process.env.JWT_SECRET || !process.env.SESSION_SECRET || process.env.JWT_SECRET === process.env.SESSION_SECRET) {
-      throw new Error('Production requires distinct JWT_SECRET and SESSION_SECRET values.');
+    const missing = ['SUPABASE_URL', 'SUPABASE_ANON_KEY', 'SUPABASE_SERVICE_ROLE_KEY']
+      .filter((name) => !process.env[name]);
+    if (missing.length) {
+      throw new Error(`Production requires ${missing.join(', ')} for Supabase Auth.`);
     }
     if (!process.env.METRICS_TOKEN) throw new Error('Production requires METRICS_TOKEN.');
+    if (!process.env.ANALYTICS_VISITOR_SECRET) {
+      throw new Error('Production requires ANALYTICS_VISITOR_SECRET.');
+    }
   }
   if (process.env.NODE_ENV === 'production' && !redisEnabled) {
     throw new Error('REDIS_URL is required in production for shared sessions, rate limits, cache, and jobs.');

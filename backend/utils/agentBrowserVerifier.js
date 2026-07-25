@@ -930,11 +930,10 @@ const verifyPreviewRoutes = async ({ username, projectSlug, frontendUrl, preview
           networkIssues.push(`${label}: ${request.url()} failed${failure?.errorText ? `: ${failure.errorText}` : ''}.`);
         });
         await page.setViewport({ width: viewport.width, height: viewport.height, deviceScaleFactor: 1 });
-        if (auth?.token && auth?.user) {
-          await page.evaluateOnNewDocument((token, user) => {
-            window.localStorage.setItem('token', token);
-            window.localStorage.setItem('user', JSON.stringify(user));
-          }, auth.token, auth.user);
+        if (auth?.loginUrl) {
+          // Consume the magic link once; supabase-js persists the resulting session
+          // for every later navigation in this browser context.
+          await page.goto(auth.loginUrl, { waitUntil: 'networkidle2' });
         }
 
         try {
@@ -1027,9 +1026,12 @@ const verifyLiveRoutes = async ({ username, projectSlug, frontendUrl, auth, publ
     frontendUrl,
     username,
     projectSlug,
-    includeDashboard: options.includeDashboard === true && Boolean(auth?.token && auth?.user),
+    includeDashboard: options.includeDashboard === true && Boolean(auth?.loginUrl),
     publishedProjectCount,
   });
+  // The Supabase magic link is single-use, so it is consumed for the first
+  // protected target only; the session persists in the browser context after that.
+  let authApplied = false;
   const checks = [];
   const warnings = [];
   const errors = [];
@@ -1107,11 +1109,11 @@ const verifyLiveRoutes = async ({ username, projectSlug, frontendUrl, auth, publ
           networkIssues.push(`${label}: ${response.url()} returned ${response.status()}${bodyPreview ? `: ${bodyPreview}` : ''}.`);
         });
         await page.setViewport({ width: viewport.width, height: viewport.height, deviceScaleFactor: 1 });
-        if (target.protected && auth?.token && auth?.user) {
-          await page.evaluateOnNewDocument((token, user) => {
-            window.localStorage.setItem('token', token);
-            window.localStorage.setItem('user', JSON.stringify(user));
-          }, auth.token, auth.user);
+        if (target.protected && auth?.loginUrl && !authApplied) {
+          // The link is single-use, so consume it for the first protected target
+          // only; the session persists in this browser context afterwards.
+          await page.goto(auth.loginUrl, { waitUntil: 'networkidle2' });
+          authApplied = true;
         }
 
         try {

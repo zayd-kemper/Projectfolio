@@ -27,7 +27,7 @@ router.post('/view', userQuota('analytics.view', { windowMs: 60 * 1000, max: 120
     return res.status(400).json({ error: 'Invalid analytics event.' });
   }
 
-  const secret = process.env.ANALYTICS_VISITOR_SECRET || process.env.JWT_SECRET;
+  const secret = process.env.ANALYTICS_VISITOR_SECRET;
   const visitorHash = crypto.createHmac('sha256', secret)
     .update(`${req.ip}|${req.get('user-agent') || ''}`)
     .digest('hex');
