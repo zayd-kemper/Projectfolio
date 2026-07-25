@@ -1205,14 +1205,22 @@ cd backend
 git rm utils/tokens.js utils/authTokenVersion.js
 ```
 
-- [ ] **Step 5: Verify the router still loads and the suite is green**
+- [ ] **Step 5: Verify the router still loads**
 
 ```bash
 cd backend
 node -e "require('./routes/auth.js'); console.log('auth router loads')"
 npm test
 ```
-Expected: `auth router loads`, then PASS.
+Expected: `auth router loads`.
+
+**`npm test` is expected to have exactly ONE failure at this point** — `test/githubOauth.test.js`, with `Cannot find module '../utils/tokens'`. It requires `routes/oauth.js`, which imports the `utils/tokens.js` you just deleted. Task 6 deletes `routes/oauth.js` and `test/githubOauth.test.js`, and the failure disappears.
+
+Two consequences of this ordering, both deliberate:
+- `server.js` cannot boot between Task 5 and Task 6, because it still mounts `routes/oauth.js`. Do not deploy from this intermediate commit.
+- Confirm the failure list is exactly that one file before moving on. Any *other* failure is a real regression from your edit.
+
+Run Task 6 immediately after Task 5 rather than leaving the tree here.
 
 - [ ] **Step 6: Commit**
 
