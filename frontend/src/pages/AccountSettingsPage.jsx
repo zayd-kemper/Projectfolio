@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import DashboardLayout from '../components/shared/DashboardLayout';
 import { useAuth } from '../hooks/useAuth';
-import api from '../utils/api';
+import supabase from '../lib/supabase';
 import toast from 'react-hot-toast';
 
 export default function AccountSettingsPage({ noLayout = false }) {
-  const { user, logout } = useAuth();
-  const [emailForm, setEmailForm] = useState({ new_email: '', password: '' });
+  // Task 8 removed `logout` from useAuth() (it's `signOut` now). The Sign-out
+  // button below still needs a working handler, so signOut is destructured too.
+  const { user, signOut } = useAuth();
+  const [emailForm, setEmailForm] = useState({ new_email: '' });
   const [passwordForm, setPasswordForm] = useState({ current_password: '', new_password: '', confirm_password: '' });
   const [savingEmail, setSavingEmail] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
@@ -31,16 +33,17 @@ export default function AccountSettingsPage({ noLayout = false }) {
 
   const handleEmailChange = async (e) => {
     e.preventDefault();
-    if (!emailForm.new_email || !emailForm.password) {
-      return toast.error('Please fill in all fields.');
-    }
+    if (!emailForm.new_email) return toast.error('Please enter a new email address.');
     setSavingEmail(true);
     try {
-      await api.put('/auth/change-email', emailForm);
-      toast.success('Email updated! Please log in again.');
-      logout();
+      // Supabase mails a confirmation link. The address does not change — and the
+      // profile row is not synced — until that link is clicked.
+      const { error } = await supabase.auth.updateUser({ email: emailForm.new_email });
+      if (error) throw error;
+      toast.success(`Confirmation sent to ${emailForm.new_email}. Click the link to finish the change.`);
+      setEmailForm({ new_email: '' });
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Failed to update email.');
+      toast.error(err?.message || 'Failed to update email.');
     } finally {
       setSavingEmail(false);
     }
@@ -56,14 +59,22 @@ export default function AccountSettingsPage({ noLayout = false }) {
     }
     setSavingPassword(true);
     try {
-      await api.put('/auth/change-password', {
-        current_password: passwordForm.current_password,
-        new_password: passwordForm.new_password,
+      // updateUser({ password }) does not check the old password on its own, so
+      // prove custody first — this is what the old change-password route did.
+      const { error: reauthError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: passwordForm.current_password,
       });
+      if (reauthError) {
+        toast.error('Current password is incorrect.');
+        return;
+      }
+      const { error } = await supabase.auth.updateUser({ password: passwordForm.new_password });
+      if (error) throw error;
       toast.success('Password changed successfully!');
       setPasswordForm({ current_password: '', new_password: '', confirm_password: '' });
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Failed to change password.');
+      toast.error(err?.message || 'Failed to change password.');
     } finally {
       setSavingPassword(false);
     }
@@ -91,22 +102,18 @@ export default function AccountSettingsPage({ noLayout = false }) {
         {/* Change email */}
         <section className="p-6">
           <h3 className="font-semibold text-ink mb-1">Change email address</h3>
-          <p className="text-sm text-ink-muted mb-5">You'll be logged out after changing your email.</p>
+          <p className="text-sm text-ink-muted mb-5">
+            We will email a confirmation link to the new address. Your address changes once you click it.
+          </p>
           <form onSubmit={handleEmailChange} className="space-y-4">
             <div>
-              <label className="form-label">New email address</label>
-              <input type="email" value={emailForm.new_email}
-                onChange={e => setEmailForm(f => ({ ...f, new_email: e.target.value }))}
+              <label htmlFor="account-new-email" className="form-label">New email address</label>
+              <input id="account-new-email" type="email" value={emailForm.new_email}
+                onChange={e => setEmailForm({ new_email: e.target.value })}
                 placeholder="new@email.com" className="form-input" />
             </div>
-            <div>
-              <label className="form-label">Confirm with your password</label>
-              <input type="password" value={emailForm.password}
-                onChange={e => setEmailForm(f => ({ ...f, password: e.target.value }))}
-                placeholder="••••••••" className="form-input" />
-            </div>
             <button type="submit" disabled={savingEmail} className="btn-primary">
-              {savingEmail ? 'Updating...' : 'Update email'}
+              {savingEmail ? 'Sending...' : 'Send confirmation'}
             </button>
           </form>
         </section>
@@ -117,20 +124,20 @@ export default function AccountSettingsPage({ noLayout = false }) {
           <p className="text-sm text-ink-muted mb-5">Must be at least 8 characters.</p>
           <form onSubmit={handlePasswordChange} className="space-y-4">
             <div>
-              <label className="form-label">Current password</label>
-              <input type="password" value={passwordForm.current_password}
+              <label htmlFor="account-current-password" className="form-label">Current password</label>
+              <input id="account-current-password" type="password" value={passwordForm.current_password}
                 onChange={e => setPasswordForm(f => ({ ...f, current_password: e.target.value }))}
                 placeholder="••••••••" className="form-input" />
             </div>
             <div>
-              <label className="form-label">New password</label>
-              <input type="password" value={passwordForm.new_password}
+              <label htmlFor="account-new-password" className="form-label">New password</label>
+              <input id="account-new-password" type="password" value={passwordForm.new_password}
                 onChange={e => setPasswordForm(f => ({ ...f, new_password: e.target.value }))}
                 placeholder="••••••••" className="form-input" />
             </div>
             <div>
-              <label className="form-label">Confirm new password</label>
-              <input type="password" value={passwordForm.confirm_password}
+              <label htmlFor="account-confirm-password" className="form-label">Confirm new password</label>
+              <input id="account-confirm-password" type="password" value={passwordForm.confirm_password}
                 onChange={e => setPasswordForm(f => ({ ...f, confirm_password: e.target.value }))}
                 placeholder="••••••••" className="form-input" />
             </div>
@@ -179,7 +186,7 @@ export default function AccountSettingsPage({ noLayout = false }) {
             <h3 className="text-sm font-semibold text-ink">Sign out</h3>
             <p className="text-xs text-ink-muted">Sign out of your account on this device.</p>
           </div>
-          <button onClick={logout} className="btn-secondary">Sign out</button>
+          <button onClick={signOut} className="btn-secondary">Sign out</button>
         </div>
       </div>
     </>
