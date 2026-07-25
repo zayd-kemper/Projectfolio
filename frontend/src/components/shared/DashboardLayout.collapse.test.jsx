@@ -5,7 +5,7 @@ import { MemoryRouter } from 'react-router-dom';
 import DashboardLayout from './DashboardLayout';
 
 vi.mock('../../hooks/useAuth', () => ({
-  useAuth: () => ({ user: { username: 'maya', full_name: 'Maya Iyer' }, logout: vi.fn() }),
+  useAuth: () => ({ user: { username: 'maya', full_name: 'Maya Iyer' }, signOut: vi.fn() }),
 }));
 
 vi.mock('./NotificationBell', () => ({ default: () => null }));

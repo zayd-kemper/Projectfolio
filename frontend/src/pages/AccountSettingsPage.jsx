@@ -5,8 +5,6 @@ import supabase from '../lib/supabase';
 import toast from 'react-hot-toast';
 
 export default function AccountSettingsPage({ noLayout = false }) {
-  // Task 8 removed `logout` from useAuth() (it's `signOut` now). The Sign-out
-  // button below still needs a working handler, so signOut is destructured too.
   const { user, signOut } = useAuth();
   const [emailForm, setEmailForm] = useState({ new_email: '' });
   const [passwordForm, setPasswordForm] = useState({ current_password: '', new_password: '', confirm_password: '' });

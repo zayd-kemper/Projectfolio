@@ -29,7 +29,7 @@ const readStoredCollapsed = () => {
 };
 
 export default function DashboardLayout({ children }) {
-  const { user, logout } = useAuth();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(readStoredCollapsed);
@@ -47,8 +47,10 @@ export default function DashboardLayout({ children }) {
     });
   };
 
-  const handleLogout = () => {
-    logout();
+  // signOut clears the Supabase session; await it so navigation cannot race the
+  // onAuthStateChange listener that drops `user`.
+  const handleLogout = async () => {
+    await signOut();
     navigate('/');
   };
 
