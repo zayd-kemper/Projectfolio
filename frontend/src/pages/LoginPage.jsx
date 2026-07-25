@@ -141,6 +141,11 @@ export default function LoginPage() {
                 className="form-input"
               />
             </div>
+            <p className="text-sm">
+              <Link to="/forgot-password" className="text-blue-600 font-medium hover:underline">
+                Forgot your password?
+              </Link>
+            </p>
             <button type="submit" disabled={loading} className="btn-primary w-full justify-center py-3">
               {loading ? 'Signing in...' : 'Sign in'}
             </button>

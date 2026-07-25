@@ -36,4 +36,9 @@ describe('LoginPage', () => {
     fireEvent.click(screen.getByRole('button', { name: /^sign in$/i }));
     await waitFor(() => expect(signInWithPassword).toHaveBeenCalledWith('a@b.com', 'hunter22'));
   });
+
+  it('links to the password reset flow', () => {
+    render(<LoginPage />);
+    expect(screen.getByRole('link', { name: /forgot your password/i })).toHaveAttribute('href', '/forgot-password');
+  });
 });

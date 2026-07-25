@@ -24,6 +24,8 @@ const IntegrationsPage = lazy(() => import('./pages/IntegrationsPage'));
 const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage'));
 const MediaLibraryPage = lazy(() => import('./pages/MediaLibraryPage'));
 const AuthCallbackPage = lazy(() => import('./pages/AuthCallbackPage'));
+const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'));
 const JoinPage = lazy(() => import('./pages/JoinPage'));
 const EndorsementPage = lazy(() => import('./pages/EndorsementPage'));
 const TeamsPage = lazy(() => import('./pages/TeamsPage'));
@@ -113,6 +115,8 @@ function App() {
             <Route path="/:username" element={<PageTransition><PublicPortfolioPage /></PageTransition>} />
             <Route path="/:username/:projectSlug" element={<PageTransition><PublicProjectPage /></PageTransition>} />
             <Route path="/auth/callback" element={<PageTransition><AuthCallbackPage /></PageTransition>} />
+            <Route path="/forgot-password" element={<PageTransition><ForgotPasswordPage /></PageTransition>} />
+            <Route path="/reset-password" element={<PageTransition><ResetPasswordPage /></PageTransition>} />
           </Routes>
           </ErrorBoundary>
         </AnimatePresence>
