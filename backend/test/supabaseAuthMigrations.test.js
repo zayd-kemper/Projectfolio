@@ -45,3 +45,62 @@ test('011 bounds the username dedup loop', () => {
 test('011 is transactional so a privilege failure aborts loudly', () => {
   assert.ok(!/^\s*--\s*no-transaction/im.test(read('011_supabase_auth_trigger.sql')));
 });
+
+// ── 012: the import ──────────────────────────────────────────────────────────
+const NULL_STRING_COLUMNS = [
+  'confirmation_token', 'recovery_token', 'email_change', 'email_change_token_new',
+  'email_change_token_current', 'phone_change', 'phone_change_token', 'reauthentication_token',
+];
+
+test('012 writes empty strings into every GoTrue NULL-string column', () => {
+  const sql = read('012_supabase_auth_import.sql');
+  for (const column of NULL_STRING_COLUMNS) {
+    assert.ok(
+      new RegExp(`\\b${column}\\b`).test(sql),
+      `${column} must be listed in the auth.users insert — GoTrue scans it as a non-nullable string and NULL 500s every login`
+    );
+  }
+});
+
+test('012 sets the GoTrue bookkeeping columns', () => {
+  const sql = read('012_supabase_auth_import.sql');
+  assert.match(sql, /'00000000-0000-0000-0000-000000000000'/); // instance_id
+  assert.match(sql, /'authenticated'/);                        // aud + role
+});
+
+test('012 never inserts a generated column', () => {
+  const sql = read('012_supabase_auth_import.sql');
+  const insertTargets = sql.match(/INSERT INTO auth\.\w+\s*\(([\s\S]*?)\)/g) || [];
+  assert.ok(insertTargets.length >= 2, 'expected inserts into auth.users and auth.identities');
+  for (const block of insertTargets) {
+    assert.ok(!/\bconfirmed_at\b/.test(block), 'auth.users.confirmed_at is GENERATED ALWAYS');
+    assert.ok(!/\bemail\s*,/.test(block.replace(/email_\w+/g, '')) || !/auth\.identities/.test(block),
+      'auth.identities.email is GENERATED ALWAYS');
+  }
+});
+
+test('012 confirms every imported account', () => {
+  const sql = read('012_supabase_auth_import.sql');
+  assert.match(sql, /email_confirmed_at/);
+  assert.ok(
+    !/is_email_verified\s+THEN/i.test(sql),
+    'imported accounts must be confirmed unconditionally — only 2 of 79 have is_email_verified'
+  );
+});
+
+test('012 uses linkedin_oidc, not linkedin, as the provider slug', () => {
+  const sql = read('012_supabase_auth_import.sql');
+  assert.match(sql, /'linkedin_oidc'/);
+  assert.ok(!/'linkedin'/.test(sql), "Supabase's LinkedIn provider slug is linkedin_oidc");
+});
+
+test('012 adds the auth.users foreign key as its verification step', () => {
+  const sql = read('012_supabase_auth_import.sql');
+  assert.match(sql, /REFERENCES auth\.users\s*\(\s*id\s*\)\s*ON DELETE CASCADE/i);
+});
+
+test('012 is idempotent and transactional', () => {
+  const sql = read('012_supabase_auth_import.sql');
+  assert.ok(!/^\s*--\s*no-transaction/im.test(sql));
+  assert.ok((sql.match(/NOT EXISTS/gi) || []).length >= 3, 'each insert must be re-runnable');
+});
