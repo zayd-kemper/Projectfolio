@@ -28,6 +28,7 @@ export default defineConfig({
           if (id.includes('framer-motion')) return 'motion'; // motion@12 resolves through node_modules/framer-motion internally
           if (id.includes('@hello-pangea')) return 'drag-drop';
           if (id.includes('react-dropzone') || id.includes('file-selector')) return 'upload';
+          if (id.includes('@supabase')) return 'supabase';
           if (
             id.includes('react') ||
             id.includes('react-dom') ||

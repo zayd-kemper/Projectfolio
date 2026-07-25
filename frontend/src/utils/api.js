@@ -1,5 +1,6 @@
 // frontend/src/utils/api.js
 import axios from 'axios';
+import supabase from '../lib/supabase';
 
 const parseTimeout = (value, fallback) => {
   const parsed = Number(value);
@@ -19,11 +20,13 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// Automatically attach JWT token to every request
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+// Attach the current Supabase access token. getSession() reads from memory and
+// refreshes ahead of expiry on its own, so there is no first-party refresh
+// rotation to run here any more.
+api.interceptors.request.use(async (config) => {
+  const { data } = await supabase.auth.getSession();
+  if (data.session?.access_token) {
+    config.headers.Authorization = `Bearer ${data.session.access_token}`;
   }
   const url = String(config.url || '');
   if (url.startsWith('/agent/')) {
@@ -32,31 +35,14 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-let refreshRequest = null;
-
-// Rotate the HttpOnly refresh token once, then replay concurrent failed requests.
+// A 401 now means the session is genuinely gone (revoked, or the refresh failed).
+// Sign out locally and send the user to /login.
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const original = error.config || {};
-    const isAuthEndpoint = String(original.url || '').startsWith('/auth/');
-    if (error.response?.status === 401 && !original._retriedAfterRefresh && !isAuthEndpoint) {
-      original._retriedAfterRefresh = true;
-      refreshRequest ||= axios.post(`${API_BASE_URL}/auth/refresh`, {}, { withCredentials: true, timeout: DEFAULT_API_TIMEOUT_MS })
-        .then(({ data }) => {
-          localStorage.setItem('token', data.token);
-          return data.token;
-        })
-        .finally(() => { refreshRequest = null; });
-      try {
-        const token = await refreshRequest;
-        original.headers = { ...original.headers, Authorization: `Bearer ${token}` };
-        return api(original);
-      } catch {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-        if (!window.location.pathname.startsWith('/login')) window.location.href = '/login';
-      }
+    if (error.response?.status === 401 && !String(error.config?.url || '').startsWith('/auth/')) {
+      await supabase.auth.signOut().catch(() => {});
+      if (!window.location.pathname.startsWith('/login')) window.location.href = '/login';
     }
     return Promise.reject(error);
   }

@@ -1,66 +1,106 @@
 // frontend/src/hooks/useAuth.jsx
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+//
+// Supabase owns the session; this hook mirrors it into React and pairs it with the
+// application profile from GET /auth/me (username, headline, skills, portfolio
+// settings — none of which live in the Supabase JWT).
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import supabase from '../lib/supabase';
 import api from '../utils/api';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
+  const [session, setSession] = useState(null);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const sessionRef = useRef(null);
 
-  // On app load, restore session from localStorage
+  const loadProfile = useCallback(async () => {
+    try {
+      const res = await api.get('/auth/me');
+      setUser(res.data.user);
+      return res.data.user;
+    } catch {
+      setUser(null);
+      return null;
+    }
+  }, []);
+
   useEffect(() => {
-  const token = localStorage.getItem('token');
-  const savedUser = localStorage.getItem('user');
-  if (token && savedUser) {
-    setUser(JSON.parse(savedUser));
-    setLoading(false);
-    // Only verify token in background, don't block or count against rate limit
-    api.get('/auth/me')
-      .then(res => setUser(res.data.user))
-      .catch(() => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        setUser(null);
-      });
-  } else {
-    setLoading(false);
-  }
-}, []);
+    let active = true;
 
-  const login = async (email, password) => {
-    const res = await api.post('/auth/login', { email, password });
-    localStorage.setItem('token', res.data.token);
-    localStorage.setItem('user', JSON.stringify(res.data.user));
-    setUser(res.data.user);
-    return res.data;
-  };
-
-  const register = async (data) => {
-    const res = await api.post('/auth/register', data);
-    localStorage.setItem('token', res.data.token);
-    localStorage.setItem('user', JSON.stringify(res.data.user));
-    setUser(res.data.user);
-    return res.data;
-  };
-
-  const logout = () => {
-    api.post('/auth/logout').catch(() => {});
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setUser(null);
-  };
-
-  const updateUser = useCallback((updatedUser) => {
-    setUser(prev => {
-      const nextUser = { ...(prev || {}), ...updatedUser };
-      localStorage.setItem('user', JSON.stringify(nextUser));
-      return nextUser;
+    supabase.auth.getSession().then(async ({ data }) => {
+      if (!active) return;
+      sessionRef.current = data.session;
+      setSession(data.session);
+      if (data.session) await loadProfile();
+      if (active) setLoading(false);
     });
+
+    const { data: sub } = supabase.auth.onAuthStateChange(async (event, nextSession) => {
+      if (!active) return;
+      // TOKEN_REFRESHED fires on every silent refresh; the profile has not changed,
+      // so do not re-fetch it and do not flip `loading` back on.
+      const sameUser = sessionRef.current?.user?.id === nextSession?.user?.id;
+      sessionRef.current = nextSession;
+      setSession(nextSession);
+      if (!nextSession) {
+        setUser(null);
+      } else if (!sameUser || event === 'SIGNED_IN') {
+        await loadProfile();
+      }
+      setLoading(false);
+    });
+
+    return () => { active = false; sub.subscription.unsubscribe(); };
+  }, [loadProfile]);
+
+  const signInWithPassword = useCallback(async (email, password) => {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    return data;
+  }, []);
+
+  const signUp = useCallback(async ({ email, password, full_name, username }) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name, ...(username ? { username } : {}) },
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+    if (error) throw error;
+    // With "Confirm email" on, Supabase returns a user but no session.
+    return { ...data, needsEmailConfirmation: Boolean(data.user) && !data.session };
+  }, []);
+
+  const signInWithOAuth = useCallback(async (provider) => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
+    });
+    if (error) throw error;
+    return data;
+  }, []);
+
+  const signOut = useCallback(async () => {
+    await supabase.auth.signOut().catch(() => {});
+    setUser(null);
+    setSession(null);
+  }, []);
+
+  // Optimistic local merge after a profile edit; the server is the source of truth.
+  const updateUser = useCallback((updatedUser) => {
+    setUser((prev) => ({ ...(prev || {}), ...updatedUser }));
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, updateUser }}>
+    <AuthContext.Provider value={{
+      user, session, loading,
+      signInWithPassword, signUp, signInWithOAuth, signOut,
+      updateUser, refreshProfile: loadProfile,
+    }}>
       {children}
     </AuthContext.Provider>
   );
