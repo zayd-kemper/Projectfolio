@@ -146,13 +146,7 @@ registerProcessor('export:pdf', async (input, { jobId, updateProgress }) => {
     return page.pdf({ format: 'A4', printBackground: true, margin: { top: '15mm', right: '15mm', bottom: '15mm', left: '15mm' } });
   });
   await updateProgress(80);
-  const uploaded = await new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream({
-      folder: 'projectfolio/exports', resource_type: 'raw', public_id: `${input.userId}-${jobId}.pdf`, overwrite: true,
-    }, (error, result) => error ? reject(error) : resolve(result));
-    stream.end(pdf);
-  });
-  return { url: uploaded.secure_url, filename: `${input.username}-portfolio.pdf` };
+  return require('../utils/pdfExport').uploadPdfExport(cloudinary, pdf, { username: input.username });
 });
 
 registerProcessor('integration:opportunity-finder', async (input) => require('../routes/integrations').runOpportunityFinderJob(input));

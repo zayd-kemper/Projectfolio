@@ -81,4 +81,21 @@ describe('IntegrationsPage (Integrate & Apply)', () => {
     expect(await screen.findByText('Greenhouse')).toBeInTheDocument();
     expect(screen.getByText('1. Choose a platform')).toBeInTheDocument();
   });
+
+  it('downloads the exported PDF as a blob rather than navigating to the raw Cloudinary URL', async () => {
+    const { resolveJobResponse } = await import('../utils/jobs');
+    resolveJobResponse.mockResolvedValue({ url: 'https://res.cloudinary.com/demo/raw/download?sig=1', filename: 'jane-portfolio.pdf' });
+    const fetchMock = vi.fn().mockResolvedValue({ blob: () => Promise.resolve(new Blob(['%PDF-1.4'], { type: 'application/pdf' })) });
+    vi.stubGlobal('fetch', fetchMock);
+    URL.createObjectURL = vi.fn(() => 'blob:mock');
+    URL.revokeObjectURL = vi.fn();
+
+    render(<IntegrationsPage />);
+    await screen.findByRole('heading', { name: 'Integrate & Apply' });
+    fireEvent.click(screen.getAllByRole('button', { name: 'Download' })[0]);
+
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledWith('https://res.cloudinary.com/demo/raw/download?sig=1'));
+    expect(URL.createObjectURL).toHaveBeenCalled();
+    vi.unstubAllGlobals();
+  });
 });

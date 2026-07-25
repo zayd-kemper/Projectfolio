@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import toast from 'react-hot-toast';
 import EngineeringIcon from '../components/shared/EngineeringIcon';
-import { GoogleMark, LinkedInMark } from '../components/shared/BrandMarks';
+import { GoogleMark, LinkedInMark, GitHubMark } from '../components/shared/BrandMarks';
 import { API_BASE_URL } from '../utils/api';
 
 const oauthUrl = (provider) => `${API_BASE_URL}/auth/${provider}`;
@@ -93,6 +93,13 @@ export default function RegisterPage() {
             >
               <LinkedInMark className="w-4 h-4" />
               Continue with LinkedIn
+            </a>
+            <a
+              href={oauthUrl('github')}
+              className="flex items-center justify-center gap-3 w-full px-4 py-2.5 bg-[#24292e] text-white rounded-lg text-sm font-medium hover:bg-[#1b1f23] transition-colors"
+            >
+              <GitHubMark className="w-4 h-4" />
+              Continue with GitHub
             </a>
           </div>
 

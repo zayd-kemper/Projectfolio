@@ -1,12 +1,47 @@
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const LinkedInStrategy = require('passport-openidconnect');
+const GitHubStrategy = require('passport-github2').Strategy;
 const { query } = require('./database');
 require('dotenv').config();
 
 const makeUsername = (name) => {
   return name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').substring(0, 50);
 };
+
+// GitHub verify callback, with `query` injected so account-linking branches are testable.
+async function githubVerify(query, profile, done) {
+  try {
+    const existing = await query('SELECT * FROM users WHERE github_id = $1', [profile.id]);
+    if (existing.rows.length > 0) return done(null, existing.rows[0]);
+
+    const email = profile.emails?.[0]?.value;
+    if (!email) return done(new Error('No email from GitHub. Make your primary email public or grant the email scope.'), null);
+    const githubUrl = profile.profileUrl || (profile.username ? `https://github.com/${profile.username}` : null);
+
+    const emailCheck = await query('SELECT * FROM users WHERE email = $1', [email]);
+    if (emailCheck.rows.length > 0) {
+      await query('UPDATE users SET github_id = $1, github_url = COALESCE(github_url, $2) WHERE email = $3', [profile.id, githubUrl, email]);
+      return done(null, emailCheck.rows[0]);
+    }
+
+    let username = makeUsername(profile.username || profile.displayName || email.split('@')[0]);
+    const usernameCheck = await query('SELECT id FROM users WHERE username = $1', [username]);
+    if (usernameCheck.rows.length > 0) username = `${username}-${Math.floor(Math.random() * 9999)}`;
+
+    const avatarUrl = profile.photos?.[0]?.value || null;
+    const result = await query(
+      `INSERT INTO users (email, full_name, username, avatar_url, github_id, github_url, is_email_verified)
+       VALUES ($1, $2, $3, $4, $5, $6, true) RETURNING *`,
+      [email, profile.displayName || profile.username, username, avatarUrl, profile.id, githubUrl]
+    );
+
+    await query('INSERT INTO portfolio_settings (user_id) VALUES ($1)', [result.rows[0].id]);
+    return done(null, result.rows[0]);
+  } catch (error) {
+    return done(error, null);
+  }
+}
 
 // ── GOOGLE STRATEGY ───────────────────────────────────────────────────────────
 passport.use(new GoogleStrategy({
@@ -107,10 +142,21 @@ passport.use('linkedin', new LinkedInStrategy({
   }
 }));
 
+// ── GITHUB STRATEGY ───────────────────────────────────────────────────────────
+passport.use('github', new GitHubStrategy({
+  clientID: process.env.GITHUB_CLIENT_ID,
+  clientSecret: process.env.GITHUB_CLIENT_SECRET,
+  callbackURL: `${process.env.APP_URL}/api/auth/github/callback`,
+  scope: ['user:email'],
+  state: true,
+}, (accessToken, refreshToken, profile, done) => githubVerify(query, profile, done)));
+
 passport.serializeUser((user, done) => done(null, user.id));
 passport.deserializeUser(async (id, done) => {
   const result = await query('SELECT * FROM users WHERE id = $1', [id]);
   done(null, result.rows[0]);
 });
+
+passport.githubVerify = githubVerify;
 
 module.exports = passport;

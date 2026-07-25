@@ -7,6 +7,11 @@ const logger = require('../utils/logger');
 const migrationsDir = path.join(__dirname, '..', 'migrations');
 const lockKey = 'projectfolio_schema_migrations_v1';
 
+// Hash on normalized line endings so a CRLF/LF flip (e.g. git autocrlf) doesn't
+// read as a changed migration.
+const migrationChecksum = (sql) =>
+  crypto.createHash('sha256').update(sql.replace(/\r\n/g, '\n')).digest('hex');
+
 const runNonTransactionalMigration = async (client, sql, filename) => {
   const statements = sql
     .split(';')
@@ -56,7 +61,7 @@ const runMigrations = async () => {
 
     for (const filename of files) {
       const sql = fs.readFileSync(path.join(migrationsDir, filename), 'utf8');
-      const checksum = crypto.createHash('sha256').update(sql).digest('hex');
+      const checksum = migrationChecksum(sql);
       if (applied.has(filename)) {
         if (applied.get(filename) !== checksum) throw new Error(`Applied migration changed: ${filename}`);
         continue;
@@ -91,4 +96,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { runMigrations };
+module.exports = { runMigrations, migrationChecksum };

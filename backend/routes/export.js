@@ -2,8 +2,6 @@
 // Handles portfolio export to PDF and ZIP
 
 const express = require('express');
-const path = require('path');
-const fs = require('fs');
 const { query } = require('../config/database');
 const { requireAuth } = require('../middleware/auth');
 const { userQuota, userCostBudget } = require('../middleware/userQuotas');
@@ -39,85 +37,6 @@ router.get('/pdf/:username', requireAuth, userQuota('export.pdf', { windowMs: 60
     idempotencyKey: req.get('Idempotency-Key') || null,
   });
   res.status(202).json({ job_id: job.id, status: job.status });
-});
-
-// ── EXPORT PORTFOLIO AS PDF ───────────────────────────────────────────────────
-// GET /api/export/pdf/:username
-// Generates a PDF of the public portfolio page
-router.get('/pdf/:username', requireAuth, userQuota('export.pdf.legacy', { windowMs: 60 * 60 * 1000, max: 20, message: 'PDF export limit reached. Please wait and try again.' }), userCostBudget('export.pdf.legacy', { windowMs: 24 * 60 * 60 * 1000, maxCost: 100, cost: 10, message: 'Daily PDF export budget reached.' }), async (req, res) => {
-  try {
-    // Verify ownership
-    const userResult = await query('SELECT id, full_name FROM users WHERE username = $1', [req.params.username]);
-    if (userResult.rows.length === 0) return res.status(404).json({ error: 'User not found.' });
-    if (userResult.rows[0].id !== req.user.id) return res.status(403).json({ error: 'Access denied.' });
-
-    const user = userResult.rows[0];
-
-    // Get all published projects with blocks
-    const projectsResult = await query(
-      `SELECT * FROM projects WHERE user_id = $1 AND status = 'published' ORDER BY is_featured DESC, sort_order ASC`,
-      [req.user.id]
-    );
-
-    const userDataResult = await query(
-      'SELECT full_name, headline, bio, location, website, linkedin_url, github_url, skills FROM users WHERE id = $1',
-      [req.user.id]
-    );
-
-    const userData = userDataResult.rows[0];
-    const projects = projectsResult.rows;
-
-    // Build project blocks
-    const projectsWithBlocks = [];
-    for (const project of projects) {
-      const blocksResult = await query(
-        'SELECT * FROM blocks WHERE project_id = $1 ORDER BY sort_order ASC',
-        [project.id]
-      );
-      projectsWithBlocks.push({ ...project, blocks: blocksResult.rows });
-    }
-
-    // Generate PDF using puppeteer (if available) or return HTML for printing
-    let puppeteer;
-    try {
-      puppeteer = require('puppeteer');
-    } catch (e) {
-      // Puppeteer not available — return printable HTML instead
-      return generatePrintableHTML(res, userData, projectsWithBlocks, req.params.username);
-    }
-
-    const htmlContent = buildPortfolioHTML(userData, projectsWithBlocks, req.params.username);
-
-    const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
-    const page = await browser.newPage();
-    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
-
-    const pdf = await page.pdf({
-      format: 'A4',
-      printBackground: true,
-      margin: { top: '15mm', right: '15mm', bottom: '15mm', left: '15mm' },
-    });
-
-    await browser.close();
-
-    const filename = `${req.params.username}-portfolio.pdf`;
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.send(pdf);
-
-  } catch (error) {
-    console.error('PDF export error:', error);
-    // Fallback to printable HTML
-    try {
-      const userDataResult = await query(
-        'SELECT full_name, headline, bio, location, website, linkedin_url, github_url, skills FROM users WHERE id = $1',
-        [req.user.id]
-      );
-      return generatePrintableHTML(res, userDataResult.rows[0], [], req.params.username);
-    } catch (e) {
-      res.status(500).json({ error: 'Export failed. Please try again.' });
-    }
-  }
 });
 
 // ── EXPORT PROJECT AS JSON (for integration with job platforms) ───────────────
@@ -189,14 +108,7 @@ router.get('/portfolio/zip', requireAuth, userQuota('export.portfolio', { window
   }
 });
 
-// ── HELPER: Generate printable HTML portfolio ─────────────────────────────────
-function generatePrintableHTML(res, user, projects, username) {
-  const html = buildPortfolioHTML(user, projects, username);
-  res.setHeader('Content-Type', 'text/html');
-  res.setHeader('Content-Disposition', `attachment; filename="${username}-portfolio.html"`);
-  res.send(html);
-}
-
+// ── HELPER: Build the portfolio HTML the export:pdf job renders ───────────────
 function buildPortfolioHTML(user, projects, username) {
   user = {
     ...user,

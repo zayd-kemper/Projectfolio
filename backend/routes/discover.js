@@ -9,6 +9,8 @@ const { createJob } = require('../jobs/service');
 const router = express.Router();
 const PAGE_SIZE = 12;
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 const POST_TYPES = ['update', 'feedback_request', 'question', 'launch', 'resource', 'open_to_collab'];
 const CONTEXTS = ['show', 'ask', 'feedback', 'launch', 'resource', 'collab', 'hiring', 'research', 'build_log'];
 const FEED_MODES = ['recommended', 'latest', 'trending', 'for_you', 'recent', 'new', 'liked', 'following', 'launches', 'questions', 'feedback', 'saved'];
@@ -1184,7 +1186,8 @@ router.get('/my-projects', requireAuth, async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Failed.' }); }
 });
 
-router.post('/users/:id/follow', requireAuth, userQuota('discover.follows', { windowMs: 60 * 60 * 1000, max: 300 }), async (req, res) => {
+async function followUser(req, res) {
+  if (!UUID_RE.test(req.params.id)) return res.status(400).json({ error: 'Invalid user id.' });
   if (req.params.id === req.user.id) return res.status(400).json({ error: 'Cannot follow yourself.' });
   try {
     const count = await query(
@@ -1197,9 +1200,10 @@ router.post('/users/:id/follow', requireAuth, userQuota('discover.follows', { wi
     await queueDiscoverEvent(req, { event_type: 'follow_from_discover', metadata: { followed_user_id: req.params.id } });
     res.json({ following: true, follower_count: count.rows[0].follower_count });
   } catch (err) { res.status(500).json({ error: 'Failed.' }); }
-});
+}
 
-router.delete('/users/:id/follow', requireAuth, userQuota('discover.follows', { windowMs: 60 * 60 * 1000, max: 300 }), async (req, res) => {
+async function unfollowUser(req, res) {
+  if (!UUID_RE.test(req.params.id)) return res.status(400).json({ error: 'Invalid user id.' });
   try {
     const count = await query(
       `WITH removed AS (DELETE FROM user_follows WHERE follower_id = $1 AND following_id = $2 RETURNING 1),
@@ -1210,7 +1214,11 @@ router.delete('/users/:id/follow', requireAuth, userQuota('discover.follows', { 
     );
     res.json({ following: false, follower_count: count.rows[0].follower_count });
   } catch (err) { res.status(500).json({ error: 'Failed.' }); }
-});
+}
+
+const followMw = [requireAuth, userQuota('discover.follows', { windowMs: 60 * 60 * 1000, max: 300 })];
+router.post('/users/:id/follow', ...followMw, followUser);
+router.delete('/users/:id/follow', ...followMw, unfollowUser);
 
 router.get('/interests', requireAuth, async (req, res) => {
   const result = await query('SELECT contexts, technologies, goals, updated_at FROM discover_user_interests WHERE user_id = $1', [req.user.id]);
@@ -1385,5 +1393,7 @@ router.runLinkPreviewJob = async ({ postId, url }) => {
   );
   return { preview };
 };
+
+router.handlers = { followUser, unfollowUser };
 
 module.exports = router;

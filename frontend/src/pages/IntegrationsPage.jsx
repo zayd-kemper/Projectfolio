@@ -48,10 +48,16 @@ export default function IntegrationsPage() {
     try {
       const response = await api.get(`/export/pdf/${user.username}`);
       const result = await resolveJobResponse(response, { timeoutMs: 5 * 60_000 });
+      // Cloudinary serves the PDF via its download API (the CDN blocks PDF delivery),
+      // which has no attachment disposition — so fetch it as a blob and save it
+      // same-origin, keeping the user on the app and preserving the filename.
+      const blob = await (await fetch(result.url)).blob();
+      const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = result.url;
+      link.href = url;
       link.download = result.filename;
       link.click();
+      URL.revokeObjectURL(url);
       toast.success('PDF downloaded.');
     } catch {
       toast.error('PDF generation failed.');
