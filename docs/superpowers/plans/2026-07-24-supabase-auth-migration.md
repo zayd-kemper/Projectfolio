@@ -1755,7 +1755,7 @@ git commit -m "fix(agent): authenticate the browser verifier with a real Supabas
 **Files:**
 - Create: `frontend/src/lib/supabase.js`
 - Test: `frontend/src/lib/supabase.test.js`
-- Modify: `frontend/src/hooks/useAuth.jsx`, `frontend/src/utils/api.js`, `frontend/vite.config.js`, `frontend/package.json`
+- Modify: `frontend/src/hooks/useAuth.jsx`, `frontend/src/utils/api.js`, `frontend/vite.config.js`, `frontend/vitest.config.js`, `frontend/package.json`
 
 **Interfaces:**
 - Consumes: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`.
@@ -2017,19 +2017,49 @@ In `frontend/vite.config.js`, inside `manualChunks`, add this line immediately *
           if (id.includes('@supabase')) return 'supabase';
 ```
 
-- [ ] **Step 9: Verify**
+- [ ] **Step 9: Provision the test environment**
+
+`lib/supabase.js` calls `createClient()` at module load. Any test that imports a page transitively reaches it, and with no env vars present supabase-js throws `supabaseUrl is required.` — a module-load crash, not an assertion failure, so it takes the whole file down. `ProjectEditorPage.payload.test.jsx` hits this via `ProjectEditorPage.jsx`.
+
+Add to `test:` in `frontend/vitest.config.js`, after the `include` line:
+
+```js
+    // lib/supabase.js builds its client at module load, so any test that imports
+    // a page transitively reaches createClient() and would throw
+    // "supabaseUrl is required." Tests never make a real Supabase call — these
+    // only need to be syntactically valid. Set here rather than in .env so the
+    // suite does not depend on a gitignored file.
+    env: {
+      VITE_SUPABASE_URL: 'https://test.supabase.co',
+      VITE_SUPABASE_ANON_KEY: 'test-anon-key',
+    },
+```
+
+Config, not `.env`: `frontend/.env` is gitignored, so a suite that depended on it would be red on every fresh clone and in CI.
+
+Then add the real values to `frontend/.env` for dev and for the Task 13 browser run (the **publishable** key — public by design, ships in the bundle; never the service role key):
+
+```bash
+VITE_SUPABASE_URL=https://dhzhtigowbvlmcrwvwix.supabase.co
+VITE_SUPABASE_ANON_KEY=sb_publishable_...
+```
+
+- [ ] **Step 10: Verify**
 
 ```bash
 cd frontend
 npx vitest run src/lib/supabase.test.js
 npm run build
+npx vitest run
 ```
-Expected: the test PASSes and the build emits a `supabase-*.js` chunk. `LoginPage.test.jsx` / `RegisterPage.test.jsx` will fail at this point — Task 9 rewrites them.
+Expected: the supabase test PASSes, the build emits a `supabase-*.js` chunk, and the **full suite is green**.
 
-- [ ] **Step 10: Commit**
+Note: `LoginPage.test.jsx` / `RegisterPage.test.jsx` keep passing after this task even though the pages are not yet migrated — both files `vi.mock('../hooks/useAuth')`, so they never touch the real client. Task 9 rewrites them for the new flow regardless.
+
+- [ ] **Step 11: Commit**
 
 ```bash
-git add frontend/src/lib frontend/src/hooks/useAuth.jsx frontend/src/utils/api.js frontend/vite.config.js frontend/package.json frontend/package-lock.json
+git add frontend/src/lib frontend/src/hooks/useAuth.jsx frontend/src/utils/api.js frontend/vite.config.js frontend/vitest.config.js frontend/package.json frontend/package-lock.json
 git commit -m "feat(auth): back the SPA session with supabase-js"
 ```
 
