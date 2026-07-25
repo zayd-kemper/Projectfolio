@@ -23,7 +23,7 @@ const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 const IntegrationsPage = lazy(() => import('./pages/IntegrationsPage'));
 const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage'));
 const MediaLibraryPage = lazy(() => import('./pages/MediaLibraryPage'));
-const OAuthSuccessPage = lazy(() => import('./pages/OAuthSuccessPage'));
+const AuthCallbackPage = lazy(() => import('./pages/AuthCallbackPage'));
 const JoinPage = lazy(() => import('./pages/JoinPage'));
 const EndorsementPage = lazy(() => import('./pages/EndorsementPage'));
 const TeamsPage = lazy(() => import('./pages/TeamsPage'));
@@ -112,7 +112,7 @@ function App() {
             <Route path="/discover" element={<PageTransition><DiscoverPage /></PageTransition>} />
             <Route path="/:username" element={<PageTransition><PublicPortfolioPage /></PageTransition>} />
             <Route path="/:username/:projectSlug" element={<PageTransition><PublicProjectPage /></PageTransition>} />
-            <Route path="/oauth-success" element={<PageTransition><OAuthSuccessPage /></PageTransition>} />
+            <Route path="/auth/callback" element={<PageTransition><AuthCallbackPage /></PageTransition>} />
           </Routes>
           </ErrorBoundary>
         </AnimatePresence>

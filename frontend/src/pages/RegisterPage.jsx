@@ -5,14 +5,22 @@ import { useAuth } from '../hooks/useAuth';
 import toast from 'react-hot-toast';
 import EngineeringIcon from '../components/shared/EngineeringIcon';
 import { GoogleMark, LinkedInMark, GitHubMark } from '../components/shared/BrandMarks';
-import { API_BASE_URL } from '../utils/api';
 
-const oauthUrl = (provider) => `${API_BASE_URL}/auth/${provider}`;
+const PROVIDERS = [
+  { id: 'google', label: 'Continue with Google', Mark: GoogleMark,
+    className: 'border border-gray-200 text-gray-700 hover:bg-gray-50' },
+  { id: 'linkedin_oidc', label: 'Continue with LinkedIn', Mark: LinkedInMark,
+    className: 'bg-[#0077B5] text-white hover:bg-[#006399]' },
+  { id: 'github', label: 'Continue with GitHub', Mark: GitHubMark,
+    className: 'bg-[#24292e] text-white hover:bg-[#1b1f23]' },
+];
 
 export default function RegisterPage() {
   const [form, setForm] = useState({ full_name: '', email: '', password: '' });
   const [loading, setLoading] = useState(false);
-  const { register } = useAuth();
+  const [oauthPending, setOauthPending] = useState(null);
+  const [sentTo, setSentTo] = useState(null);
+  const { signUp, signInWithOAuth } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
@@ -24,13 +32,27 @@ export default function RegisterPage() {
     }
     setLoading(true);
     try {
-      await register(form);
-      toast.success('Account created. Welcome to ProjectFolio.');
-      navigate('/dashboard');
+      const result = await signUp(form);
+      if (result.needsEmailConfirmation) {
+        setSentTo(form.email);
+      } else {
+        toast.success('Account created. Welcome to ProjectFolio.');
+        navigate('/dashboard');
+      }
     } catch (err) {
-      toast.error(err.response?.data?.error || err.response?.data?.errors?.[0]?.msg || 'Registration failed.');
+      toast.error(err?.message || 'Registration failed.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleOAuth = async (provider) => {
+    setOauthPending(provider);
+    try {
+      await signInWithOAuth(provider);
+    } catch (err) {
+      toast.error(err?.message || 'Could not start that sign-in. Please try again.');
+      setOauthPending(null);
     }
   };
 
@@ -71,6 +93,16 @@ export default function RegisterPage() {
             <span className="font-semibold text-gray-900">ProjectFolio</span>
           </div>
 
+          {sentTo && (
+            <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
+              <h2 className="text-base font-semibold text-gray-900">Check your email</h2>
+              <p className="mt-1 text-sm text-gray-700">
+                We sent a confirmation link to <span className="font-medium">{sentTo}</span>.
+                Click it to finish setting up your account, then sign in.
+              </p>
+            </div>
+          )}
+
           <h1 className="text-3xl font-semibold text-gray-900 mb-2">Create your account</h1>
           <p className="text-gray-600 text-sm mb-6">
             Already have an account?{' '}
@@ -80,27 +112,18 @@ export default function RegisterPage() {
           </p>
 
           <div className="space-y-3 mb-6">
-            <a
-              href={oauthUrl('google')}
-              className="flex items-center justify-center gap-3 w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-              <GoogleMark className="w-4 h-4" />
-              Continue with Google
-            </a>
-            <a
-              href={oauthUrl('linkedin')}
-              className="flex items-center justify-center gap-3 w-full px-4 py-2.5 bg-[#0077B5] text-white rounded-lg text-sm font-medium hover:bg-[#006399] transition-colors"
-            >
-              <LinkedInMark className="w-4 h-4" />
-              Continue with LinkedIn
-            </a>
-            <a
-              href={oauthUrl('github')}
-              className="flex items-center justify-center gap-3 w-full px-4 py-2.5 bg-[#24292e] text-white rounded-lg text-sm font-medium hover:bg-[#1b1f23] transition-colors"
-            >
-              <GitHubMark className="w-4 h-4" />
-              Continue with GitHub
-            </a>
+            {PROVIDERS.map(({ id, label, Mark, className }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => handleOAuth(id)}
+                disabled={oauthPending === id}
+                className={`flex items-center justify-center gap-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-60 ${className}`}
+              >
+                <Mark className="w-4 h-4" />
+                {oauthPending === id ? 'Redirecting...' : label}
+              </button>
+            ))}
           </div>
 
           <div className="flex items-center gap-3 mb-6">

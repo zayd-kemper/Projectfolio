@@ -5,28 +5,48 @@ import { useAuth } from '../hooks/useAuth';
 import toast from 'react-hot-toast';
 import EngineeringIcon from '../components/shared/EngineeringIcon';
 import { GoogleMark, LinkedInMark, GitHubMark } from '../components/shared/BrandMarks';
-import { API_BASE_URL } from '../utils/api';
 
-const oauthUrl = (provider) => `${API_BASE_URL}/auth/${provider}`;
+const PROVIDERS = [
+  { id: 'google', label: 'Continue with Google', Mark: GoogleMark,
+    className: 'border border-gray-200 text-gray-700 hover:bg-gray-50' },
+  { id: 'linkedin_oidc', label: 'Continue with LinkedIn', Mark: LinkedInMark,
+    className: 'bg-[#0077B5] text-white hover:bg-[#006399]' },
+  { id: 'github', label: 'Continue with GitHub', Mark: GitHubMark,
+    className: 'bg-[#24292e] text-white hover:bg-[#1b1f23]' },
+];
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const [oauthPending, setOauthPending] = useState(null);
+  const { signInWithPassword, signInWithOAuth } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await login(email, password);
+      await signInWithPassword(email, password);
       toast.success('Welcome back.');
       navigate('/dashboard');
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Login failed. Check your credentials.');
+      // Supabase returns "Email not confirmed" as its own message; surface it as-is
+      // so a user who never clicked the confirmation link knows what to do.
+      toast.error(err?.message || 'Login failed. Check your credentials.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleOAuth = async (provider) => {
+    setOauthPending(provider);
+    try {
+      // Resolves by navigating away; a rejection means we never left.
+      await signInWithOAuth(provider);
+    } catch (err) {
+      toast.error(err?.message || 'Could not start that sign-in. Please try again.');
+      setOauthPending(null);
     }
   };
 
@@ -76,27 +96,18 @@ export default function LoginPage() {
           </p>
 
           <div className="space-y-3 mb-6">
-            <a
-              href={oauthUrl('google')}
-              className="flex items-center justify-center gap-3 w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-              <GoogleMark className="w-4 h-4" />
-              Continue with Google
-            </a>
-            <a
-              href={oauthUrl('linkedin')}
-              className="flex items-center justify-center gap-3 w-full px-4 py-2.5 bg-[#0077B5] text-white rounded-lg text-sm font-medium hover:bg-[#006399] transition-colors"
-            >
-              <LinkedInMark className="w-4 h-4" />
-              Continue with LinkedIn
-            </a>
-            <a
-              href={oauthUrl('github')}
-              className="flex items-center justify-center gap-3 w-full px-4 py-2.5 bg-[#24292e] text-white rounded-lg text-sm font-medium hover:bg-[#1b1f23] transition-colors"
-            >
-              <GitHubMark className="w-4 h-4" />
-              Continue with GitHub
-            </a>
+            {PROVIDERS.map(({ id, label, Mark, className }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => handleOAuth(id)}
+                disabled={oauthPending === id}
+                className={`flex items-center justify-center gap-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-60 ${className}`}
+              >
+                <Mark className="w-4 h-4" />
+                {oauthPending === id ? 'Redirecting...' : label}
+              </button>
+            ))}
           </div>
 
           <div className="flex items-center gap-3 mb-6">

@@ -2297,7 +2297,7 @@ Replace the three `<a href={oauthUrl(...)}>` blocks (lines 79–99) with:
                 key={id}
                 type="button"
                 onClick={() => handleOAuth(id)}
-                disabled={Boolean(oauthPending)}
+                disabled={oauthPending === id}
                 className={`flex items-center justify-center gap-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-60 ${className}`}
               >
                 <Mark className="w-4 h-4" />
