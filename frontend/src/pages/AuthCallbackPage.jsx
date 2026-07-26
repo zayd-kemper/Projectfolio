@@ -5,6 +5,31 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import supabase from '../lib/supabase';
 
+// Resolves with the session once supabase-js announces it, or null if it never
+// arrives. Bounded and unsubscribing so a malformed fragment leaves the user on
+// an error page rather than an endless spinner, and so the listener does not
+// outlive the page.
+const waitForSession = (timeoutMs = 8000) =>
+  new Promise((resolve) => {
+    let settled = false;
+    let subscription;
+    const done = (session) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      subscription?.unsubscribe();
+      resolve(session);
+    };
+    const timer = setTimeout(() => done(null), timeoutMs);
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) done(session);
+    });
+    subscription = data?.subscription;
+    // A session announced before the handle was assigned still resolves above;
+    // this catches up the unsubscribe in that case.
+    if (settled) subscription?.unsubscribe();
+  });
+
 export default function AuthCallbackPage() {
   const navigate = useNavigate();
 
@@ -29,6 +54,17 @@ export default function AuthCallbackPage() {
           return;
         }
         data = exchanged.data;
+      }
+
+      // No code, no session yet: this is a hash-fragment return
+      // (#access_token=…), which magic links and recovery links use.
+      // supabase-js consumes the fragment asynchronously and announces the
+      // result through onAuthStateChange, so the first getSession() is
+      // legitimately empty — waiting is the difference between a working login
+      // and a spurious /login?error=oauth_failed.
+      if (!data.session) {
+        const session = await waitForSession();
+        if (session) data = { session };
       }
       if (cancelled) return;
 
