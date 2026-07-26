@@ -35,14 +35,24 @@ api.interceptors.request.use(async (config) => {
   return config;
 });
 
-// A 401 now means the session is genuinely gone (revoked, or the refresh failed).
-// Sign out locally and send the user to /login.
+// A 401 means the session was revoked server-side or a refresh failed, so drop
+// the local session and send the user to /login.
+//
+// Only act while a session still exists. A deliberate sign-out clears it first,
+// and requests already in flight then 401 on their way out — redirecting on
+// those races the router's own navigation, and the loser leaves the address bar
+// on a route React Router never rendered. Every link to that route is then a
+// no-op because the URL does not change.
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 401 && !String(error.config?.url || '').startsWith('/auth/')) {
-      await supabase.auth.signOut().catch(() => {});
-      if (!window.location.pathname.startsWith('/login')) window.location.href = '/login';
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        await supabase.auth.signOut().catch(() => {});
+        // replace(), not href=: no dead history entry pointing at a dead session.
+        if (!window.location.pathname.startsWith('/login')) window.location.replace('/login');
+      }
     }
     return Promise.reject(error);
   }
