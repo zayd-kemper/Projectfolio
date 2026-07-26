@@ -1,6 +1,6 @@
 // frontend/src/components/shared/DashboardLayout.jsx
 import { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useDarkMode } from '../../hooks/useDarkMode';
 import NotificationBell from './NotificationBell';
@@ -30,7 +30,6 @@ const readStoredCollapsed = () => {
 
 export default function DashboardLayout({ children }) {
   const { user, signOut } = useAuth();
-  const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(readStoredCollapsed);
   const [darkMode, setDarkMode] = useDarkMode();
@@ -47,11 +46,13 @@ export default function DashboardLayout({ children }) {
     });
   };
 
-  // signOut clears the Supabase session; await it so navigation cannot race the
-  // onAuthStateChange listener that drops `user`.
+  // Clear the session and stop there. ProtectedRoute renders
+  // <Navigate to="/login" replace /> as soon as `user` drops, so navigating here
+  // too puts two redirects in flight: one wins the address bar, the other wins
+  // the render, and the router settles showing a component that does not match
+  // the URL — after which every link to that URL is a silent no-op.
   const handleLogout = async () => {
     await signOut();
-    navigate('/');
   };
 
   const portfolioUrl = user ? `/${user.username}` : '/';
