@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom/client';
 // import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './hooks/useAuth';
+import { authGateState } from './hooks/authGate';
 import './styles/globals.css';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
@@ -38,17 +39,19 @@ const PortfolioStudioPage = lazy(() => import('./pages/PortfolioStudioPage'));
 
 // Protected route wrapper
 function ProtectedRoute({ children }) {
-  const { user, loading } = useAuth();
-  if (loading) return <DashboardShellSkeleton />;
-  if (!user) return <Navigate to="/login" replace />;
+  const { user, session, loading } = useAuth();
+  const state = authGateState({ loading, session, user });
+  if (state === 'pending') return <DashboardShellSkeleton />;
+  if (state === 'anonymous') return <Navigate to="/login" replace />;
   return children;
 }
 
 // Public only route (redirect to dashboard if logged in)
 function PublicOnlyRoute({ children }) {
-  const { user, loading } = useAuth();
-  if (loading) return <RouteSkeleton />;
-  if (user) return <Navigate to="/dashboard" replace />;
+  const { user, session, loading } = useAuth();
+  const state = authGateState({ loading, session, user });
+  if (state === 'pending') return <RouteSkeleton />;
+  if (state === 'authenticated') return <Navigate to="/dashboard" replace />;
   return children;
 }
 
