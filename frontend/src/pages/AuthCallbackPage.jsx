@@ -1,6 +1,12 @@
 // Single landing route for every Supabase redirect: OAuth, email confirmation,
-// and password recovery. supabase-js with detectSessionInUrl handles the implicit
-// fragment automatically; the PKCE `?code=` form needs an explicit exchange.
+// and password recovery.
+//
+// The client runs flowType: 'pkce', so every one of those arrives as `?code=`
+// and is exchanged explicitly below. Note that a PKCE client *rejects* implicit
+// `#access_token=` callbacks outright — GoTrueClient throws
+// "Not a valid PKCE flow url." So links minted server-side by
+// auth.admin.generateLink (which carry no code_challenge) cannot establish a
+// session here; they are only usable by an implicit-flow client.
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import supabase from '../lib/supabase';
