@@ -799,6 +799,26 @@ const stripPreviewOnlySettings = (settings = {}) => {
   return next;
 };
 
+// Seeds the SPA's Supabase session before any script on the page runs.
+//
+// supabase-js reads its persisted session from localStorage under
+// `sb-<project-ref>-auth-token` as plain JSON (verified against a live browser
+// session). Writing it here rather than navigating a magic link is deliberate:
+// the SPA runs flowType: 'pkce' and rejects the implicit callbacks that
+// server-minted links produce, so navigation could never authenticate.
+//
+// evaluateOnNewDocument applies to every subsequent navigation in this page, so
+// the session survives across targets without any single-use bookkeeping.
+const applyVerifierSession = async (page, auth) => {
+  await page.evaluateOnNewDocument((key, value) => {
+    try {
+      window.localStorage.setItem(key, value);
+    } catch {
+      // Storage unavailable — verification falls back to unauthenticated views.
+    }
+  }, auth.storageKey, JSON.stringify(auth.session));
+};
+
 const waitForPreviewReady = async (page, timeoutMs = 2500) => page.evaluate((timeout) => new Promise((resolve) => {
   if (window.__pfPreviewReady === true) {
     resolve(true);
@@ -930,10 +950,8 @@ const verifyPreviewRoutes = async ({ username, projectSlug, frontendUrl, preview
           networkIssues.push(`${label}: ${request.url()} failed${failure?.errorText ? `: ${failure.errorText}` : ''}.`);
         });
         await page.setViewport({ width: viewport.width, height: viewport.height, deviceScaleFactor: 1 });
-        if (auth?.loginUrl) {
-          // Consume the magic link once; supabase-js persists the resulting session
-          // for every later navigation in this browser context.
-          await page.goto(auth.loginUrl, { waitUntil: 'networkidle2' });
+        if (auth?.storageKey && auth?.session) {
+          await applyVerifierSession(page, auth);
         }
 
         try {
@@ -1026,12 +1044,9 @@ const verifyLiveRoutes = async ({ username, projectSlug, frontendUrl, auth, publ
     frontendUrl,
     username,
     projectSlug,
-    includeDashboard: options.includeDashboard === true && Boolean(auth?.loginUrl),
+    includeDashboard: options.includeDashboard === true && Boolean(auth?.session),
     publishedProjectCount,
   });
-  // The Supabase magic link is single-use, so it is consumed for the first
-  // protected target only; the session persists in the browser context after that.
-  let authApplied = false;
   const checks = [];
   const warnings = [];
   const errors = [];
@@ -1109,11 +1124,8 @@ const verifyLiveRoutes = async ({ username, projectSlug, frontendUrl, auth, publ
           networkIssues.push(`${label}: ${response.url()} returned ${response.status()}${bodyPreview ? `: ${bodyPreview}` : ''}.`);
         });
         await page.setViewport({ width: viewport.width, height: viewport.height, deviceScaleFactor: 1 });
-        if (target.protected && auth?.loginUrl && !authApplied) {
-          // The link is single-use, so consume it for the first protected target
-          // only; the session persists in this browser context afterwards.
-          await page.goto(auth.loginUrl, { waitUntil: 'networkidle2' });
-          authApplied = true;
+        if (target.protected && auth?.storageKey && auth?.session) {
+          await applyVerifierSession(page, auth);
         }
 
         try {

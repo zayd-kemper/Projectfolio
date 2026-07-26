@@ -1,5 +1,5 @@
 const express = require('express');
-const { createVerifierLoginLink } = require('../utils/supabaseAdmin');
+const { createVerifierSession } = require('../utils/supabaseAdmin');
 const { pool, query } = require('../config/database');
 const { requireAuth } = require('../middleware/auth');
 const { userQuota, userCostBudget } = require('../middleware/userQuotas');
@@ -1203,15 +1203,15 @@ const loadLiveVerificationTarget = async (client, userId) => {
   };
 };
 
-// The verifier signs in through a real single-use Supabase magic link instead of a
-// self-minted token: the SPA only accepts sessions Supabase issued. Null here means
-// verification runs against public routes only, exactly as it did when JWT_SECRET
-// was unset.
+// The verifier signs in with a real Supabase session, redeemed server-side and
+// injected into the page's storage. Navigating a magic link cannot work: the SPA
+// runs flowType: 'pkce', which rejects the implicit callbacks that server-minted
+// links produce. Null here means verification runs against public routes only,
+// exactly as it did when JWT_SECRET was unset.
 const verifierAuth = async (user) => {
   if (!user?.email) return null;
-  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-  const loginUrl = await createVerifierLoginLink(user.email, `${frontendUrl}/auth/callback`);
-  return loginUrl ? { loginUrl, user } : null;
+  const minted = await createVerifierSession(user.email);
+  return minted ? { ...minted, user } : null;
 };
 
 const runLiveVerificationForUser = async (userId, artifactId = null) => {
