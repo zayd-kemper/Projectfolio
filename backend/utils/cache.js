@@ -39,4 +39,38 @@ const invalidatePattern = async (pattern) => {
   } while (cursor !== '0');
 };
 
-module.exports = { getJson, setJson, getOrSet, invalidate, invalidatePattern };
+// Owner-scoped invalidation. A pattern like 'public:*' evicts every user's cached
+// pages because one person edited one project, so callers that know whose content
+// changed should say so. A falsy argument keeps the old global behaviour for the
+// few call sites that genuinely cannot name an owner.
+
+const invalidatePortfolio = async (username) => {
+  if (!username) return invalidatePattern('public:portfolio:*');
+  return invalidate(`public:portfolio:${username}`);
+};
+
+const invalidateProjects = async (username) => {
+  if (!username) return invalidatePattern('public:project:*');
+  return invalidatePattern(`public:project:${username}:*`);
+};
+
+const invalidatePublicUser = async (username) => {
+  await Promise.all([invalidatePortfolio(username), invalidateProjects(username)]);
+};
+
+const invalidateTeam = async (slug) => {
+  if (!slug) return invalidatePattern('public:team:*');
+  return invalidate(`public:team:${slug}`);
+};
+
+module.exports = {
+  getJson,
+  setJson,
+  getOrSet,
+  invalidate,
+  invalidatePattern,
+  invalidatePortfolio,
+  invalidateProjects,
+  invalidatePublicUser,
+  invalidateTeam,
+};
