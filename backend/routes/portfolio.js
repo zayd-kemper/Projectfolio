@@ -5,6 +5,7 @@ const express = require('express');
 const { query } = require('../config/database');
 const { optionalAuth } = require('../middleware/auth');
 const { getJson, setJson } = require('../utils/cache');
+const { setPublicCacheHeaders, setPrivateCacheHeaders } = require('../utils/publicCacheHeaders');
 const { sanitizeBlockContent, sanitizeCustomCss } = require('../utils/contentSecurity');
 const {
   buildCustomSiteCsp,
@@ -129,7 +130,7 @@ router.get('/:username', optionalAuth, async (req, res) => {
       const cached = await getJson(cacheKey).catch(() => null);
       if (cached) {
         res.setHeader('X-Cache', 'HIT');
-        res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=60, stale-while-revalidate=300');
+        setPublicCacheHeaders(res);
         return res.json(cached);
       }
     }
@@ -277,7 +278,9 @@ router.get('/:username', optionalAuth, async (req, res) => {
     };
     if (!req.user) {
       await setJson(cacheKey, response).catch(() => {});
-      res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=60, stale-while-revalidate=300');
+      setPublicCacheHeaders(res);
+    } else {
+      setPrivateCacheHeaders(res);
     }
     res.json(response);
   } catch (error) {
@@ -416,7 +419,7 @@ router.get('/:username/:projectSlug', optionalAuth, async (req, res) => {
       const cached = await getJson(cacheKey).catch(() => null);
       if (cached) {
         res.setHeader('X-Cache', 'HIT');
-        res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=60, stale-while-revalidate=300');
+        setPublicCacheHeaders(res);
         return res.json(cached);
       }
     }
@@ -494,7 +497,9 @@ router.get('/:username/:projectSlug', optionalAuth, async (req, res) => {
     };
     if (!req.user) {
       await setJson(cacheKey, response).catch(() => {});
-      res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=60, stale-while-revalidate=300');
+      setPublicCacheHeaders(res);
+    } else {
+      setPrivateCacheHeaders(res);
     }
     res.json(response);
   } catch (error) {

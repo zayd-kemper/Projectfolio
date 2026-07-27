@@ -5,6 +5,7 @@ const { requireAuth, optionalAuth } = require('../middleware/auth');
 const { validateSchema, s } = require('../middleware/schemaValidation');
 const { userQuota } = require('../middleware/userQuotas');
 const { getJson, setJson, invalidateTeam } = require('../utils/cache');
+const { setPublicCacheHeaders, setPrivateCacheHeaders } = require('../utils/publicCacheHeaders');
 
 const router = express.Router();
 
@@ -178,7 +179,7 @@ router.get('/:slug', optionalAuth, async (req, res) => {
       const cached = await getJson(cacheKey).catch(() => null);
       if (cached) {
         res.setHeader('X-Cache', 'HIT');
-        res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=60, stale-while-revalidate=300');
+        setPublicCacheHeaders(res);
         return res.json(cached);
       }
     }
@@ -227,7 +228,9 @@ router.get('/:slug', optionalAuth, async (req, res) => {
     const response = { team, members: members.rows, projects: projects.rows, user_role: userRole };
     if (!req.user) {
       await setJson(cacheKey, response).catch(() => {});
-      res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=60, stale-while-revalidate=300');
+      setPublicCacheHeaders(res);
+    } else {
+      setPrivateCacheHeaders(res);
     }
     res.json(response);
   } catch (error) {
