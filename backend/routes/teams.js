@@ -4,7 +4,7 @@ const { query } = require('../config/database');
 const { requireAuth, optionalAuth } = require('../middleware/auth');
 const { validateSchema, s } = require('../middleware/schemaValidation');
 const { userQuota } = require('../middleware/userQuotas');
-const { getJson, setJson, invalidatePattern } = require('../utils/cache');
+const { getJson, setJson, invalidateTeam } = require('../utils/cache');
 
 const router = express.Router();
 
@@ -273,7 +273,7 @@ router.put('/:id', requireAuth, validateSchema({ body: teamCustomizationSchema }
        req.params.id]
     );
 
-    await invalidatePattern('public:team:*').catch(() => {});
+    await invalidateTeam(result.rows[0].slug).catch(() => {});
     res.json({ team: result.rows[0], message: 'Team updated!' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to update team.' });
@@ -379,7 +379,8 @@ router.post('/:id/projects', requireAuth, validateSchema({ body: teamProjectSche
       [req.params.id, project_id, req.user.id]
     );
 
-    await invalidatePattern('public:team:*').catch(() => {});
+    const addedTeam = await query('SELECT slug FROM teams WHERE id = $1', [req.params.id]);
+    await invalidateTeam(addedTeam.rows[0]?.slug).catch(() => {});
     res.json({ message: 'Project added to team!' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to add project.' });
@@ -390,7 +391,7 @@ router.post('/:id/projects', requireAuth, validateSchema({ body: teamProjectSche
 router.delete('/:id/projects/:projectId', requireAuth, userQuota('teams.projects.remove', { windowMs: 60 * 60 * 1000, max: 160 }), async (req, res) => {
   try {
     const memberCheck = await query(
-      `SELECT tm.role, t.owner_id
+      `SELECT tm.role, t.owner_id, t.slug
        FROM team_members tm
        JOIN teams t ON t.id = tm.team_id
        WHERE tm.team_id = $1 AND tm.user_id = $2 AND tm.status = 'accepted'`,
@@ -404,7 +405,7 @@ router.delete('/:id/projects/:projectId', requireAuth, userQuota('teams.projects
       [req.params.id, req.params.projectId]
     );
     if (result.rows.length === 0) return res.status(404).json({ error: 'Team project not found.' });
-    await invalidatePattern('public:team:*').catch(() => {});
+    await invalidateTeam(memberCheck.rows[0].slug).catch(() => {});
     res.json({ message: 'Project removed from team.' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to remove project.' });
