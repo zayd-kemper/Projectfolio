@@ -4,7 +4,7 @@ const { query } = require('../config/database');
 const { requireAuth } = require('../middleware/auth');
 const { validateSchema, s } = require('../middleware/schemaValidation');
 const { userQuota } = require('../middleware/userQuotas');
-const { invalidatePattern } = require('../utils/cache');
+const { invalidatePortfolio, invalidatePublicUser } = require('../utils/cache');
 const {
   extractMarkedBlocks,
   parseAndMergeAiResponse,
@@ -209,10 +209,7 @@ router.put('/', requireAuth, validateSchema({ body: settingsSchema }), userQuota
         next.preferred_ai_model || null,
       ]
     );
-    await Promise.all([
-      invalidatePattern('public:portfolio:*').catch(() => {}),
-      invalidatePattern('public:project:*').catch(() => {}),
-    ]);
+    await invalidatePublicUser(req.user.username).catch(() => {});
     res.json({
       settings: { ...computeEffectiveDesignSettings(result.rows[0]), custom_js: null },
       message: 'Settings saved!',
@@ -273,7 +270,7 @@ router.put(
         [req.user.id, enabled, code.html, code.css, code.js]
       );
 
-      await invalidatePattern('public:portfolio:*').catch(() => {});
+      await invalidatePortfolio(req.user.username).catch(() => {});
 
       res.json({
         settings: {

@@ -35,7 +35,7 @@ const {
   shouldAllowDesignSystemOverride,
 } = require('../utils/siteAgentPlanner');
 const { sanitizeCustomCss } = require('../utils/contentSecurity');
-const { invalidatePattern } = require('../utils/cache');
+const { invalidatePublicUser } = require('../utils/cache');
 const logger = require('../utils/logger');
 const {
   DEFAULT_AGENT_DESIGN_META,
@@ -70,11 +70,11 @@ const parseJson = (value, fallback) => {
   }
 };
 
-const invalidatePublicPortfolioCache = async () => {
-  await Promise.all([
-    invalidatePattern('public:portfolio:*').catch(() => {}),
-    invalidatePattern('public:project:*').catch(() => {}),
-  ]);
+// Agent routes only ever mutate the caller's own portfolio — every ai_change_sets
+// query is scoped `WHERE id = $1 AND user_id = $2` — so the caller's username is
+// always the owner here.
+const invalidatePublicPortfolioCache = async (username) => {
+  await invalidatePublicUser(username).catch(() => {});
 };
 
 const getBrowserArtifactOptions = (artifactId) => {
@@ -2151,7 +2151,7 @@ const handleAgentApply = async (req, res) => {
     await client.query('COMMIT');
     committed = true;
     logger.info({ tag: 'AGENT:APPLY:COMMITTED', userId: req.user.id, changeSetId: req.params.id }, 'Transaction committed — portfolio_settings/projects rows are now updated in the database');
-    await invalidatePublicPortfolioCache();
+    await invalidatePublicPortfolioCache(req.user.username);
     logger.info({ tag: 'AGENT:APPLY:CACHE_INVALIDATED', userId: req.user.id, changeSetId: req.params.id }, 'Public portfolio cache invalidation requested (no-op if Redis is not configured)');
 
     liveVerification = await runLiveVerificationForUser(req.user.id, `change-set-${req.params.id}-live`);
@@ -2181,7 +2181,7 @@ const handleAgentApply = async (req, res) => {
         }), req.params.id]
       );
       await client.query('COMMIT');
-      await invalidatePublicPortfolioCache();
+      await invalidatePublicPortfolioCache(req.user.username);
       const updatedChangeSet = await safeLoadChangeSetForResponse(req.params.id, req.user.id);
       return res.status(422).json({
         status: 'rolled_back_live_failed',
@@ -2328,7 +2328,7 @@ router.post('/change-sets/:id/remove', requireAuth, userQuota('agent.remove', { 
       [mode, JSON.stringify({ lastRemoval: removal, removals: [...(Array.isArray(preview.removals) ? preview.removals : []), removal] }), req.params.id]
     );
     await client.query('COMMIT');
-    await invalidatePublicPortfolioCache();
+    await invalidatePublicPortfolioCache(req.user.username);
     res.json({
       message: mode === 'code'
         ? 'Generated code and effects from this AI bundle were removed.'
@@ -2384,7 +2384,7 @@ router.post('/change-sets/:id/revert', requireAuth, userQuota('agent.revert', { 
       [JSON.stringify({ revertedAt: new Date().toISOString() }), req.params.id]
     );
     await client.query('COMMIT');
-    await invalidatePublicPortfolioCache();
+    await invalidatePublicPortfolioCache(req.user.username);
     res.json({ message: 'AI Editor change reverted.' });
   } catch (error) {
     await client.query('ROLLBACK').catch(() => {});
@@ -2437,7 +2437,7 @@ router.post('/reset', requireAuth, userQuota('agent.reset', { windowMs: 60 * 60 
     }
 
     await client.query('COMMIT');
-    await invalidatePublicPortfolioCache();
+    await invalidatePublicPortfolioCache(req.user.username);
     res.json({
       message: mode === 'all'
         ? 'All applied AI changes were reverted to the earliest rollback snapshot.'
