@@ -4,7 +4,7 @@ const { query, pool } = require('../config/database');
 const { requireAuth, optionalAuth } = require('../middleware/auth');
 const { validateSchema, s } = require('../middleware/schemaValidation');
 const { userQuota } = require('../middleware/userQuotas');
-const { invalidatePattern } = require('../utils/cache');
+const { invalidatePortfolio, invalidatePublicUser } = require('../utils/cache');
 const { sanitizeBlockContent } = require('../utils/contentSecurity');
 const { buildPortfolioAiContext } = require('../utils/portfolioAiContext');
 
@@ -298,7 +298,7 @@ router.put('/batch/reorder', requireAuth, validateSchema({ body: projectReorderS
        WHERE p.id = incoming.id AND p.user_id = $2`,
       [JSON.stringify(order), req.user.id]
     );
-    await invalidatePattern('public:portfolio:*').catch(() => {});
+    await invalidatePortfolio(req.user.username).catch(() => {});
     res.json({ message: 'Projects reordered.' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to reorder projects.' });
@@ -380,11 +380,13 @@ router.put('/:projectId/blocks/sync', requireAuth, validateSchema({ body: blockS
   try {
     await client.query('BEGIN');
     const access = await client.query(
-      `SELECT p.id, p.user_id, p.content_version FROM projects p
+      `SELECT p.id, p.user_id, p.content_version, owner.username AS owner_username
+       FROM projects p
+       JOIN users owner ON owner.id = p.user_id
        WHERE p.id = $1 AND (p.user_id = $2 OR EXISTS (
          SELECT 1 FROM project_collaborators pc
          WHERE pc.project_id = p.id AND pc.user_id = $2 AND pc.status = 'accepted'
-       )) FOR UPDATE`,
+       )) FOR UPDATE OF p`,
       [req.params.projectId, req.user.id]
     );
     if (!access.rows[0]) {
@@ -418,7 +420,8 @@ router.put('/:projectId/blocks/sync', requireAuth, validateSchema({ body: blockS
       [req.params.projectId]
     );
     await client.query('COMMIT');
-    await invalidatePattern('public:*').catch(() => {});
+    // The editor may be a collaborator, so invalidate the owner's cache, not theirs.
+    await invalidatePublicUser(access.rows[0].owner_username).catch(() => {});
     res.json({ blocks: saved.rows.sort((a, b) => a.sort_order - b.sort_order), content_version: Number(version.rows[0].content_version) });
   } catch (error) {
     await client.query('ROLLBACK').catch(() => {});
