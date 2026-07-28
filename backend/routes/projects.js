@@ -4,7 +4,7 @@ const { query, pool } = require('../config/database');
 const { requireAuth, optionalAuth } = require('../middleware/auth');
 const { validateSchema, s } = require('../middleware/schemaValidation');
 const { userQuota } = require('../middleware/userQuotas');
-const { invalidatePortfolio, invalidatePublicUser } = require('../utils/cache');
+const { invalidatePortfolio, invalidatePublicUser, invalidateTeam } = require('../utils/cache');
 const { sanitizeBlockContent } = require('../utils/contentSecurity');
 const { buildPortfolioAiContext } = require('../utils/portfolioAiContext');
 
@@ -84,6 +84,30 @@ const toTextArray = (arr) => {
   if (!arr || !Array.isArray(arr)) return null;
   if (arr.length === 0) return '{}';
   return `{${arr.map(t => `"${String(t).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`).join(',')}}`;
+};
+
+// A project can appear on a team's page (routes/teams.js selects project rows into
+// the cached team body), so any project mutation must also invalidate every team
+// page the project appears on, not just the owner's portfolio/project cache.
+//
+// For DELETE, team_projects rows are removed by ON DELETE CASCADE the moment the
+// project row is deleted, so callers on that path must call this BEFORE deleting.
+const findAffectedTeamSlugs = async (projectId) => {
+  try {
+    const teams = await query(
+      `SELECT t.slug FROM team_projects tp JOIN teams t ON t.id = tp.team_id WHERE tp.project_id = $1`,
+      [projectId]
+    );
+    return teams.rows.map((row) => row.slug);
+  } catch {
+    return [];
+  }
+};
+
+// Cache failures must never fail a write, so every branch here is swallowed.
+const invalidateProjectCaches = async (ownerUsername, teamSlugs) => {
+  await invalidatePublicUser(ownerUsername).catch(() => {});
+  await Promise.all(teamSlugs.map((slug) => invalidateTeam(slug).catch(() => {})));
 };
 
 // ── GET ALL PROJECTS (for logged-in user) ─────────────────────────────────────
@@ -215,11 +239,15 @@ router.put('/:id([0-9a-fA-F-]{36})', requireAuth, validateSchema({ body: project
   const { title, tagline, description, project_type, technologies, cover_image_url, github_url, live_url, start_date, end_date, collaborators, status, is_featured } = req.body;
 
   try {
+    // Collaborators (not just the owner) may edit, so the owner's username has to
+    // come from a join here — req.user.username would be the editor, not the owner.
     const access = await query(
-      `SELECT id FROM projects WHERE id = $1 AND (
-        user_id = $2 OR
-        id IN (SELECT project_id FROM project_collaborators WHERE user_id = $2 AND status = 'accepted')
-      )`,
+      `SELECT owner.username AS owner_username FROM projects p
+       JOIN users owner ON owner.id = p.user_id
+       WHERE p.id = $1 AND (
+         p.user_id = $2 OR
+         p.id IN (SELECT project_id FROM project_collaborators WHERE user_id = $2 AND status = 'accepted')
+       )`,
       [req.params.id, req.user.id]
     );
     if (access.rows.length === 0) return res.status(404).json({ error: 'Project not found.' });
@@ -263,6 +291,9 @@ router.put('/:id([0-9a-fA-F-]{36})', requireAuth, validateSchema({ body: project
     project.technologies = project.technologies || [];
     project.collaborators = project.collaborators || [];
 
+    const teamSlugs = await findAffectedTeamSlugs(req.params.id);
+    await invalidateProjectCaches(access.rows[0].owner_username, teamSlugs);
+
     res.json({ project, message: 'Project saved!' });
   } catch (error) {
     console.error('Update project error:', error);
@@ -273,12 +304,20 @@ router.put('/:id([0-9a-fA-F-]{36})', requireAuth, validateSchema({ body: project
 // ── DELETE PROJECT ─────────────────────────────────────────────────────────────
 router.delete('/:id([0-9a-fA-F-]{36})', requireAuth, userQuota('projects.delete', { windowMs: 60 * 60 * 1000, max: 120 }), async (req, res) => {
   try {
+    // team_projects rows are ON DELETE CASCADE from projects, so the affected team
+    // slugs must be read before the delete removes them out from under this query.
+    const teamSlugs = await findAffectedTeamSlugs(req.params.id);
+
     const result = await query(
       'DELETE FROM projects WHERE id = $1 AND user_id = $2 RETURNING id',
       [req.params.id, req.user.id]
     );
 
     if (result.rows.length === 0) return res.status(404).json({ error: 'Project not found.' });
+
+    // DELETE is scoped to user_id = $2 above (no collaborator branch), so the
+    // caller is always the owner here.
+    await invalidateProjectCaches(req.user.username, teamSlugs);
 
     res.json({ message: 'Project deleted.' });
   } catch (error) {
@@ -420,8 +459,10 @@ router.put('/:projectId/blocks/sync', requireAuth, validateSchema({ body: blockS
       [req.params.projectId]
     );
     await client.query('COMMIT');
-    // The editor may be a collaborator, so invalidate the owner's cache, not theirs.
-    await invalidatePublicUser(access.rows[0].owner_username).catch(() => {});
+    // The editor may be a collaborator, so invalidate the owner's cache, not theirs
+    // — and the owner's team pages, since this project may appear on one.
+    const teamSlugs = await findAffectedTeamSlugs(req.params.projectId);
+    await invalidateProjectCaches(access.rows[0].owner_username, teamSlugs);
     res.json({ blocks: saved.rows.sort((a, b) => a.sort_order - b.sort_order), content_version: Number(version.rows[0].content_version) });
   } catch (error) {
     await client.query('ROLLBACK').catch(() => {});
@@ -505,3 +546,5 @@ router.put('/:projectId/blocks/batch/reorder', requireAuth, validateSchema({ bod
 });
 
 module.exports = router;
+module.exports.findAffectedTeamSlugs = findAffectedTeamSlugs;
+module.exports.invalidateProjectCaches = invalidateProjectCaches;

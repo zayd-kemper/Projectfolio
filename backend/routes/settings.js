@@ -299,6 +299,7 @@ router.put('/avatar', requireAuth, validateSchema({ body: avatarSchema }), userQ
   } catch {}
   if (!valid) return res.status(400).json({ error: 'Invalid avatar URL.' });
   await query('UPDATE users SET avatar_url = $1, updated_at = NOW() WHERE id = $2', [avatarUrl, req.user.id]);
+  await invalidatePortfolio(req.user.username).catch(() => {});
   res.json({ avatar_url: avatarUrl, message: 'Avatar updated!' });
 });
 

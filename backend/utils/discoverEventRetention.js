@@ -29,7 +29,6 @@ const pruneDiscoverEvents = async () => {
        WHERE id IN (
          SELECT id FROM discover_events
          WHERE created_at < NOW() - ($1 * INTERVAL '1 day')
-         ORDER BY created_at
          LIMIT $2
        )`,
       [days, BATCH_SIZE]

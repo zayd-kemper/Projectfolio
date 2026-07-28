@@ -69,3 +69,9 @@ test('pruning passes the resolved retention window to the query', async () => {
   assert.equal(queries[0].params[1], BATCH_SIZE);
   assert.match(queries[0].sql, /DELETE FROM discover_events/);
 });
+
+test('the batch subquery does not ORDER BY — any expired rows are equally valid to delete, and sorting forces a full scan', async () => {
+  rowCounts = [0];
+  await pruneDiscoverEvents();
+  assert.doesNotMatch(queries[0].sql, /ORDER BY/);
+});

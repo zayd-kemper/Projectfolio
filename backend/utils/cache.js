@@ -55,7 +55,9 @@ const invalidateProjects = async (username) => {
 };
 
 const invalidatePublicUser = async (username) => {
-  await Promise.all([invalidatePortfolio(username), invalidateProjects(username)]);
+  // Cache failures must never fail a write. Every current caller wraps this in its
+  // own .catch too, but the guarantee belongs here so a future caller cannot forget it.
+  await Promise.all([invalidatePortfolio(username), invalidateProjects(username)]).catch(() => {});
 };
 
 const invalidateTeam = async (slug) => {

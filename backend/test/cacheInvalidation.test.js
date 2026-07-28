@@ -62,3 +62,16 @@ test('one owner\'s invalidation never touches another owner\'s keys', async () =
   assert.ok(!deleted.some((key) => key.includes('grace')));
   assert.ok(scanned.every((pattern) => pattern.includes('ada')));
 });
+
+test('invalidatePublicUser never rejects even when the underlying Redis calls throw', async () => {
+  const originalScan = fakeRedis.scan;
+  const originalDel = fakeRedis.del;
+  fakeRedis.scan = async () => { throw new Error('redis unavailable'); };
+  fakeRedis.del = async () => { throw new Error('redis unavailable'); };
+  try {
+    await assert.doesNotReject(() => invalidatePublicUser('ada'));
+  } finally {
+    fakeRedis.scan = originalScan;
+    fakeRedis.del = originalDel;
+  }
+});

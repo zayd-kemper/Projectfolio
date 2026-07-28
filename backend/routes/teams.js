@@ -276,7 +276,7 @@ router.put('/:id', requireAuth, validateSchema({ body: teamCustomizationSchema }
        req.params.id]
     );
 
-    await invalidateTeam(result.rows[0].slug).catch(() => {});
+    await invalidateTeam(result.rows[0]?.slug).catch(() => {});
     res.json({ team: result.rows[0], message: 'Team updated!' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to update team.' });

@@ -8,7 +8,7 @@ const { QUEUE_NAME, executeJob } = require('./jobs/service');
 const logger = require('./utils/logger');
 const { closeBrowser } = require('./utils/browserPool');
 const { query } = require('./config/database');
-const { pruneDiscoverEvents } = require('./utils/discoverEventRetention');
+const { pruneDiscoverEvents, MAX_BATCHES, BATCH_SIZE } = require('./utils/discoverEventRetention');
 
 if (!redisEnabled) {
   logger.fatal('REDIS_URL is required for the standalone worker process');
@@ -53,13 +53,21 @@ const runMaintenance = async () => {
       [retentionDays]
     );
     await query('DELETE FROM portfolio_revisions WHERE expires_at < NOW()');
-    await Promise.all([
+    const [, , , , prunedCount] = await Promise.all([
       query('DELETE FROM background_jobs WHERE expires_at < NOW()'),
       query("UPDATE post_stats SET trending_score = (like_count * 3 + comment_count * 2) * GREATEST(0.1, 1 - EXTRACT(EPOCH FROM (NOW() - updated_at)) / 604800), updated_at = NOW()"),
       query("UPDATE user_stats SET recent_views = 0, trending_score = follower_count * 5 + project_count * 2, updated_at = NOW() WHERE updated_at < NOW() - INTERVAL '7 days'"),
       ensureFutureAnalyticsPartition(),
       pruneDiscoverEvents(),
     ]);
+    // pruneDiscoverEvents() is capped at MAX_BATCHES * BATCH_SIZE rows per cycle. If a
+    // cycle hits that cap, ingest is outrunning retention and the sweep is falling
+    // behind — that must not fail silently.
+    if (prunedCount === MAX_BATCHES * BATCH_SIZE) {
+      logger.warn({ prunedCount }, 'discover_events prune hit the per-cycle cap; retention sweep may be falling behind');
+    } else if (prunedCount > 0) {
+      logger.info({ prunedCount }, 'Pruned discover_events rows past retention window');
+    }
   } catch (error) {
     logger.error({ err: error }, 'Worker maintenance failed');
   }
