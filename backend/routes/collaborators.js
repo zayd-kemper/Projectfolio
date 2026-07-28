@@ -4,6 +4,8 @@ const { query } = require('../config/database');
 const { requireAuth } = require('../middleware/auth');
 const { validateSchema, s } = require('../middleware/schemaValidation');
 const { userQuota } = require('../middleware/userQuotas');
+const { invalidateTeam } = require('../utils/cache');
+const { invalidateForProjectId } = require('../utils/portfolioCacheInvalidation');
 
 const router = express.Router();
 
@@ -171,6 +173,10 @@ router.post('/join/:token', requireAuth, userQuota('collaborators.join', { windo
         );
       }
 
+      // req.user is the joining collaborator, not the owner — resolve the owner
+      // from the project so the right cached pages are cleared.
+      await invalidateForProjectId(inv.target_id);
+
       res.json({ message: 'You have joined the project!', type: 'project', id: inv.target_id });
     } else if (inv.type === 'team') {
       const existing = await query(
@@ -187,7 +193,7 @@ router.post('/join/:token', requireAuth, userQuota('collaborators.join', { windo
 
       await query("UPDATE invitations SET status = 'accepted' WHERE id = $1", [inv.id]);
 
-      const team = await query('SELECT name, owner_id FROM teams WHERE id = $1', [inv.target_id]);
+      const team = await query('SELECT name, owner_id, slug FROM teams WHERE id = $1', [inv.target_id]);
       if (team.rows.length > 0) {
         await createNotification(
           team.rows[0].owner_id,
@@ -197,6 +203,10 @@ router.post('/join/:token', requireAuth, userQuota('collaborators.join', { windo
           { team_id: inv.target_id }
         );
       }
+
+      // The member list is part of the cached team body; the slug comes from the
+      // row this route already fetched.
+      await invalidateTeam(team.rows[0]?.slug).catch(() => {});
 
       res.json({ message: 'You have joined the team!', type: 'team', id: inv.target_id });
     }
@@ -220,6 +230,10 @@ router.delete('/project/:projectId/collaborator/:userId', requireAuth, userQuota
       'DELETE FROM project_collaborators WHERE project_id = $1 AND user_id = $2',
       [req.params.projectId, req.params.userId]
     );
+
+    // A collaborator may remove themselves, so req.user is not necessarily the
+    // owner whose cached pages list them.
+    await invalidateForProjectId(req.params.projectId);
 
     res.json({ message: 'Collaborator removed.' });
   } catch (error) {

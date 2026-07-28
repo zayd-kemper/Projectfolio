@@ -120,6 +120,29 @@ checksums into `schema_migrations` manually so the runner does not retry them.
 step: if any profile failed to import, `ADD CONSTRAINT` fails and the whole migration
 rolls back rather than leaving a half-migrated database.
 
+### Before putting a CDN in front: understand the staleness window
+
+The public portfolio, project, and team responses are served with
+`Cache-Control: public, max-age=0, s-maxage=60, stale-while-revalidate=300`.
+Those directives do nothing today because no CDN sits in front of the API. The
+moment one does, they take effect and change the staleness maths.
+
+The backend invalidates its **Redis** cache precisely — editing a project clears
+that owner's portfolio and project keys plus any team page the project appears
+on. It has no way to purge a CDN edge. So once an edge cache exists:
+
+- an edge node may serve a cached copy for up to 60s (`s-maxage`), and
+- may keep serving a stale copy for a further 300s while it revalidates
+  (`stale-while-revalidate`)
+
+meaning a change can take roughly **6 minutes** to be visible to everyone,
+regardless of how precisely the origin invalidated. Publishing or unpublishing a
+project is subject to the same window.
+
+If that window is unacceptable, the options are: lower `s-maxage` and
+`stale-while-revalidate`, or wire the invalidation paths to also call the CDN's
+purge API. Do not assume origin invalidation alone is sufficient.
+
 ### Pre-cutover: confirm migrations applied cleanly
 
 Some migrations use `CREATE INDEX CONCURRENTLY`, which can fail with a Postgres

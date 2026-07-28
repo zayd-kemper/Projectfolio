@@ -7,6 +7,7 @@ const express = require('express');
 const { query } = require('../config/database');
 const { requireAuth } = require('../middleware/auth');
 const { invalidateAuthProfile } = require('../utils/authProfile');
+const { invalidateForProfileUpdate } = require('../utils/portfolioCacheInvalidation');
 const { validateSchema, s } = require('../middleware/schemaValidation');
 const { userQuota } = require('../middleware/userQuotas');
 require('dotenv').config();
@@ -85,6 +86,7 @@ router.put('/profile', requireAuth, userQuota('auth.profile.write', { windowMs: 
 
     // req.user is served from a 60s cache; a profile edit must be visible at once.
     await invalidateAuthProfile(req.user.id);
+    await invalidateForProfileUpdate(req.user.username, result.rows[0]?.username);
 
     res.json({ user: result.rows[0], message: 'Profile updated!' });
   } catch (error) {

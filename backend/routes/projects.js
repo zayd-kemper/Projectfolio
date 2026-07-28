@@ -4,7 +4,8 @@ const { query, pool } = require('../config/database');
 const { requireAuth, optionalAuth } = require('../middleware/auth');
 const { validateSchema, s } = require('../middleware/schemaValidation');
 const { userQuota } = require('../middleware/userQuotas');
-const { invalidatePortfolio, invalidatePublicUser, invalidateTeam } = require('../utils/cache');
+const { invalidatePortfolio } = require('../utils/cache');
+const { findAffectedTeamSlugs, invalidateProjectCaches } = require('../utils/portfolioCacheInvalidation');
 const { sanitizeBlockContent } = require('../utils/contentSecurity');
 const { buildPortfolioAiContext } = require('../utils/portfolioAiContext');
 
@@ -84,34 +85,6 @@ const toTextArray = (arr) => {
   if (!arr || !Array.isArray(arr)) return null;
   if (arr.length === 0) return '{}';
   return `{${arr.map(t => `"${String(t).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`).join(',')}}`;
-};
-
-// A project can appear on a team's page (routes/teams.js selects project rows into
-// the cached team body), so any project mutation must also invalidate every team
-// page the project appears on, not just the owner's portfolio/project cache.
-//
-// For DELETE, team_projects rows are removed by ON DELETE CASCADE the moment the
-// project row is deleted, so callers on that path must call this BEFORE deleting.
-// `executor` defaults to the pooled `query`, but callers that already hold a
-// transaction client (e.g. blocks/sync, after COMMIT but before release) should
-// pass `client.query.bind(client)` so this reuses that connection instead of
-// checking out a second one from the same pool.
-const findAffectedTeamSlugs = async (projectId, executor = query) => {
-  try {
-    const teams = await executor(
-      `SELECT t.slug FROM team_projects tp JOIN teams t ON t.id = tp.team_id WHERE tp.project_id = $1`,
-      [projectId]
-    );
-    return teams.rows.map((row) => row.slug);
-  } catch {
-    return [];
-  }
-};
-
-// Cache failures must never fail a write, so every branch here is swallowed.
-const invalidateProjectCaches = async (ownerUsername, teamSlugs) => {
-  await invalidatePublicUser(ownerUsername).catch(() => {});
-  await Promise.all(teamSlugs.map((slug) => invalidateTeam(slug).catch(() => {})));
 };
 
 // ── GET ALL PROJECTS (for logged-in user) ─────────────────────────────────────
@@ -554,5 +527,3 @@ router.put('/:projectId/blocks/batch/reorder', requireAuth, validateSchema({ bod
 });
 
 module.exports = router;
-module.exports.findAffectedTeamSlugs = findAffectedTeamSlugs;
-module.exports.invalidateProjectCaches = invalidateProjectCaches;

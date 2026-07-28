@@ -418,7 +418,7 @@ router.delete('/:id/projects/:projectId', requireAuth, userQuota('teams.projects
 // ── REMOVE MEMBER ─────────────────────────────────────────────────────────────
 router.delete('/:id/members/:userId', requireAuth, userQuota('teams.members.remove', { windowMs: 60 * 60 * 1000, max: 160 }), async (req, res) => {
   try {
-    const team = await query('SELECT owner_id FROM teams WHERE id = $1', [req.params.id]);
+    const team = await query('SELECT owner_id, slug FROM teams WHERE id = $1', [req.params.id]);
     if (team.rows.length === 0) return res.status(404).json({ error: 'Team not found.' });
 
     const isOwner = team.rows[0].owner_id === req.user.id;
@@ -426,6 +426,9 @@ router.delete('/:id/members/:userId', requireAuth, userQuota('teams.members.remo
     if (!isOwner && !isSelf) return res.status(403).json({ error: 'Access denied.' });
 
     await query('DELETE FROM team_members WHERE team_id = $1 AND user_id = $2', [req.params.id, req.params.userId]);
+    // The cached team body carries the member list. The slug comes from the row
+    // this route already fetched, so no extra lookup is needed.
+    await invalidateTeam(team.rows[0].slug).catch(() => {});
     res.json({ message: 'Member removed.' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to remove member.' });
@@ -436,13 +439,15 @@ router.delete('/:id/members/:userId', requireAuth, userQuota('teams.members.remo
 router.put('/:id/members/:userId/role', requireAuth, validateSchema({ body: memberRoleSchema }), userQuota('teams.members.role', { windowMs: 60 * 60 * 1000, max: 160 }), async (req, res) => {
   const { role } = req.body;
   try {
-    const team = await query('SELECT owner_id FROM teams WHERE id = $1', [req.params.id]);
+    const team = await query('SELECT owner_id, slug FROM teams WHERE id = $1', [req.params.id]);
     if (team.rows[0].owner_id !== req.user.id) return res.status(403).json({ error: 'Only the owner can change roles.' });
 
     await query(
       'UPDATE team_members SET role = $1 WHERE team_id = $2 AND user_id = $3',
       [role, req.params.id, req.params.userId]
     );
+    // Member roles are rendered into the cached team body.
+    await invalidateTeam(team.rows[0].slug).catch(() => {});
     res.json({ message: 'Role updated.' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to update role.' });
@@ -456,7 +461,10 @@ router.delete('/:id', requireAuth, userQuota('teams.delete', { windowMs: 60 * 60
     if (team.rows.length === 0) return res.status(404).json({ error: 'Team not found.' });
     if (team.rows[0].owner_id !== req.user.id) return res.status(403).json({ error: 'Only the owner can delete the team.' });
 
-    await query('DELETE FROM teams WHERE id = $1', [req.params.id]);
+    // RETURNING the slug avoids a race: the row is gone once the delete lands, so
+    // the cache key has to come out of the delete itself.
+    const deleted = await query('DELETE FROM teams WHERE id = $1 RETURNING slug', [req.params.id]);
+    await invalidateTeam(deleted.rows[0]?.slug).catch(() => {});
     res.json({ message: 'Team deleted.' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete team.' });

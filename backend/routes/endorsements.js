@@ -8,6 +8,7 @@ const { requireAuth, optionalAuth } = require('../middleware/auth');
 const { validateSchema, s } = require('../middleware/schemaValidation');
 const { userQuota } = require('../middleware/userQuotas');
 const { createJob } = require('../jobs/service');
+const { invalidatePortfolio } = require('../utils/cache');
 
 const router = express.Router();
 
@@ -252,6 +253,8 @@ router.patch('/:id/approve', requireAuth, userQuota('endorsements.moderate', { w
       [req.params.id, req.user.id]
     );
     if (result.rows.length === 0) return res.status(404).json({ error: 'Endorsement not found.' });
+    // Approved endorsements are rendered into the cached public portfolio body.
+    await invalidatePortfolio(req.user.username).catch(() => {});
     res.json({ message: 'Endorsement approved.' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to approve endorsement.' });
@@ -269,6 +272,8 @@ router.patch('/:id/reject', requireAuth, userQuota('endorsements.moderate', { wi
       [req.params.id, req.user.id]
     );
     if (result.rows.length === 0) return res.status(404).json({ error: 'Endorsement not found.' });
+    // A rejection can un-publish a previously approved endorsement.
+    await invalidatePortfolio(req.user.username).catch(() => {});
     res.json({ message: 'Endorsement rejected.' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to reject endorsement.' });
@@ -283,6 +288,7 @@ router.delete('/:id', requireAuth, userQuota('endorsements.delete', { windowMs: 
       [req.params.id, req.user.id]
     );
     if (result.rows.length === 0) return res.status(404).json({ error: 'Endorsement not found.' });
+    await invalidatePortfolio(req.user.username).catch(() => {});
     res.json({ message: 'Endorsement deleted.' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete endorsement.' });
