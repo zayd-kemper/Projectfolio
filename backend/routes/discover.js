@@ -513,6 +513,12 @@ const qualityScoreSql = `(
 )`;
 const freshnessScoreSql = "GREATEST(0, 21 - (EXTRACT(EPOCH FROM (NOW() - dp.created_at)) / 86400))";
 
+// PERF (deferred): this expression runs ~8 correlated subqueries per candidate row
+// and is recomputed on every scroll and pagination request. It is the first thing
+// expected to break under load — see the thresholds and the caching design in
+// docs/superpowers/specs/2026-07-26-caching-strategy-design.md ("Deferred: Approach B").
+// Revisit when approaching ~1,000-5,000 registered users, or sooner if Discover p95
+// latency degrades.
 const recommendationScoreSql = `(
   CASE WHEN $1::uuid IS NULL THEN
     (${qualityScoreSql}

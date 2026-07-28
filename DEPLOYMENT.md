@@ -120,6 +120,24 @@ checksums into `schema_migrations` manually so the runner does not retry them.
 step: if any profile failed to import, `ADD CONSTRAINT` fails and the whole migration
 rolls back rather than leaving a half-migrated database.
 
+### Pre-cutover: confirm migrations applied cleanly
+
+Some migrations use `CREATE INDEX CONCURRENTLY`, which can fail with a Postgres
+ownership error (`42501`) under a non-owner role. That failure is recorded in
+`schema_migration_warnings` rather than failing the deploy, so it is silent.
+
+`idx_discover_events_user_type_created` (migration 006) is the covering index that
+keeps the Discover recommendation query cheap. If it is missing, Discover degrades
+badly under load.
+
+Before sending production traffic, confirm both:
+
+1. `GET /health/ready` reports `ready`, not `ready_with_warnings`
+2. `SELECT COUNT(*) FROM schema_migration_warnings;` returns 0
+
+If either check fails, run `npm run db:retry-warnings` with an owner-level
+`MIGRATION_DATABASE_URL` and re-check.
+
 ### 7. Verify the import
 
 ```sql
