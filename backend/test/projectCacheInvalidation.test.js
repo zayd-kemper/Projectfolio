@@ -83,3 +83,22 @@ test('invalidateProjectCaches invalidates the owner and every affected team slug
   assert.deepEqual(invalidatedUsers, ['ada']);
   assert.deepEqual(invalidatedTeams, ['rocketry', 'aero-club']);
 });
+
+// blocks/sync holds a pooled client across COMMIT and calls findAffectedTeamSlugs
+// before releasing it. Passing an explicit executor (client.query.bind(client))
+// must route the lookup through that held connection instead of checking out a
+// second one via the module-level pooled `query` — see the pool-exhaustion bug
+// this guards against in routes/projects.js.
+test('findAffectedTeamSlugs uses the given executor instead of the pooled query when one is passed', async () => {
+  dbRows = [{ slug: 'wrong-connection' }]; // what the pooled `query` stub would return if wrongly invoked
+  const executorCalls = [];
+  const executor = async (sql, params) => {
+    executorCalls.push({ sql, params });
+    return { rows: [{ slug: 'held-connection-team' }] };
+  };
+  const slugs = await projectsRouter.findAffectedTeamSlugs('project-2', executor);
+  assert.deepEqual(slugs, ['held-connection-team']);
+  assert.equal(executorCalls.length, 1);
+  assert.equal(executorCalls[0].params[0], 'project-2');
+  assert.equal(dbQueries.length, 0, 'the pooled query must not be called when an executor is provided');
+});

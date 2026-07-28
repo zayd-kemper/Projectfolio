@@ -92,9 +92,13 @@ const toTextArray = (arr) => {
 //
 // For DELETE, team_projects rows are removed by ON DELETE CASCADE the moment the
 // project row is deleted, so callers on that path must call this BEFORE deleting.
-const findAffectedTeamSlugs = async (projectId) => {
+// `executor` defaults to the pooled `query`, but callers that already hold a
+// transaction client (e.g. blocks/sync, after COMMIT but before release) should
+// pass `client.query.bind(client)` so this reuses that connection instead of
+// checking out a second one from the same pool.
+const findAffectedTeamSlugs = async (projectId, executor = query) => {
   try {
-    const teams = await query(
+    const teams = await executor(
       `SELECT t.slug FROM team_projects tp JOIN teams t ON t.id = tp.team_id WHERE tp.project_id = $1`,
       [projectId]
     );
@@ -461,7 +465,11 @@ router.put('/:projectId/blocks/sync', requireAuth, validateSchema({ body: blockS
     await client.query('COMMIT');
     // The editor may be a collaborator, so invalidate the owner's cache, not theirs
     // — and the owner's team pages, since this project may appear on one.
-    const teamSlugs = await findAffectedTeamSlugs(req.params.projectId);
+    // Reuse the held transaction client here (still open until the `finally` below)
+    // instead of checking out a second pooled connection: under load that can
+    // exhaust the pool and stall every DB query on this process for up to
+    // connectionTimeoutMillis.
+    const teamSlugs = await findAffectedTeamSlugs(req.params.projectId, client.query.bind(client));
     await invalidateProjectCaches(access.rows[0].owner_username, teamSlugs);
     res.json({ blocks: saved.rows.sort((a, b) => a.sort_order - b.sort_order), content_version: Number(version.rows[0].content_version) });
   } catch (error) {
