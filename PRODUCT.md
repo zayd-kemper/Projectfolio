@@ -1,9 +1,5 @@
 # Product
 
-## Register
-
-product
-
 ## Users
 
 ProjectFolio is for engineering and science students, early-career technical candidates, and teams who need to document projects clearly enough for recruiters, reviewers, collaborators, and application platforms. Users are usually collecting proof of work, polishing public portfolio pages, managing project media, reviewing analytics, or publishing work to a professional network-style feed.

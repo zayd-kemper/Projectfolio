@@ -1,42 +1,35 @@
-# Scalability deployment
+# Scaling and operating notes
 
-## Release order
+Use the [deployment guide](../DEPLOYMENT.md) for release configuration and order. These notes describe controls available in the source; they do not establish a measured user capacity.
 
-1. Provision PostgreSQL and Redis in the same region as the application.
-2. Run `npm run db:migrate` from `backend` once as the release command.
-3. Start the API with `npm start` from `backend`.
-4. Start a separate worker service with `npm run worker` from `backend`.
-5. Build the frontend with `npm run build` from `frontend`.
+## Process and database controls
 
-The API deliberately refuses to start in production without `REDIS_URL`. Redis backs shared sessions, distributed rate limits, cache entries, and BullMQ jobs.
+- The API and BullMQ worker share the same PostgreSQL database and Redis instance. Start the worker with `npm run worker` from `backend`.
+- Redis coordinates job claiming, distributed rate limits, quotas, and caches. Supabase owns authentication sessions.
+- Set `DB_POOL_MAX_WEB` and `DB_POOL_MAX_WORKER` with the total number of processes in mind. Defaults are 8 and 4 per process; adding replicas multiplies the possible connections.
+- Keep API and worker statement timeouts appropriate for their workloads. Inspect slow-query logs and queue duration before increasing concurrency.
+- Run migrations once per release over a session-capable connection, before switching traffic. Keep `MIGRATION_WARNINGS_FATAL=true` after resolving any ownership warnings.
 
-## Database ownership warnings
+## Health and monitoring
 
-`db:migrate` records non-transactional index statements that PostgreSQL rejects because the runtime role does not own a legacy table. Resolve them once with a database-owner URL:
+- `/health/live` is a liveness check.
+- `/health/ready` checks database/schema, Auth triggers, migration warnings, and configured Redis connectivity.
+- `/metrics` is protected by `METRICS_TOKEN` in the current server implementation.
+- Keep `ANALYTICS_VISITOR_SECRET` stable across replicas and separate from `METRICS_TOKEN`. No application JWT signing or session secret is required by the current Auth implementation.
 
-```powershell
-$env:MIGRATION_DATABASE_URL = '<owner PostgreSQL URL>'
-npm run db:retry-warnings
-```
-
-Set `MIGRATION_WARNINGS_FATAL=true` in production after the warnings are resolved. `/health/ready` then prevents an instance with incomplete indexes from receiving traffic.
-
-## Capacity controls
-
-- Keep `DB_POOL_MAX_WEB * api replicas + DB_POOL_MAX_WORKER * worker replicas` below the PostgreSQL connection limit, with room for migrations and administration.
-- Start with `DB_POOL_MAX_WEB=8`, `DB_POOL_MAX_WORKER=4`, and `WORKER_CONCURRENCY=4`; tune from queue latency and database saturation metrics.
-- Use `METRICS_TOKEN` to protect `/metrics`, and alert on readiness failures, HTTP p95 latency, database query duration, pool waiters, failed jobs, and queue depth.
-- Keep `ANALYTICS_VISITOR_SECRET`, `JWT_SECRET`, and `SESSION_SECRET` independent and stable across replicas.
-- Run at least two API replicas behind a load balancer. Workers can scale separately because job claiming is coordinated by Redis.
+Monitor database pool usage, query latency, API errors, Redis failures, job queue latency, and worker failures. The repository includes bounded maintenance for event and job retention; verify the chosen retention values fit the features you use.
 
 ## Verification
 
-Run these checks against the release artifact:
+Run the main suites and frontend build as described in [setup verification](SETUP_GUIDE.md#verification). From `backend`, the available live-service tools include:
 
 ```powershell
-npm test
 npm run verify:scalability
-npm run db:migrate
+npm run test:load
 ```
 
-From `frontend`, run `npm run build`. Use `backend/scripts/loadSmoke.js` against staging and raise concurrency gradually while watching PostgreSQL, Redis, queue, and application metrics.
+Inspect the scripts' inputs before running them against an isolated staging instance. Record workload, concurrency, dataset size, process counts, service limits, and latency/error measurements. A script passing at one workload is not proof of a general capacity claim.
+
+## Cache behavior
+
+Public page caches use a configurable Redis TTL and owner-scoped invalidation helpers. Authenticated responses are private. A CDN is a separate cache: origin invalidation does not clear its copies. Consult the [deployment guide](../DEPLOYMENT.md#cache-and-scaling) before enabling edge caching.

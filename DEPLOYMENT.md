@@ -1,277 +1,76 @@
-# Deployment
+# ProjectFolio deployment
 
-## Supabase Auth — one-time dashboard setup
+This is the entry point for deploying the current Supabase Auth version. The project has been tested locally and is not currently publicly deployed. The instructions are a deployment procedure, not evidence that a production rollout or capacity test has passed.
 
-Do all of this **before** deploying the code that expects it. Steps 1–5 are safe to
-perform ahead of time: they change nothing for the currently-deployed login system.
+## Services
 
-Replace `<project-ref>` with your Supabase project ref (currently
-`dhzhtigowbvlmcrwvwix`), `<app-domain>` with the production frontend origin, and
-`<api-domain>` with the production API origin.
+- A built React frontend.
+- A persistent Node.js API process.
+- A separate worker process for BullMQ jobs.
+- PostgreSQL and Auth from the same Supabase project.
+- Redis, required by the API in production.
+- Cloudinary, SMTP, and AI providers for whichever optional features you enable.
+- A dedicated custom-site sandbox hostname when exposing executable custom sites.
 
-### 1. Email provider
+Use a platform that supports the API/worker runtime and the browser dependencies used by PDF and agent verification. Do not assume that a static host or a free tier supplies those capabilities.
 
-Authentication → Providers → **Email**
+## Configuration
 
-- Enable email provider: **ON**
-- Confirm email: **ON**
-- Minimum password length: **8** (matches the app's client-side check)
+Start with the [local setup](docs/SETUP_GUIDE.md) and the two `.env.example` files. Production requires these backend values at startup:
 
-Authentication → Emails → **SMTP Settings**
-
-- Configure custom SMTP. Supabase's built-in sender is rate-limited to a few
-  messages per hour and is not usable for real signups. You can reuse the same
-  credentials as `EMAIL_HOST` / `EMAIL_USER` / `EMAIL_PASSWORD` in the backend env.
-
-### 2. URL configuration
-
-Authentication → **URL Configuration**
-
-- Site URL: `https://<app-domain>`
-- Redirect URLs — add every one of these:
-  - `https://<app-domain>/auth/callback`
-  - `http://localhost:3000/auth/callback`
-  - `http://localhost:5173/auth/callback`
-
-Every `redirectTo` the app sends is `<origin>/auth/callback` — used by OAuth, the
-email-confirmation link, and the password-recovery link. A missing entry here makes
-OAuth fail with `redirect_to is not allowed` **after** the user has already
-authorized at the provider, which is the most confusing failure mode in this
-migration.
-
-### 3. Social providers
-
-Authentication → Providers. For each of Google, GitHub, and LinkedIn (OIDC), enable
-it and paste the client ID/secret from the app's existing OAuth apps (previously
-`GOOGLE_CLIENT_ID`, `GITHUB_CLIENT_ID`, `LINKEDIN_CLIENT_ID` in the backend `.env`).
-
-Then, in each provider's own console, add the Supabase callback to the allowed
-redirect URIs — **in addition to**, not instead of, the app's existing callback, so
-a rollback still works:
-
-| Provider | Console | Add this redirect URI |
-|---|---|---|
-| Google | console.cloud.google.com → Credentials → OAuth 2.0 Client | `https://<project-ref>.supabase.co/auth/v1/callback` |
-| GitHub | github.com/settings/developers → OAuth Apps | `https://<project-ref>.supabase.co/auth/v1/callback` |
-| LinkedIn | linkedin.com/developers → App → Auth | `https://<project-ref>.supabase.co/auth/v1/callback` |
-
-LinkedIn must have the **Sign In with LinkedIn using OpenID Connect** product
-enabled, with the `openid`, `profile`, and `email` scopes. Supabase's slug for it is
-`linkedin_oidc`.
-
-### 4. Environment variables
-
-Backend deployment:
-
-```
-SUPABASE_URL=https://<project-ref>.supabase.co
+```dotenv
+NODE_ENV=production
+DATABASE_URL=<Supabase database connection>
+SUPABASE_URL=<Supabase project URL>
 SUPABASE_ANON_KEY=<publishable or anon key>
-SUPABASE_SERVICE_ROLE_KEY=<service role key>
-ANALYTICS_VISITOR_SECRET=<independent random secret>
+SUPABASE_SERVICE_ROLE_KEY=<server-only service-role key>
+REDIS_URL=<Redis connection>
+METRICS_TOKEN=<private random value>
+ANALYTICS_VISITOR_SECRET=<separate private random value>
+FRONTEND_URL=https://<frontend-host>
+APP_URL=https://<api-host>
+MIGRATION_WARNINGS_FATAL=true
 ```
 
-Frontend build:
+`DATABASE_URL`, media, SMTP, and AI credentials must also work for the features being exercised even when they are not all checked by the startup guard. Add `CORS_ORIGINS` for additional frontend origins if needed.
 
-```
-VITE_SUPABASE_URL=https://<project-ref>.supabase.co
+The API verifies Supabase-issued access tokens. Do not introduce legacy `JWT_SECRET` or `SESSION_SECRET` values as new deployment requirements. Redis backs distributed limits, quotas, cache, and jobs; it does not store application login sessions.
+
+Set the frontend's build-time environment:
+
+```dotenv
+VITE_SUPABASE_URL=<same Supabase project URL>
 VITE_SUPABASE_ANON_KEY=<publishable or anon key>
+VITE_API_URL=https://<api-host>/api
 ```
 
-Both keys are under Project Settings → API. The **publishable/anon** key is public
-and ships in the JS bundle; the **service role** key is server-side only and bypasses
-RLS. `ANALYTICS_VISITOR_SECRET` is now a hard production boot requirement — it used
-to fall back to `JWT_SECRET`, which no longer exists.
+If your production reverse proxy serves `/api` from the frontend origin, use `VITE_API_URL=/api` instead. Vite's development proxy does not configure a production static host. Rebuild after changing a `VITE_*` value.
 
-You may leave `JWT_SECRET` / `SESSION_SECRET` set during the rollback window. Nothing
-reads them, and keeping them means a code revert boots without an env change.
+Configure the real frontend Site URL and `/auth/callback` redirect in Supabase. Configure optional OAuth providers there and in their provider consoles. See the [official redirect guide](https://supabase.com/docs/guides/auth/redirect-urls).
 
-### 5. Verify the project's JWT signing mode
+## Release sequence
 
-```bash
-curl -s https://<project-ref>.supabase.co/auth/v1/.well-known/jwks.json
-```
+1. Install backend and frontend dependencies from the lockfiles using `npm ci` in each directory.
+2. Apply shipped migrations once as a release step using `npm run db:migrate` from `backend`, over a direct or session-capable connection with appropriate permissions. Review an existing populated database's migration path before upgrading it.
+3. Resolve migration ownership warnings before enabling public traffic. `npm run db:retry-warnings` uses `MIGRATION_DATABASE_URL` when owner credentials are required.
+4. Start the API with `npm start` from `backend`.
+5. Start the worker with `npm run worker` from `backend`, using the same application database and Redis. The worker sets its process role internally.
+6. Build the frontend with `npm run build` from `frontend` and publish the resulting `frontend/dist` directory. Configure SPA route fallback to `index.html` so direct links work.
+7. Configure load-balancer readiness using `/health/ready`, not just `/health/live`. Require a healthy schema and both Auth triggers; confirm the migration warning table is clear.
+8. Verify signup, email confirmation if enabled, login, logout, project editing, publishing, and public/private access behavior in staging. Exercise optional features separately with their provider configuration.
 
-This must return a JSON object with a **non-empty** `keys` array. If it returns
-`{"keys":[]}` the project is still on legacy HS256 signing, and
-`backend/utils/supabaseJwt.js` (JWKS-only by design) will reject every token —
-migrate the project to asymmetric keys under Project Settings → JWT Keys first.
+The current migration sequence ends at `012_supabase_auth_import.sql`. A cleanup migration numbered 013 is not included. Do not run an invented filename or remove dependencies based on an old plan.
 
----
+## Custom sites
 
-## Cutover
+Before enabling executable custom sites for untrusted users, follow [the custom-site sandbox guide](docs/CUSTOM_SITE_SANDBOX.md). Set both `CUSTOM_SITE_SANDBOX_ORIGIN` and `VITE_CUSTOM_SITE_ORIGIN`, configure DNS/TLS/routing, and verify the deployed containment behavior in staging. An unset origin falls back to development behavior; it is not an acceptable production rollout for that feature.
 
-### 6. Apply the migrations
+## Cache and scaling
 
-```bash
-cd backend
-npm run db:migrate
-```
+Redis invalidation does not purge a separate CDN. The public response headers use `s-maxage=60` and `stale-while-revalidate=300`; an edge may serve stale content for roughly six minutes. Account for that behavior before caching public pages at a CDN.
 
-Expected: `Migration applied` for `011_supabase_auth_trigger.sql` (the profile
-provisioning + email sync triggers) and `012_supabase_auth_import.sql` (the identity
-import plus the `users.id → auth.users(id)` foreign key).
+See [operating notes](docs/SCALABILITY_DEPLOYMENT.md). User-count estimates in historical design documents are not measured capacity. Establish capacity using the load scripts against a staging environment and record the configuration and results.
 
-The deploy role must be `postgres`, which holds `TRIGGER`, `INSERT`, and `REFERENCES`
-on `auth.users`. If `012` fails with `permission denied` (`42501`), apply `011` and
-`012` through the Supabase SQL editor instead, then insert their filenames and
-checksums into `schema_migrations` manually so the runner does not retry them.
+## Historical authentication migration
 
-`012` is transactional and idempotent. The foreign key at the end is the verification
-step: if any profile failed to import, `ADD CONSTRAINT` fails and the whole migration
-rolls back rather than leaving a half-migrated database.
-
-### Before putting a CDN in front: understand the staleness window
-
-The public portfolio, project, and team responses are served with
-`Cache-Control: public, max-age=0, s-maxage=60, stale-while-revalidate=300`.
-Those directives do nothing today because no CDN sits in front of the API. The
-moment one does, they take effect and change the staleness maths.
-
-The backend invalidates its **Redis** cache precisely — editing a project clears
-that owner's portfolio and project keys plus any team page the project appears
-on. It has no way to purge a CDN edge. So once an edge cache exists:
-
-- an edge node may serve a cached copy for up to 60s (`s-maxage`), and
-- may keep serving a stale copy for a further 300s while it revalidates
-  (`stale-while-revalidate`)
-
-meaning a change can take roughly **6 minutes** to be visible to everyone,
-regardless of how precisely the origin invalidated. Publishing or unpublishing a
-project is subject to the same window.
-
-If that window is unacceptable, the options are: lower `s-maxage` and
-`stale-while-revalidate`, or wire the invalidation paths to also call the CDN's
-purge API. Do not assume origin invalidation alone is sufficient.
-
-### Pre-cutover: confirm migrations applied cleanly
-
-Some migrations use `CREATE INDEX CONCURRENTLY`, which can fail with a Postgres
-ownership error (`42501`) under a non-owner role. That failure is recorded in
-`schema_migration_warnings` rather than failing the deploy, so it is silent.
-
-`idx_discover_events_user_type_created` (migration 006) is the covering index that
-keeps the Discover recommendation query cheap. If it is missing, Discover degrades
-badly under load.
-
-Before sending production traffic, confirm both:
-
-1. `GET /health/ready` reports `ready`, not `ready_with_warnings`
-2. `SELECT COUNT(*) FROM schema_migration_warnings;` returns 0
-
-If either check fails, run `npm run db:retry-warnings` with an owner-level
-`MIGRATION_DATABASE_URL` and re-check.
-
-### 7. Verify the import
-
-```sql
-SELECT
-  (SELECT count(*) FROM public.users)                                  AS profiles,
-  (SELECT count(*) FROM auth.users)                                    AS auth_users,
-  (SELECT count(*) FROM public.users u
-     LEFT JOIN auth.users a ON a.id = u.id WHERE a.id IS NULL)         AS unimported,
-  (SELECT count(*) FROM auth.users WHERE email_confirmed_at IS NULL)   AS unconfirmed,
-  (SELECT count(*) FROM auth.users
-     WHERE confirmation_token IS NULL OR recovery_token IS NULL
-        OR email_change IS NULL OR email_change_token_new IS NULL
-        OR email_change_token_current IS NULL OR phone_change IS NULL
-        OR phone_change_token IS NULL OR reauthentication_token IS NULL) AS null_string_rows,
-  (SELECT count(*) FROM auth.identities WHERE provider = 'email')      AS email_identities,
-  (SELECT count(*) FROM auth.identities WHERE provider <> 'email')     AS social_identities,
-  (SELECT count(*) FROM pg_trigger
-     WHERE tgname IN ('on_auth_user_created','on_auth_user_email_sync')) AS triggers,
-  (SELECT count(*) FROM pg_constraint WHERE conname = 'users_id_fkey') AS fk;
-```
-
-Required, against the pre-migration counts recorded on 2026-07-24:
-
-- `profiles = auth_users = 79`
-- `unimported = 0`
-- `unconfirmed = 0`
-- **`null_string_rows = 0`** — anything else means logins will 500. `auth.users` has
-  eight columns that are nullable in the DDL but which GoTrue scans into
-  non-nullable Go strings. Fix with
-  `UPDATE auth.users SET confirmation_token = COALESCE(confirmation_token,''), …`
-  for all eight before continuing.
-- `email_identities = 78`, `social_identities = 4`
-- `triggers = 2`, `fk = 1`
-
-### 8. Deploy backend and frontend together
-
-They must ship in the same window. The backend stops accepting legacy JWTs and the
-frontend stops issuing them; either one alone signs everybody out with no way back
-in. All logged-in users are signed out once. Passwords are preserved, so re-login is
-seamless.
-
-```bash
-curl -s https://<api-domain>/health/ready
-```
-
-Expected: `"status":"ready"` (or `ready_with_warnings`) **and** `"auth_triggers":2`.
-A 503 mentioning missing triggers means step 6 did not take.
-
-### 9. Verify the live flows
-
-1. **Migrated user, original password** — sign in with a pre-existing account using
-   the password it had before the migration. Should land on `/dashboard`, and
-   `GET /api/auth/me` should return the same `id` and `username` as before. *This is
-   the single most important check in the migration.*
-2. **Wrong password** — stays on `/login`, error shown, no session.
-3. **New signup** — register a fresh address, see the "Check your email" state,
-   confirm the address, sign in, `/dashboard` loads.
-4. **Profile provisioning** — for that new user, `public.users` has exactly one row
-   with the new `auth.users` id, `username` is a sane lowercase slug (not an
-   uppercase-stripped mangling), and a `portfolio_settings` row exists.
-5. **Unconfirmed account is refused** — register a second address, do not confirm,
-   attempt sign-in, expect Supabase's "Email not confirmed".
-6. **Bad token is refused** —
-   `curl -H "Authorization: Bearer not-a-token" https://<api-domain>/api/auth/me`
-   returns 401 `AUTH_REQUIRED`.
-7. **Sign out** — an authed page redirects to `/login` and the Supabase session key
-   is gone from `localStorage`.
-8. **Password reset** — `/forgot-password` → email → link → `/reset-password` → set
-   a new password → signed in.
-9. **Each provider button** navigates to that provider's real authorization host
-   (`accounts.google.com`, `www.linkedin.com`, `github.com`) with a `redirect_uri`
-   pointing at `https://<project-ref>.supabase.co/auth/v1/callback`.
-10. **Real provider round-trip** (manual — completing a real credential flow is not
-    reliably automatable and is against provider automation policy). For each of
-    Google, LinkedIn, and GitHub: click the button, complete the real consent
-    screen, confirm you land on `/dashboard` signed in.
-11. **Identity re-linking** (manual, and the check that proves the import worked) —
-    sign in with Google using the account behind one of the two pre-existing
-    `google_id` rows. It must land on the **existing** profile: same username, same
-    projects. Repeat for one `linkedin_id` row. A brand-new empty profile here means
-    the `auth.identities` import did not match, and you should roll back rather than
-    proceed to the cleanup migration.
-
-### 10. Soak, then clean up
-
-Leave the system on the retained legacy columns for at least one full business day of
-real traffic, then apply the destructive cleanup:
-
-```bash
-cd backend
-npm run db:migrate    # applies 013_supabase_auth_cleanup.sql
-npm uninstall bcryptjs
-```
-
-`013` drops `auth_refresh_tokens`, `users.password_hash`, and `users.token_version`.
-`google_id` / `github_id` / `linkedin_id` are deliberately kept as the audit trail for
-the import.
-
----
-
-## Rollback
-
-**Before the cleanup migration:** revert the code deploy on both backend and
-frontend. `password_hash`, `token_version`, and `auth_refresh_tokens` are all still
-present, `JWT_SECRET`/`SESSION_SECRET` are still set, and the provider consoles still
-list the app's own callback URLs, so the old system comes back intact. The
-`auth.users` rows and the `users_id_fkey` constraint are harmless to leave in place —
-nothing in the old code path reads them. Users are signed out once and log back in
-with the same passwords.
-
-**After the cleanup migration:** rollback requires restoring `public.users` from a
-Supabase backup (Database → Backups) to recover `password_hash` and `token_version`,
-plus recreating `auth_refresh_tokens` from `001_scalability_schema.sql`. Treat this as
-a real incident, not a redeploy — which is the reason for the soak period.
+The [legacy Auth migration runbook](docs/Legacy/AUTH_MIGRATION_RUNBOOK.md) records a specific earlier cutover and rollback procedure. It is not the fresh-install guide. Verify every step against the target database before reusing it.
