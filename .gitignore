@@ -35,3 +35,9 @@ graphify-out/
 scratchpad/
 desktop.ini
 /*.png
+.claude/tdd-guard/data/
+backend/node_modules
+
+# Ignore local Claude development data and worktrees
+.claude/
+.mcp.json

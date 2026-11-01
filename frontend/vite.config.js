@@ -1,14 +1,20 @@
 import { fileURLToPath } from "url"
 import path from "path"
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-const apiProxyTarget = process.env.VITE_API_PROXY_TARGET || 'http://localhost:5000';
+export default defineConfig(({ mode }) => {
+  // Read through loadEnv, not process.env: inside this config file process.env
+  // only ever sees shell variables, so a value set in frontend/.env would be
+  // silently ignored. loadEnv reads .env files *and* shell vars, so either works.
+  const env = loadEnv(mode, __dirname, '');
+  const apiProxyTarget = env.VITE_API_PROXY_TARGET || 'http://localhost:5000';
+  const tunnelHost = env.VITE_TUNNEL_HOST;
 
-export default defineConfig({
+  return {
   plugins: [react()],
   resolve: {
     alias: {
@@ -48,11 +54,31 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    // Vite refuses any request whose Host header isn't localhost or an IP (a
+    // DNS-rebinding guard). A tunnel forwards its own hostname, so without this
+    // ngrok returns "Blocked request. This host is not allowed."
+    allowedHosts: [
+      '.ngrok-free.app',
+      '.ngrok-free.dev',
+      '.ngrok.app',
+      '.ngrok.io',
+      '.trycloudflare.com',
+    ],
+    // Over a tunnel the page is https on :443, but HMR would still dial the
+    // local port and fail. Only override when actually tunnelling, so plain
+    // localhost dev is untouched. Set VITE_TUNNEL_HOST to your tunnel hostname.
+    ...(tunnelHost
+      ? { hmr: { host: tunnelHost, protocol: 'wss', clientPort: 443 } }
+      : {}),
     proxy: {
+      // The SPA calls a relative /api (see src/utils/api.js), so this proxy is
+      // what lets a single tunnel on :3000 serve the API too — no second tunnel
+      // and no CORS, because the browser only ever sees one origin.
       '/api': {
         target: apiProxyTarget,
         changeOrigin: true,
       },
     },
-  },
+    },
+  };
 })
