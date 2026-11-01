@@ -4,6 +4,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
+Current setup: `docs/SETUP_GUIDE.md`. Deployment entry point: `DEPLOYMENT.md`. Files in `docs/Legacy/` and `docs/superpowers/` preserve historical work and are not authoritative setup or release checklists.
+
 ProjectFolio is a portfolio platform for engineering/science students: a block editor for project pages, public portfolio URLs, PDF/JSON export, a "Discover" social feed, team profiles, and an AI agent that can redesign a user's public site. Frontend and backend are separate npm projects (`frontend/`, `backend/`) with no root-level package manifest tying them together — always `cd` into the relevant one before running scripts.
 
 ## Commands
@@ -14,7 +16,7 @@ ProjectFolio is a portfolio platform for engineering/science students: a block e
 - `npm run worker` — start the BullMQ background job worker (separate process from the API)
 - `npm run db:migrate` — apply pending SQL migrations from `migrations/` (idempotent, advisory-locked)
 - `npm run db:retry-warnings` — re-run migration statements that failed earlier due to ownership issues (requires `MIGRATION_DATABASE_URL` for an owner-level Postgres URL)
-- `npm run db:seed` / `npm run db:seed:test-portfolio` — seed data
+- `npm run db:seed:test-portfolio` — legacy demo-data writer; not a supported Supabase account provisioning path. Use application signup for a working test account.
 - `npm test` — runs the full Node test suite (`node --test`) against a fixed list of files in `test/`
 - To run a single test file: `node --test test/siteAgent.test.js` (swap in any file under `backend/test/`)
 - `npm run test:agent-browser` — Puppeteer-based browser verification tests (separate from `npm test`)
@@ -36,7 +38,7 @@ The `@` import alias resolves to `frontend/src/` (configured in both `vite.confi
 ### Two independently deployed processes + a worker
 `backend/server.js` is the Express API. `backend/worker.js` is a standalone BullMQ worker process (`npm run worker`) that consumes the same Postgres/Redis as the API but is deployed separately — it also runs periodic maintenance (analytics partition creation, revision/job retention cleanup, trending-score recalculation) on an internal timer, not via cron. Jobs are enqueued via `jobs/service.js` and executed by `jobs/processors.js`. Route handlers that need long-running work (e.g. AI/browser verification) enqueue a job rather than doing it inline.
 
-Redis is optional in development but **required in production** — the server refuses to boot in production without `REDIS_URL`, and without distinct `JWT_SECRET`/`SESSION_SECRET`/`METRICS_TOKEN`. Redis backs rate limiting (`rate-limit-redis`), user quotas, the public-page cache, the auth-profile cache, analytics dedupe, and the job queue. It does **not** back sessions — auth is stateless Supabase JWT, and `test/supabaseAuthWiring.test.js` asserts `express-session`/`connect-redis` stay absent.
+Redis is optional in development but **required in production** — the server refuses to boot in production without `REDIS_URL`, and without `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `METRICS_TOKEN`, and `ANALYTICS_VISITOR_SECRET`. Redis backs rate limiting (`rate-limit-redis`), user quotas, the public-page cache, the auth-profile cache, analytics dedupe, and the job queue. It does **not** back sessions — auth is stateless Supabase JWT, and `test/supabaseAuthWiring.test.js` asserts `express-session`/`connect-redis` stay absent.
 
 ### Auth model
 Supabase Auth (GoTrue) is the sole identity provider and token issuer for email/password and the Google / GitHub / LinkedIn (`linkedin_oidc`) social logins. The SPA talks to GoTrue directly through `@supabase/supabase-js` (`frontend/src/lib/supabase.js`), which owns session persistence and refresh, and sends the resulting access token to the API as a bearer token.

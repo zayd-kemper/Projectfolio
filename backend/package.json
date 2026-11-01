@@ -8,7 +8,6 @@
     "dev": "nodemon server.js",
     "db:migrate": "node config/runMigrations.js",
     "db:retry-warnings": "node scripts/retryMigrationWarnings.js",
-    "db:seed": "node config/seed.js",
     "db:seed:test-portfolio": "node scripts/seedTestPortfolio.js",
     "worker": "node worker.js",
     "verify:scalability": "node scripts/verifyScalability.js",

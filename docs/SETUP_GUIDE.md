@@ -1,617 +1,186 @@
-# ProjectFolio — Complete Setup & Implementation Guide
+# ProjectFolio local setup
 
-> Written for someone completely new to web development. Every step is explained.  
-> Estimated setup time: **1–2 hours** for a local working version.
+This guide describes the current Supabase Auth implementation. It replaces the former setup based on application-issued JWTs. Commands below use PowerShell and assume a fresh development environment, not a migration of an existing live database.
 
----
+## Prerequisites
 
-## Table of Contents
+- Node.js 22.13 or newer within the 22.x release line, or Node.js 24+, with npm. The locked jsdom dependency sets this minimum for frontend tests.
+- Git and a local checkout of this repository.
+- A Supabase development project, providing PostgreSQL and Supabase Auth together.
+- Optional: Redis for queued jobs and shared cache/rate-limit behavior, Cloudinary for uploads, and an AI-provider key for AI features.
 
-1. [What you're building](#what-youre-building)
-2. [What you need to install first](#what-you-need-to-install-first)
-3. [Step 1 — Set up the database (PostgreSQL)](#step-1--set-up-the-database)
-4. [Step 2 — Set up Cloudinary (free image/video storage)](#step-2--set-up-cloudinary)
-5. [Step 3 — Configure and run the backend](#step-3--configure-and-run-the-backend)
-6. [Step 4 — Run the frontend](#step-4--run-the-frontend)
-7. [Step 5 — Create your first portfolio](#step-5--create-your-first-portfolio)
-8. [Step 6 — Integrate with Zintellect and other platforms](#step-6--integrate-with-job-platforms)
-9. [Deploying to the internet (going live)](#deploying-to-the-internet)
-10. [Troubleshooting common errors](#troubleshooting)
-11. [File structure reference](#file-structure-reference)
-12. [API reference](#api-reference)
+The migrations reference `auth.users` and `auth.identities`. Installing PostgreSQL alone does not create those Supabase Auth schemas. Use a dedicated development project so test accounts and migrations do not affect another application.
 
----
+## Install dependencies
 
-## What you're building
+Open PowerShell at the repository root:
 
-ProjectFolio is a **full-stack web application** — a real product with:
-
-- A **React frontend** (what users see in the browser)
-- A **Node.js/Express backend** (the server that handles logins, saving data, etc.)
-- A **PostgreSQL database** (stores users, projects, blocks)
-- **Cloudinary** (stores uploaded images and videos)
-
-When you run it locally, you'll have:
-- Your app at `http://localhost:3000`
-- Your API at `http://localhost:5000`
-- Your portfolio at `http://localhost:3000/your-username`
-
----
-
-## What you need to install first
-
-### 1. Node.js
-Node.js is the runtime that lets you run JavaScript on a server (not just in a browser).
-
-1. Go to [nodejs.org](https://nodejs.org)
-2. Download the **LTS version** (the one that says "Recommended For Most Users")
-3. Run the installer — click through all the defaults
-4. Verify it worked: open a Terminal (Mac) or Command Prompt (Windows) and type:
-   ```
-   node --version
-   ```
-   You should see something like `v20.10.0`. If you do, it worked.
-
-### 2. PostgreSQL (your database)
-PostgreSQL is a free, powerful database system.
-
-**On Mac:**
-1. Go to [postgresapp.com](https://postgresapp.com)
-2. Download and install Postgres.app
-3. Open it — a small elephant icon appears in your menu bar
-4. Click "Initialize" to create your first database cluster
-5. Click "Start" to start the database server
-
-**On Windows:**
-1. Go to [postgresql.org/download/windows](https://www.postgresql.org/download/windows/)
-2. Download the installer from EnterpriseDB
-3. Run it — during setup, **write down the password you set** for the `postgres` user. You'll need this.
-4. Keep the default port (5432)
-
-**On Linux (Ubuntu/Debian):**
-```bash
-sudo apt update
-sudo apt install postgresql postgresql-contrib
-sudo systemctl start postgresql
+```powershell
+node --version
+npm --version
+npm --prefix backend ci
+npm --prefix frontend ci
 ```
 
-### 3. Git (optional but recommended)
-Git lets you save versions of your code.
-- Mac: Run `xcode-select --install` in Terminal
-- Windows: Download from [git-scm.com](https://git-scm.com)
+If Puppeteer's browser download fails, resolve that install error before trying browser/PDF checks. A successful dependency installation does not prove that the external services are configured.
 
----
+## Configure Supabase
 
-## Step 1 — Set up the database
+1. In your Supabase project, obtain the project URL, publishable/anon key, service-role key, and PostgreSQL connection string. The frontend and backend must use the same project.
+2. Use a direct or session-pooler database connection for migrations. The migration runner holds a session advisory lock; transaction pooling is unsuitable for that workflow. Preserve the connection's required SSL options.
+3. Configure Auth for email/password signup. Set the development Site URL to `http://localhost:3000` and allow `http://localhost:3000/auth/callback` as a redirect URL.
+4. This repository's token verifier accepts ES256 keys from the project's JWKS endpoint. Configure a compatible asymmetric signing key. A legacy HS256-only project will not work with this verifier.
+5. Decide whether your development project requires email confirmation. If enabled, complete confirmation before attempting password login. Email delivery limits or SMTP configuration can affect that flow.
+6. Google, GitHub, and LinkedIn sign-in are optional. Configure each provider in Supabase and its provider console before testing its button. Use the callback URL supplied by Supabase, not a former Express OAuth route.
 
-### Open your database terminal
+Use these official references for current dashboard labels and provider details:
 
-**Mac (Postgres.app):**
-Click the elephant icon in your menu bar → Open psql
+- [Database connections](https://supabase.com/docs/guides/database/connecting-to-postgres)
+- [Auth redirect URLs](https://supabase.com/docs/guides/auth/redirect-urls)
+- [JWT signing keys](https://supabase.com/docs/guides/auth/signing-keys)
 
-**Windows:**
-Search for "pgAdmin" in your Start menu, or open "SQL Shell (psql)"
+## Create environment files
 
-**Linux:**
-```bash
-sudo -u postgres psql
+From the repository root, copy each example if the destination does not already exist:
+
+```powershell
+if (-not (Test-Path -LiteralPath backend/.env)) {
+    Copy-Item -LiteralPath backend/.env.example -Destination backend/.env
+}
+if (-not (Test-Path -LiteralPath frontend/.env)) {
+    Copy-Item -LiteralPath frontend/.env.example -Destination frontend/.env
+}
+notepad backend/.env
+notepad frontend/.env
 ```
 
-### Create the database
+Fill in the files before starting the application. Do not replace an existing environment file with these example values.
 
-Type these commands in the psql prompt (press Enter after each):
+### Backend
 
-```sql
-CREATE DATABASE projectfolio;
-CREATE USER projectfolio_user WITH PASSWORD 'choose_a_password_here';
-GRANT ALL PRIVILEGES ON DATABASE projectfolio TO projectfolio_user;
-\q
-```
+Set these values in `backend/.env` using your development project's actual credentials:
 
-> **Write down** the password you chose. You'll need it in Step 3.
-
----
-
-## Step 2 — Set up Cloudinary
-
-Cloudinary is where your uploaded images and videos are stored. It's free up to 25GB.
-
-1. Go to [cloudinary.com](https://cloudinary.com) and click **Sign Up Free**
-2. Fill in the form (use your personal email)
-3. After logging in, go to your **Dashboard**
-4. You'll see three values — write these down:
-   - **Cloud Name** (looks like: `dxy1abcde`)
-   - **API Key** (a long number like: `123456789012345`)
-   - **API Secret** (a long string like: `abcDEFghiJKLmno123`)
-
-You'll paste these into your `.env` file in Step 3.
-
----
-
-## Step 3 — Configure and run the backend
-
-### Open a Terminal / Command Prompt
-
-**Mac:** Press `Cmd + Space`, type "Terminal", press Enter  
-**Windows:** Press `Windows + R`, type `cmd`, press Enter  
-**VS Code (recommended):** Open VS Code → Terminal → New Terminal
-
-### Navigate to the backend folder
-
-```bash
-cd path/to/projectfolio/backend
-```
-
-> Replace `path/to/projectfolio` with the actual path to where your files are.  
-> Example on Mac: `cd ~/Downloads/projectfolio/backend`  
-> Example on Windows: `cd C:\Users\YourName\Downloads\projectfolio\backend`
-
-### Install dependencies
-
-```bash
-npm install
-```
-
-This downloads all the code libraries the backend needs. It may take 1–2 minutes. You'll see a progress bar. When it finishes you'll see your command prompt again.
-
-### Create your environment file
-
-The `.env` file stores secret settings (passwords, API keys). It is **never shared** or uploaded to GitHub.
-
-```bash
-# Mac/Linux:
-cp .env.example .env
-
-# Windows:
-copy .env.example .env
-```
-
-Now open the `.env` file in a text editor (Notepad on Windows, TextEdit on Mac, or VS Code):
-
-```bash
-# If you have VS Code:
-code .env
-```
-
-Fill in each value:
-
-```env
-PORT=5000
+```dotenv
 NODE_ENV=development
-
-# Paste your PostgreSQL details here:
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=projectfolio
-DB_USER=projectfolio_user
-DB_PASSWORD=choose_a_password_here   ← the password you made in Step 1
-
-# Make this a long random string (just mash your keyboard):
-JWT_SECRET=xJ8kP2mQnR5tVwYzA9bCdEfGhIjKlMnOpQrStUvWx
-
-# Paste your Cloudinary values from Step 2:
-CLOUDINARY_CLOUD_NAME=dxy1abcde
-CLOUDINARY_API_KEY=123456789012345
-CLOUDINARY_API_SECRET=abcDEFghiJKLmno123
-
-# Where your frontend runs:
+PORT=5000
+DATABASE_URL=<Supabase PostgreSQL connection string>
+SUPABASE_URL=<Supabase project URL>
+SUPABASE_ANON_KEY=<publishable or anon key>
+SUPABASE_SERVICE_ROLE_KEY=<server-only service-role key>
 FRONTEND_URL=http://localhost:3000
 APP_URL=http://localhost:5000
+REDIS_URL=
 ```
 
-> **AI provider setup (optional for Site Agent):** Groq is the default provider. OpenRouter is optional and should only be enabled when you want to test the Qwen, GPT-OSS, Nemotron, Laguna, or Nex model choices.
->
-> ```env
-> # Groq
-> GROQ_API_KEY=your_groq_api_key
-> GROQ_PROVIDER_TIMEOUT_MS=75000
->
-> # NVIDIA GPT-OSS
-> ENABLE_NVIDIA_MODELS=false
-> NVIDIA_API_KEY=your_nvidia_api_key
-> NVIDIA_BASE_URL=https://integrate.api.nvidia.com/v1
-> NVIDIA_PROVIDER_TIMEOUT_MS=150000
-> NVIDIA_GPT_OSS_TIMEOUT_MS=150000
-> NVIDIA_GPT_OSS_20B_MODEL=openai/gpt-oss-20b
-> NVIDIA_GPT_OSS_JSON_MODE=false
->
-> # OpenRouter
-> ENABLE_OPENROUTER_MODELS=false
-> OPENROUTER_API_KEY=your_openrouter_api_key
-> OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
-> OPENROUTER_PROVIDER_TIMEOUT_MS=150000
-> OPENROUTER_NEX_TIMEOUT_MS=220000
-> OPENROUTER_QWEN_CODER_MODEL=qwen/qwen3-coder
-> OPENROUTER_NEMOTRON_SUPER_MODEL=nvidia/nemotron-3-super-120b-a12b
-> OPENROUTER_POOLSIDE_LAGUNA_MODEL=poolside/laguna-m.1
-> OPENROUTER_QWEN_JSON_MODE=false
-> OPENROUTER_NEMOTRON_JSON_MODE=false
-> OPENROUTER_LAGUNA_JSON_MODE=false
-> ```
->
-> Leave provider JSON mode flags off unless you have confirmed that the selected endpoint supports `json_object`. Site Agent browser-verification failures are discarded by default instead of creating unusable review bundles; set `AGENT_KEEP_FAILED_REVIEW_BUNDLES=true` only if you want to inspect those failed bundles.
->
-> Site Agent requests can exceed the normal browser request timeout because model generation and browser verification both run before a response is returned. Put this in `frontend/.env`:
->
-> ```env
-> VITE_AGENT_API_TIMEOUT_MS=300000
-> ```
+The angle-bracket values above are placeholders to replace. The service-role key belongs only on the backend. The current auth system does not require `JWT_SECRET` or `SESSION_SECRET`.
 
-> **Email setup (optional for now):** If you want the outreach email feature to work, you need to fill in the email fields. The easiest way is a Gmail account with an App Password:
-> 1. Go to your Google Account → Security → 2-Step Verification (must be enabled)
-> 2. Then go to Security → App passwords
-> 3. Create an app password for "Mail"
-> 4. Use that 16-character password for `EMAIL_PASSWORD`
+For the simplest local start, leave `REDIS_URL` empty. The copied example defaults it to localhost; remove that value unless Redis is actually running. Without Redis, shared rate limiting and caching are unavailable and new jobs execute within the API process. This mode is for development, not production.
 
-### Run the database migration
+For Redis-backed testing, set `REDIS_URL` to your running Redis instance and start the worker as described below.
 
-This creates all the tables in your database:
+### Frontend
 
-```bash
-node config/migrate.js
+Set these values in `frontend/.env`:
+
+```dotenv
+VITE_SUPABASE_URL=<same Supabase project URL>
+VITE_SUPABASE_ANON_KEY=<same publishable or anon key>
+VITE_API_URL=/api
 ```
 
-You should see:
-```
-✅ Connected to PostgreSQL database
-  ✅ users table created
-  ✅ projects table created
-  ✅ blocks table created
-  ✅ media table created
-  ✅ portfolio_settings table created
-  ✅ portfolio_views table created
-  ✅ integration_requests table created
-  ✅ Indexes created
+The Vite development server proxies `/api` to `http://localhost:5000`. Change `VITE_API_PROXY_TARGET` only if your development API runs elsewhere. Restart Vite after changing environment values.
 
-🎉 Database migration completed successfully!
+## Apply migrations
+
+From the repository root:
+
+```powershell
+Set-Location backend
+npm run db:migrate
 ```
 
-If you see an error, the most common causes are:
-- Wrong password in `.env` → double-check `DB_PASSWORD`
-- Database not running → make sure Postgres.app shows "Running" (Mac) or the service is started (Windows)
+The runner applies the SQL files present in `backend/migrations` and records their checksums. Do not edit applied migrations to fix a running database.
 
-### Start the backend server
+Auth migrations create triggers on Supabase-managed Auth tables and require appropriate database permissions. If a migration fails, stop and inspect the error; do not mark it applied manually to bypass a failure. If you are upgrading an existing populated database rather than starting fresh, consult the [historical auth migration runbook](Legacy/AUTH_MIGRATION_RUNBOOK.md) and review its applicability first.
 
-```bash
+The shipped sequence currently ends at `012_supabase_auth_import.sql`. There is no shipped `013_supabase_auth_cleanup.sql`.
+
+## Start the application
+
+In the backend terminal, after migration succeeds:
+
+```powershell
 npm run dev
 ```
 
-You should see:
-```
-🚀 ProjectFolio API Server
-   Running at: http://localhost:5000
-   Health check: http://localhost:5000/health
-   Environment: development
-✅ Connected to PostgreSQL database
-```
+Open a second PowerShell terminal at the repository root:
 
-**Leave this terminal window open.** The server runs as long as this window is open.
-
-> **Test it:** Open your browser and go to `http://localhost:5000/health`  
-> You should see: `{"status":"ok","timestamp":"...","version":"1.0.0"}`  
-> If you see that, your backend is working! ✅
-
----
-
-## Step 4 — Run the frontend
-
-Open a **second terminal window** (keep the first one running the backend).
-
-```bash
-cd path/to/projectfolio/frontend
-```
-
-Install dependencies:
-
-```bash
-npm install
-```
-
-Start the frontend:
-
-```bash
+```powershell
+Set-Location frontend
 npm run dev
 ```
 
-You should see:
-```
-  VITE v5.0.8  ready in 342 ms
+Open `http://localhost:3000`. The API defaults to port 5000.
 
-  ➜  Local:   http://localhost:3000/
-  ➜  Network: http://192.168.x.x:3000/
-```
+If Redis is enabled, open a third terminal at the repository root:
 
-Open your browser and go to `http://localhost:3000`
-
-You should see the ProjectFolio landing page! 🎉
-
----
-
-## Step 5 — Create your first portfolio
-
-### Register an account
-
-1. Click **"Get started free"** on the landing page
-2. Fill in your name, email, and password
-3. Click **"Create account"**
-
-You'll be taken to your dashboard.
-
-### Set up your profile
-
-1. Click **"Profile"** in the left sidebar
-2. Fill in:
-   - **Headline:** e.g., "Mechanical Engineering @ MIT · Research Intern"
-   - **Bio:** A few sentences about yourself
-   - **Skills:** Type a skill and press Enter (e.g., SolidWorks, Python, MATLAB)
-   - **LinkedIn URL** and **GitHub URL**
-3. Click **"Save profile"**
-
-### Create your first project
-
-1. Click **"+ New Project"** in the dashboard
-2. Type a title (e.g., "Quadcopter Design for Search and Rescue")
-3. Add a tagline (one sentence)
-4. Use the block editor to add content:
-   - Click **"+ Add block"** to add text, images, headings
-   - Drag an image into an Image block to upload it
-   - Add a Code block for any code you wrote
-   - Add a Callout block for key results or insights
-5. Go to the **Settings tab** to add:
-   - A cover image
-   - Technologies used (type + Enter)
-   - Start/end dates
-   - GitHub and live demo links
-6. Click **"Publish"** when ready
-
-### View your public portfolio
-
-Click **"View My Portfolio"** in the sidebar, or go to:
-```
-http://localhost:3000/your-username
+```powershell
+Set-Location backend
+npm run worker
 ```
 
-This is exactly what a recruiter or program officer sees when they visit your link.
+## Check readiness and create a test account
 
----
+In another terminal:
 
-## Step 6 — Integrate with Job Platforms
-
-Go to **Integrations** in your sidebar. You have three tools:
-
-### Option A: Share your URL (simplest — works everywhere)
-
-Your portfolio URL is:
-```
-http://localhost:3000/your-username
+```powershell
+Invoke-RestMethod http://localhost:5000/health/live
+Invoke-RestMethod http://localhost:5000/health/ready
 ```
 
-When deployed (see next section), it becomes something like:
-```
-https://projectfolio.yourname.com/your-username
-```
+Liveness reports whether the API responds. Readiness also checks database schema, required Auth triggers, migration state, and Redis when configured. Resolve a readiness failure before testing features.
 
-**Where to paste it:**
-- **Zintellect / ORISE:** In your personal statement, or any "Additional Materials" or "Portfolio/Website" field
-- **LinkedIn:** Profile → Add profile section → Featured → Links
-- **Your resume:** Add it next to your email address
-- **Email signature:** e.g., `Portfolio: projectfolio.io/janesmith`
-- **Handshake:** Profile → Websites section
+Register through the application and complete email confirmation if required. The Supabase signup triggers create the matching application profile. Then add and publish a project and inspect its public page.
 
-### Option B: Download and attach (for applications without URL fields)
+Do not use the legacy `db:seed:test-portfolio` script as a signup shortcut: it writes legacy application credentials and does not provision a Supabase Auth identity. Creating a test account through the app is the supported path in this guide.
 
-Go to **Integrations → Share & Export → Download PDF**
+## Optional features
 
-This generates a printable HTML file of your entire portfolio that you can:
-- Print to PDF (File → Print → Save as PDF)
-- Attach directly to applications
+| Feature | Additional configuration |
+| --- | --- |
+| Media uploads | Backend `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` |
+| AI tools | A configured provider from `backend/.env.example`; Groq is enabled by default, other providers have explicit enable flags |
+| Share/outreach email | Backend SMTP settings; Supabase Auth email delivery is configured separately |
+| Authenticated agent browser verification | Backend service-role and anon credentials, a real account, and a working browser installation |
+| Executable custom sites in production | A dedicated sandbox origin; see [sandbox deployment](CUSTOM_SITE_SANDBOX.md) |
 
-### Option C: Cold email to platform teams (for Zintellect, etc.)
+## Verification
 
-Go to **Integrations → Platform Outreach**
+From the repository root, in separate invocations:
 
-1. Click on **"Zintellect (ORISE)"**
-2. The system has pre-written a professional outreach email
-3. Verify the contact email: `support@zintellect.com`
-4. Customize the email body if you want
-5. Click **"Send email"**
-
-> **If email isn't configured:** Click "Copy to clipboard" and paste the email into Gmail or Outlook yourself. The content is fully written — you just need to send it.
-
-**What the email does:**  
-It introduces ProjectFolio to the Zintellect team, explains the API, and asks them to consider adding a portfolio link field to their application. It includes your live portfolio as an example.
-
----
-
-## Deploying to the internet
-
-To get a real public URL (so you can actually paste it in applications), you need to deploy your app.
-
-### Recommended: Deploy backend to Railway
-
-Railway is a hosting service that makes this easy. The free tier is enough to start.
-
-1. Go to [railway.app](https://railway.app) and sign up with GitHub
-2. Click **"New Project"** → **"Deploy from GitHub repo"**
-3. Connect your GitHub and push your `backend` folder
-4. Add a PostgreSQL service: **"+ New"** → **"Database"** → **"PostgreSQL"**
-5. Go to your service → **Variables** → Add all your `.env` values
-6. Railway gives you a URL like `your-app.railway.app`
-7. Run the migration: In the Railway console, run `node config/migrate.js`
-
-### Deploy frontend to Vercel
-
-Vercel deploys React apps in under 2 minutes.
-
-1. Go to [vercel.com](https://vercel.com) and sign up with GitHub
-2. Click **"New Project"** → import your `frontend` folder
-3. Add environment variable: `VITE_API_URL=https://your-app.railway.app`
-4. Update `vite.config.js` to proxy to your Railway URL
-5. Click **"Deploy"** — Vercel gives you a URL like `your-app.vercel.app`
-
-### Update your `.env` for production
-
-On Railway, update:
-```env
-FRONTEND_URL=https://your-app.vercel.app
-APP_URL=https://your-app.railway.app
-NODE_ENV=production
+```powershell
+npm --prefix backend test
+npm --prefix frontend test
+npm --prefix frontend run build
 ```
 
-### Alternative: All-in-one with Render
+These are the main automated suites and frontend compilation. They do not replace a manual signup/publish walkthrough. The backend suite uses a fixed file list; adding a test file does not automatically include it in that command.
 
-[render.com](https://render.com) can host both the backend and a PostgreSQL database for free:
-1. Create a Web Service for your backend
-2. Create a PostgreSQL database
-3. Set all environment variables
-4. Set the start command to: `npm start`
+From `backend`, `npm run test:agent-browser` additionally exercises Chromium-based checks. Those tests can skip when Chromium is unavailable: inspect the counts and reasons rather than treating every zero exit as complete browser coverage.
 
----
+Live, load, and sandbox smoke scripts require a running configured instance and their own inputs. Inspect each script's prerequisites before using it. Use an isolated test environment for scripts that write data; this guide does not claim their results have been measured or passed.
 
 ## Troubleshooting
 
-### "Cannot connect to database"
-- Make sure PostgreSQL is running (the elephant icon in Mac's menu bar, or the service in Windows)
-- Double-check your `DB_PASSWORD` in `.env`
-- Make sure the database name is `projectfolio` (lowercase)
+| Symptom | Check |
+| --- | --- |
+| Frontend cannot initialize authentication | Both `VITE_SUPABASE_*` values are set in `frontend/.env`; restart Vite |
+| Login works but API returns 401 | Same Supabase project on both sides, compatible ES256 signing key, valid session |
+| Signup reports a database error | Migration permissions and the provisioning triggers on `auth.users` |
+| Confirmation or OAuth redirects fail | Allowed callback URLs and provider configuration in Supabase |
+| Redis connection errors | Redis is running at `REDIS_URL`, or clear the value for local development |
+| Database connection fails | Correct database password, host/network reachability, supported connection mode, and required SSL settings |
+| API readiness reports warnings | Inspect `schema_migration_warnings`; do not confuse a running process with a healthy schema |
+| Uploads or AI features fail | Corresponding optional provider configuration |
 
-### "npm install" fails with errors
-- Make sure you're in the right folder (`backend` or `frontend`)
-- Try: `npm cache clean --force` then `npm install` again
-- On Windows: run Command Prompt as Administrator
-
-### Frontend shows blank page or "Network Error"
-- Make sure your backend is running (the first terminal window should still show the server logs)
-- Go to `http://localhost:5000/health` — if this doesn't work, your backend isn't running
-- Check the backend terminal for error messages
-
-### Image uploads fail
-- Check your Cloudinary credentials in `.env` — all three values (cloud name, API key, API secret)
-- Make sure there are no extra spaces when pasting the values
-
-### "JWT_SECRET is not defined" error
-- Your `.env` file is missing or in the wrong folder
-- Make sure `.env` is in the `backend` folder (same level as `server.js`)
-
-### Port already in use
-If you see "Error: listen EADDRINUSE :::5000", something is already using port 5000.
-Change `PORT=5001` in your `.env` and restart the server.
-
----
-
-## File structure reference
-
-```
-projectfolio/
-├── backend/
-│   ├── config/
-│   │   ├── database.js        ← Database connection
-│   │   ├── cloudinary.js      ← Image/video upload config
-│   │   └── migrate.js         ← Creates database tables (run once)
-│   ├── middleware/
-│   │   └── auth.js            ← Protects routes that need login
-│   ├── routes/
-│   │   ├── auth.js            ← Register, login, profile
-│   │   ├── projects.js        ← Project + block CRUD
-│   │   ├── portfolio.js       ← Public portfolio pages
-│   │   ├── media.js           ← File uploads
-│   │   ├── export.js          ← PDF and JSON export
-│   │   ├── integrations.js    ← Zintellect outreach, API spec
-│   │   └── settings.js        ← Portfolio appearance settings
-│   ├── .env.example           ← Template for your .env file
-│   ├── package.json           ← Backend dependencies list
-│   └── server.js              ← Main server entry point
-│
-└── frontend/
-    ├── src/
-    │   ├── components/
-    │   │   ├── editor/
-    │   │   │   └── BlockEditor.jsx    ← The Notion-style editor
-    │   │   └── shared/
-    │   │       └── DashboardLayout.jsx ← Sidebar + layout
-    │   ├── hooks/
-    │   │   └── useAuth.jsx     ← Login state management
-    │   ├── pages/
-    │   │   ├── LandingPage.jsx         ← Homepage
-    │   │   ├── LoginPage.jsx           ← Sign in
-    │   │   ├── RegisterPage.jsx        ← Sign up
-    │   │   ├── DashboardPage.jsx       ← Project list
-    │   │   ├── ProjectEditorPage.jsx   ← Create/edit a project
-    │   │   ├── PublicPortfolioPage.jsx ← What recruiters see
-    │   │   ├── PublicProjectPage.jsx   ← Individual project view
-    │   │   ├── IntegrationsPage.jsx    ← Sharing + Zintellect outreach
-    │   │   ├── AnalyticsPage.jsx       ← View counts
-    │   │   ├── ProfileSettingsPage.jsx ← Edit your profile
-    │   │   ├── PortfolioSettingsPage.jsx ← Theme, visibility
-    │   │   └── MediaLibraryPage.jsx    ← All uploaded files
-    │   ├── utils/
-    │   │   └── api.js          ← Axios HTTP client
-    │   ├── styles/
-    │   │   └── globals.css     ← All CSS styles
-    │   └── main.jsx            ← App entry point + routing
-    ├── index.html
-    ├── vite.config.js
-    ├── tailwind.config.js
-    └── package.json
-```
-
----
-
-## API reference
-
-All API endpoints run at `http://localhost:5000/api/`
-
-### Auth
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/auth/register` | Create account |
-| POST | `/auth/login` | Login → returns JWT token |
-| GET | `/auth/me` | Get current user (requires token) |
-| PUT | `/auth/profile` | Update profile |
-
-### Projects
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/projects` | List your projects |
-| POST | `/projects` | Create a project |
-| GET | `/projects/:id` | Get a project with blocks |
-| PUT | `/projects/:id` | Update a project |
-| DELETE | `/projects/:id` | Delete a project |
-| POST | `/projects/:id/blocks` | Add a block |
-| PUT | `/projects/:id/blocks/:blockId` | Update a block |
-| DELETE | `/projects/:id/blocks/:blockId` | Delete a block |
-
-### Public Portfolio (no login needed)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/portfolio/:username` | Full public portfolio |
-| GET | `/portfolio/:username/:slug` | Single published project |
-
-### Integrations
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/integrations/spec` | API documentation (share with platforms) |
-| GET | `/integrations/embed/:username` | Embeddable HTML card |
-| GET | `/integrations/outreach/template/:platform` | Pre-written email |
-| POST | `/integrations/outreach` | Send outreach email |
-
-### Export
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/export/pdf/:username` | Download portfolio as PDF/HTML |
-| GET | `/export/portfolio/zip` | Download all data as JSON |
-| GET | `/export/project/:id/json` | Download single project as JSON |
-
----
-
-## Next steps (after you have it working)
-
-1. **Add your real projects** — document 2–3 of your best engineering projects
-2. **Get a custom domain** — buy a domain like `janesmith.dev` for ~$12/year on Namecheap, then point it to your Vercel deployment
-3. **Send the outreach emails** — go to Integrations → Platform Outreach and send emails to Zintellect and any other platforms you use
-4. **Add your portfolio to your resume** — right next to your email address
-5. **Share in applications** — paste your portfolio URL into the personal statement, website field, or additional materials section of every application
-
----
-
-*Built with Node.js · Express · PostgreSQL · React · Vite · Tailwind CSS · TipTap · Cloudinary*
+For hosting, use the [deployment entry point](../DEPLOYMENT.md). Hosting prices and free-tier availability are not assumed by this guide.

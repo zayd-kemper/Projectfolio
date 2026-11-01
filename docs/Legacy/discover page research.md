@@ -1,14 +1,14 @@
 # ProjectFolio Discover deep research and implementation plan
 
-[Download this plan as Markdown](sandbox:/mnt/data/projectfolio_discover_research_plan.md)
+**Status: historical design proposal.** External comparisons require source verification before reuse; the original conversation-only citation markers have been removed. See the [archive notes](README.md).
 
 ## Executive summary
 
 Your current Discover feature is a solid baseline: users can create a post, attach one of their published projects, like posts, leave flat comments, follow makers, browse a recent or trending feed, and search across posts and portfolios. The backend already has good foundations such as cursor pagination, full-text search, stat tables, rate limits, and a reusable media pipeline; the frontend already ships with packages that can support a richer composer, uploads, and better data fetching. That means the problem is not that Discover is missing *everything*. The real problem is that it currently behaves like a minimal feed prototype instead of a project-centric professional discussion layer. Code references: `Frontend/Discoverpage.jsx:205-317, 372-730`; `Backend/discover.js:48-95, 203-539`; `Backend/media.js:36-107`; `Frontend/package.json`; `Backend/package.json`.
 
-The best comparable products do not win with “more posts.” They win by giving the feed a **clear job**. LinkedIn’s feed is personalized around professional interests and activity, supports multiple post formats, lets users follow recommended sources, save posts, sort by relevance or recency, control who can comment, and view detailed post analytics. citeturn3view5turn10view0turn10view1turn10view2turn10view3turn4search3 Peerlist’s Scroll is explicitly a **context feed**, where every post has a context such as `#show`, `#ask`, `#hiring`, or `#open_for`, and Peerlist Launchpad turns project sharing into a structured launch flow with required fields, visibility, and feedback loops. citeturn6view0turn6view2turn3view3turn3view4 Product Hunt succeeds because a launch is a structured object, not just a text post: makers submit a URL, name, tagline, assets, and first comment, and comments are treated as a core feedback channel rather than a side action. citeturn3view0turn3view1turn11search3turn11search7 GitHub Discussions succeeds because it separates conversation types with categories, Q&A, polls, threaded replies, upvotes, accepted answers, and moderation tools. citeturn8view0turn8view1turn8view2
+The best comparable products do not win with “more posts.” They win by giving the feed a **clear job**. LinkedIn’s feed is personalized around professional interests and activity, supports multiple post formats, lets users follow recommended sources, save posts, sort by relevance or recency, control who can comment, and view detailed post analytics.  Peerlist’s Scroll is explicitly a **context feed**, where every post has a context such as `#show`, `#ask`, `#hiring`, or `#open_for`, and Peerlist Launchpad turns project sharing into a structured launch flow with required fields, visibility, and feedback loops.  Product Hunt succeeds because a launch is a structured object, not just a text post: makers submit a URL, name, tagline, assets, and first comment, and comments are treated as a core feedback channel rather than a side action.  GitHub Discussions succeeds because it separates conversation types with categories, Q&A, polls, threaded replies, upvotes, accepted answers, and moderation tools. 
 
-For ProjectFolio, the right direction is not to become “LinkedIn for projects.” It is to become the best place to **share project progress, ask for feedback, launch work, and hold useful asynchronous project discussions**. That implies three strategic changes. First, Discover needs **structured post types and stronger project objects**, not just title/body posts. Second, it needs **better ranking, discovery, and conversation tools** so useful discussions surface quickly. Third, it needs **trust, moderation, analytics, and creator feedback loops** so the feed stays high-signal and worth returning to. This direction aligns with Peerlist’s context-first design, Product Hunt’s launch structure, GitHub Discussions’ conversation patterns, and LinkedIn’s personalization and creator tooling. citeturn6view0turn6view2turn11search3turn8view0turn3view5turn10view1
+For ProjectFolio, the right direction is not to become “LinkedIn for projects.” It is to become the best place to **share project progress, ask for feedback, launch work, and hold useful asynchronous project discussions**. That implies three strategic changes. First, Discover needs **structured post types and stronger project objects**, not just title/body posts. Second, it needs **better ranking, discovery, and conversation tools** so useful discussions surface quickly. Third, it needs **trust, moderation, analytics, and creator feedback loops** so the feed stays high-signal and worth returning to. This direction aligns with Peerlist’s context-first design, Product Hunt’s launch structure, GitHub Discussions’ conversation patterns, and LinkedIn’s personalization and creator tooling. 
 
 ## What the current Discover feature already does
 
@@ -24,7 +24,7 @@ The biggest product gap is that a post is currently too generic. The create-post
 
 The second gap is that the conversation model is too shallow for project discussion. Post cards only expose like and comment actions. Comments are flat, not threaded, limited to 100 recent rows, and cannot be upvoted, sorted, or marked as useful or resolved. There is no “accepted answer” mechanic for questions, no polls, no quote-reply, and no way for a project owner to turn a conversation into structured feedback. Code references: `Frontend/Discoverpage.jsx:182-200`; `Backend/discover.js:253-320`. In practice, this makes Discover better for lightweight reactions than for the kind of targeted feedback loops that project builders actually need.
 
-The third gap is ranking and discovery quality. The feed currently supports `recent`, `trending`, and `liked`, but the ranking logic is minimal: `recent` is reverse chronology, `liked` is total likes, and `trending` depends on a simple score stored in `post_stats`. There is no personalization based on skills, follows, interests, mutuals, post quality, dwell, project relevance, or negative feedback. Code references: `Backend/discover.js:50-59, 77-83`; `Frontend/Discoverpage.jsx:479-483`. LinkedIn explicitly describes a feed that uses profile signals, interests, and engagement over time to personalize relevance, and also gives users a switch between top/relevant and recent. citeturn3view5turn10view3 Peerlist similarly uses mandatory post contexts so the feed can be sorted by what kind of content a user wants to see. citeturn6view0 Right now, ProjectFolio has only the shell of a feed, not a truly useful discovery system.
+The third gap is ranking and discovery quality. The feed currently supports `recent`, `trending`, and `liked`, but the ranking logic is minimal: `recent` is reverse chronology, `liked` is total likes, and `trending` depends on a simple score stored in `post_stats`. There is no personalization based on skills, follows, interests, mutuals, post quality, dwell, project relevance, or negative feedback. Code references: `Backend/discover.js:50-59, 77-83`; `Frontend/Discoverpage.jsx:479-483`. LinkedIn explicitly describes a feed that uses profile signals, interests, and engagement over time to personalize relevance, and also gives users a switch between top/relevant and recent.  Peerlist similarly uses mandatory post contexts so the feed can be sorted by what kind of content a user wants to see.  Right now, ProjectFolio has only the shell of a feed, not a truly useful discovery system.
 
 There are also a few correctness issues in the current code that will directly hurt user trust if left unfixed:
 
@@ -40,15 +40,15 @@ Finally, the UI is visually clean but still too monolithic and feed-heavy in the
 
 ## What strong benchmarks do differently
 
-LinkedIn’s feed works because it layers creation, ranking, control, and analytics together. LinkedIn supports multiple content types such as text posts, photos, videos, documents, articles, events, and polls, and gives creators post analytics including discovery, in-network versus out-of-network reach, social engagement, link engagement, and viewer demographics. citeturn4search2turn10view1 It also supports following recommended sources, saving content, controlling who can comment, sorting comments by relevance versus recency, and @mentions that generate notifications. citeturn10view0turn4search3turn10view2turn4search0turn4search1turn4search12 Most importantly, LinkedIn’s feed is explicitly personalized around interests, activity, and professional relevance, and LinkedIn says it is reducing engagement bait and automated comments while improving relevance for new members through an interest picker. citeturn3view5turn10view3 The lesson for ProjectFolio is not “copy all LinkedIn formats.” The lesson is that feed usefulness comes from strong controls and relevance, not just posting.
+LinkedIn’s feed works because it layers creation, ranking, control, and analytics together. LinkedIn supports multiple content types such as text posts, photos, videos, documents, articles, events, and polls, and gives creators post analytics including discovery, in-network versus out-of-network reach, social engagement, link engagement, and viewer demographics.  It also supports following recommended sources, saving content, controlling who can comment, sorting comments by relevance versus recency, and @mentions that generate notifications.  Most importantly, LinkedIn’s feed is explicitly personalized around interests, activity, and professional relevance, and LinkedIn says it is reducing engagement bait and automated comments while improving relevance for new members through an interest picker.  The lesson for ProjectFolio is not “copy all LinkedIn formats.” The lesson is that feed usefulness comes from strong controls and relevance, not just posting.
 
-Peerlist is the strongest direct inspiration for ProjectFolio because it is builder-first rather than generalist. Peerlist Scroll is a “context feed” with mandatory contexts such as `#show`, `#ask`, `#book`, `#hiring`, `#open_for`, and `#event`, specifically so the feed can be sorted and so posts remain high-signal. citeturn6view0 Peerlist Launchpad is a structured launch surface: projects need a name, tagline, URL, images, tags, description, and category, and Launchpad is positioned as a way to get feedback, exposure, and early users. citeturn3view4turn6view2turn3view3 Peerlist also supports third-party embeds in profiles, pages, and posts, which is directly relevant for code repos, demos, videos, and design previews. citeturn9view0 The key lesson is that builder communities benefit when posting is constrained by context and supported with rich objects.
+Peerlist is the strongest direct inspiration for ProjectFolio because it is builder-first rather than generalist. Peerlist Scroll is a “context feed” with mandatory contexts such as `#show`, `#ask`, `#book`, `#hiring`, `#open_for`, and `#event`, specifically so the feed can be sorted and so posts remain high-signal.  Peerlist Launchpad is a structured launch surface: projects need a name, tagline, URL, images, tags, description, and category, and Launchpad is positioned as a way to get feedback, exposure, and early users.  Peerlist also supports third-party embeds in profiles, pages, and posts, which is directly relevant for code repos, demos, videos, and design previews.  The key lesson is that builder communities benefit when posting is constrained by context and supported with rich objects.
 
-Product Hunt is a useful benchmark for launch moments and maker-to-community feedback loops. Product Hunt’s launch guide treats a product as a structured entity with URL, name, tagline, and supporting assets, and the homepage foregrounds ranking, category labels, vote counts, and discussion counts. citeturn3view0turn3view1 Product Hunt also emphasizes that comments are a core feedback channel, not a nice-to-have; its launch guide says the visible maker “first comment” matters a lot, and reports that 70% of products that achieved Product of the Day, Week, or Month included a first comment by the maker. citeturn11search3turn11search7 For ProjectFolio, that suggests a dedicated “launch update” post type with a maker note, clear CTA buttons, and comment prompts.
+Product Hunt is a useful benchmark for launch moments and maker-to-community feedback loops. Product Hunt’s launch guide treats a product as a structured entity with URL, name, tagline, and supporting assets, and the homepage foregrounds ranking, category labels, vote counts, and discussion counts.  Product Hunt also emphasizes that comments are a core feedback channel, not a nice-to-have; its launch guide says the visible maker “first comment” matters a lot, and reports that 70% of products that achieved Product of the Day, Week, or Month included a first comment by the maker.  For ProjectFolio, that suggests a dedicated “launch update” post type with a maker note, clear CTA buttons, and comment prompts.
 
-GitHub Discussions is the best benchmark for the *discussion* side of your vision. GitHub Discussions supports categories with explicit formats such as open-ended discussion, announcement, question-and-answer, and polls; it also supports threaded replies, reactions, upvotes, accepted answers, and moderation actions such as locking discussions or deleting disruptive content. citeturn8view0turn8view1turn8view2 This is especially relevant because ProjectFolio is centered on projects. Builders often need a place to ask a specific question, collect feedback, and later mark the best answer or summarize the outcome. A flat comment list is not enough for that use case.
+GitHub Discussions is the best benchmark for the *discussion* side of your vision. GitHub Discussions supports categories with explicit formats such as open-ended discussion, announcement, question-and-answer, and polls; it also supports threaded replies, reactions, upvotes, accepted answers, and moderation actions such as locking discussions or deleting disruptive content.  This is especially relevant because ProjectFolio is centered on projects. Builders often need a place to ask a specific question, collect feedback, and later mark the best answer or summarize the outcome. A flat comment list is not enough for that use case.
 
-Wellfound is less useful as a feed benchmark and more useful as a discoverability benchmark. Official Wellfound materials focus on public profiles, recruiter discovery, featured profile exposure, and employer branding. citeturn7search1turn7search2turn7search18 My inference is that ProjectFolio should treat Wellfound as proof that professional users value **presented credibility and talent discoverability**, while relying on LinkedIn, Peerlist, Product Hunt, and GitHub Discussions for the actual feed and discussion mechanics. citeturn7search1turn7search2turn7search18
+Wellfound is less useful as a feed benchmark and more useful as a discoverability benchmark. Official Wellfound materials focus on public profiles, recruiter discovery, featured profile exposure, and employer branding.  My inference is that ProjectFolio should treat Wellfound as proof that professional users value **presented credibility and talent discoverability**, while relying on LinkedIn, Peerlist, Product Hunt, and GitHub Discussions for the actual feed and discussion mechanics. 
 
 ## Product direction for ProjectFolio Discover
 
@@ -61,9 +61,9 @@ ProjectFolio Discover should become a **project-sharing and discussion layer**, 
 - **Resource** for sharing an article, repo, technique, or inspiration relevant to building.
 - **Open to collaborate** for teammates, testers, mentors, or advisors.
 
-That direction is strongly supported by Peerlist’s mandatory context model, Product Hunt’s structured launches, and GitHub Discussions’ category-specific formats. citeturn6view0turn3view4turn8view0
+That direction is strongly supported by Peerlist’s mandatory context model, Product Hunt’s structured launches, and GitHub Discussions’ category-specific formats. 
 
-The design principle should be: **every post should either move a project forward or help someone else move theirs forward**. That sounds simple, but it is the core product filter that will stop Discover from turning into a low-signal general social area. It also matches LinkedIn’s stated effort to reduce generic content and engagement bait while improving relevance and authenticity. citeturn3view5
+The design principle should be: **every post should either move a project forward or help someone else move theirs forward**. That sounds simple, but it is the core product filter that will stop Discover from turning into a low-signal general social area. It also matches LinkedIn’s stated effort to reduce generic content and engagement bait while improving relevance and authenticity. 
 
 A second design principle is that Discover should feel like a **secondary but high-utility layer**. That means the main ProjectFolio value still lives in portfolios and projects, while Discover becomes the place to:
 1. notice relevant builders and work,
@@ -72,7 +72,7 @@ A second design principle is that Discover should feel like a **secondary but hi
 4. generate feedback loops,
 5. convert attention into profile visits, follows, saves, or project opens.
 
-This also aligns with Wellfound’s discoverability focus and LinkedIn’s analytics and follow systems. citeturn7search1turn7search2turn10view0turn10view1
+This also aligns with Wellfound’s discoverability focus and LinkedIn’s analytics and follow systems. 
 
 ## Step-by-step implementation plan
 
@@ -135,7 +135,7 @@ For each type, the composer should change prompts and required fields:
 - **Resource** → URL required, optional note, preview card
 - **Open to collaborate** → specify role needed, timeline, stage, skills sought
 
-This is where Peerlist’s mandatory context system is most instructive, and Product Hunt’s launch checklists help justify stronger structure around launch-style posts. citeturn6view0turn3view4turn3view0
+This is where Peerlist’s mandatory context system is most instructive, and Product Hunt’s launch checklists help justify stronger structure around launch-style posts. 
 
 Technically, you can implement this without a major frontend dependency change because the app already includes Tiptap and Dropzone and the backend already has Cloudinary upload flows. Code references: `Frontend/package.json`; `Backend/media.js:36-107`.
 
@@ -177,7 +177,7 @@ CREATE TABLE post_mentions (
 );
 ```
 
-Also add a preview-generation job for external URLs so posts can render GitHub repo cards, live-demo cards, YouTube previews, or blog previews. Peerlist explicitly supports third-party embeds across posts and pages, which is a good project-sharing benchmark here. citeturn9view0
+Also add a preview-generation job for external URLs so posts can render GitHub repo cards, live-demo cards, YouTube previews, or blog previews. Peerlist explicitly supports third-party embeds across posts and pages, which is a good project-sharing benchmark here. 
 
 **Step 3: Upgrade the post card into a project object, not a plain text card**
 
@@ -222,7 +222,7 @@ Action row should expand from like/comment to:
 - follow author,
 - overflow menu for hide, mute, report, copy link, turn off comments if owner.
 
-LinkedIn’s save controls, comment controls, and post analytics demonstrate the utility of creator and viewer controls; GitHub Discussions demonstrates the power of answer states and upvotes; Product Hunt demonstrates the importance of launch context and visible discussion. citeturn4search3turn10view2turn10view1turn8view1turn11search3
+LinkedIn’s save controls, comment controls, and post analytics demonstrate the utility of creator and viewer controls; GitHub Discussions demonstrates the power of answer states and upvotes; Product Hunt demonstrates the importance of launch context and visible discussion. 
 
 **Step 4: Rebuild comments into a real discussion system**
 
@@ -238,7 +238,7 @@ Upgrade comments to support:
 - comment collapse for long threads,
 - moderation actions on each comment.
 
-GitHub Discussions is the cleanest model for this: threaded replies, reactions, upvotes, accepted answers, and category-specific behaviors. citeturn8view1turn8view2 LinkedIn also shows that comment sorting and mentions are table stakes on modern professional feeds. citeturn4search0turn4search1
+GitHub Discussions is the cleanest model for this: threaded replies, reactions, upvotes, accepted answers, and category-specific behaviors.  LinkedIn also shows that comment sorting and mentions are table stakes on modern professional feeds. 
 
 Recommended schema additions:
 
@@ -298,7 +298,7 @@ Recommended initial scoring formula for `for_you`:
 - negative feedback penalty for hides/reports/skips,
 - diversity penalty to avoid too many posts from one author consecutively.
 
-For the first version, you do **not** need ML. A deterministic ranker with event features is enough. LinkedIn’s official guidance makes clear that feed usefulness comes from interest-based relevance, not only absolute popularity, and Peerlist’s context model reinforces that users want to sort by content intent. citeturn3view5turn10view3turn6view0
+For the first version, you do **not** need ML. A deterministic ranker with event features is enough. LinkedIn’s official guidance makes clear that feed usefulness comes from interest-based relevance, not only absolute popularity, and Peerlist’s context model reinforces that users want to sort by content intent. 
 
 A practical first scoring formula could look like this:
 
@@ -319,7 +319,7 @@ Where:
 - `project_quality` = cover image, tagline, links present, project completeness
 - `discussion_quality` = depth of comments, helpful votes, accepted answer, low abuse score
 
-Also add a cold-start interest picker on first Discover visit. LinkedIn explicitly says it is testing an interest picker for new members so they can see relevant content immediately. citeturn3view5 For ProjectFolio, interests can be driven by:
+Also add a cold-start interest picker on first Discover visit. LinkedIn explicitly says it is testing an interest picker for new members so they can see relevant content immediately.  For ProjectFolio, interests can be driven by:
 - project categories,
 - technologies,
 - open-source / research / design / robotics / data science,
@@ -342,7 +342,7 @@ Right rail ideas:
 - Trending tags/contexts
 - Recently updated projects from followed makers
 
-This is where LinkedIn’s feed preferences and recommended follows, Peerlist’s context organization, and Product Hunt’s launch surfaces are especially instructive. citeturn10view0turn6view0turn3view1
+This is where LinkedIn’s feed preferences and recommended follows, Peerlist’s context organization, and Product Hunt’s launch surfaces are especially instructive. 
 
 Also add:
 - better empty states,
@@ -362,11 +362,11 @@ The visual language should move a little away from “cute feed” and closer to
 - reserve accent colors for CTAs, selected filters, accepted answers, and launch badges,
 - add “quality” cues such as verified profile, mutual follow, project completeness, and recent update badges.
 
-Peerlist’s “show and tell” positioning, Product Hunt’s structured launch cards, and Wellfound’s brand-forward profile presentation all point in the same direction: strong reputation surfaces and strong objects make professional feeds feel more credible. citeturn6view3turn3view1turn7search18
+Peerlist’s “show and tell” positioning, Product Hunt’s structured launch cards, and Wellfound’s brand-forward profile presentation all point in the same direction: strong reputation surfaces and strong objects make professional feeds feel more credible. 
 
 **Step 7: Build trust, moderation, and anti-gaming controls early**
 
-As the feed improves, abuse and low-signal content will rise. LinkedIn publicly says it is acting against automated comments, inauthentic engagement, recycled content, and engagement bait. citeturn3view5 Peerlist’s guidelines explicitly discourage asking for upvotes and emphasize authentic engagement, accurate project info, and respectful behavior. citeturn3view3 GitHub Discussions provides clear moderation and locking tools. citeturn8view2
+As the feed improves, abuse and low-signal content will rise. LinkedIn publicly says it is acting against automated comments, inauthentic engagement, recycled content, and engagement bait.  Peerlist’s guidelines explicitly discourage asking for upvotes and emphasize authentic engagement, accurate project info, and respectful behavior.  GitHub Discussions provides clear moderation and locking tools. 
 
 ProjectFolio should add:
 - report post/comment,
@@ -402,7 +402,7 @@ Add a post analytics page with:
 - bookmark rate,
 - conversion to project open.
 
-LinkedIn already treats per-post analytics as a core creator tool and surfaces discovery and audience breakdowns. citeturn10view1 Product Hunt also implicitly treats discussion response as a post-launch workflow. citeturn11search2turn11search19 For ProjectFolio, this feature has two benefits: it teaches creators what useful posts look like, and it gives you first-party signals for ranking.
+LinkedIn already treats per-post analytics as a core creator tool and surfaces discovery and audience breakdowns.  Product Hunt also implicitly treats discussion response as a post-launch workflow.  For ProjectFolio, this feature has two benefits: it teaches creators what useful posts look like, and it gives you first-party signals for ranking.
 
 ## Success metrics and rollout gates
 
@@ -495,4 +495,4 @@ If you only do three things in the next cycle, do these:
 
 Those three changes will move Discover from “basic social feed” to “useful project discussion layer” faster than any visual redesign alone.
 
-After that, invest in ranking and creator analytics. The winning shape for ProjectFolio is not a big-content machine. It is a small, high-signal professional layer where builders share work, get feedback, and discover serious peers. That strategy is much closer to the strongest parts of Peerlist, Product Hunt, GitHub Discussions, and LinkedIn than the current plain-post implementation. citeturn6view0turn6view2turn11search3turn8view0turn3view5
+After that, invest in ranking and creator analytics. The winning shape for ProjectFolio is not a big-content machine. It is a small, high-signal professional layer where builders share work, get feedback, and discover serious peers. That strategy is much closer to the strongest parts of Peerlist, Product Hunt, GitHub Discussions, and LinkedIn than the current plain-post implementation.
