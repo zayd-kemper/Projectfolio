@@ -41,3 +41,10 @@ backend/node_modules
 # Ignore local Claude development data and worktrees
 .claude/
 .mcp.json
+
+# Local development artifacts
+.claude/worktrees/
+.claude/settings.local.json
+.impeccable/live/
+backend/.impeccable/hook.cache.json
+frontend/.claude/tdd-guard/data/
