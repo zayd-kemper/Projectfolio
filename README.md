@@ -93,6 +93,10 @@ Browser and live-service checks have additional prerequisites; see [verification
 - [Historical plans](docs/superpowers/README.md)
 - [Historical research and reviews](docs/Legacy/README.md)
 
-## Reviewer walkthrough
 
-A screenshot set or recorded walkthrough has not yet been added. For a local review, create an account, add a project, publish it, and inspect the public page. Only enable optional AI and media features after configuring the matching providers.
+## Reviewer walkthrough
+- [Feature Walkthrough](docs/FEATURE_WALKTHROUGH.md)
+
+Alternatively the application can be run locally, users can create an account and test functionalities.
+
+
